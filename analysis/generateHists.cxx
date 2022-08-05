@@ -54,6 +54,11 @@ int main(int argc, char **argv)
 	const float Sigma[3][4] = { { 0.0035, 0.0035, 0.0035, 0.0035 }, { 0.0035, 0.0035, 0.0035, 0.0035 }, { 0.0035, 0.0035, 0.0035, 0.0035 } };
 	const int NMassSigma = std::stoi(config.mSetList["NSigmaMass"]);
 	const bool MuteWarning = true;	//used for debug
+
+	float beamRapidity;
+	if(config.mSetList["Energy"] == "3.0") beamRapidity = 1.045;
+	else if(config.mSetList["Energy"] == "3.2") beamRapidity = 1.135;
+	else if(config.mSetList["Energy"] == "3.5") beamRapidity = 1.24;
 	//}}}
 
 	//Save cut info{{{
@@ -208,14 +213,14 @@ int main(int argc, char **argv)
 			//pre select
 			std::vector<int> idxK;
 			for(int icurK = 0; icurK < nK; ++icurK) {
-				MyTree::Particle curKTmp = myTree->getParticle(icurK);
+				MyTree::Particle curKTmp = myTree->getParticle(icurK, beamRapidity);
 				if(!passAllCuts(curKTmp, config)) continue;
 				idxK.push_back(icurK);
 			}
 			int nPassCutK = idxK.size();
 			for(int iK1 = 0; iK1 < nPassCutK; ++iK1) {
 				int icurK = idxK[iK1];
-				MyTree::Particle curK = myTree->getParticle(icurK);
+				MyTree::Particle curK = myTree->getParticle(icurK, beamRapidity);
 				TVector3 p(curK.px, curK.py, curK.pz);
 				TVector3 pos(curK.bx, curK.by, curK.bz);
 				TVector3 vectPmPos = pos - p;
@@ -290,7 +295,7 @@ int main(int argc, char **argv)
 				//same pair{{{
 				for(int iK2 = iK1 + 1; iK2 < nPassCutK; ++iK2) {
 					int icurK2 = idxK[iK2];
-					MyTree::Particle curK2 = myTree->getParticle(icurK2);
+					MyTree::Particle curK2 = myTree->getParticle(icurK2, beamRapidity);
 					TVector3 p(curK2.px, curK2.py, curK2.pz);
 					TVector3 pos(curK2.bx, curK2.by, curK2.bz);
 					TVector3 vectPmPos = pos - p;
@@ -357,7 +362,7 @@ int main(int argc, char **argv)
 				for(int imixevt = 0; imixevt < myTree->mMaxMixEvent[(int)cent9] + 1; ++imixevt) {
 					unsigned int nK = myTree->mMixBuffer[(int)cent9][imixevt].mBufferNTrack;
 					for(int imixK = 0; imixK < nK; ++imixK) {
-						MyTree::Particle mixK = myTree->getMixParticle((int)cent9, imixevt, imixK);
+						MyTree::Particle mixK = myTree->getMixParticle((int)cent9, imixevt, imixK, beamRapidity);
 						int momBinA = getMomBin(mixK.pA, p_low, p_high, nPBins);
 						int momBinB = getMomBin(mixK.pB, p_low, p_high, nPBins);
 						float purity2 = 1;

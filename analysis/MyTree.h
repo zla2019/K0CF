@@ -106,8 +106,8 @@ public:
 		float nHitsDedxA;
 		float nHitsDedxB;
 	};
-        Particle getParticle(int iparticle);
-        Particle getMixParticle(int cent, int ievt, int iparticle);
+        Particle getParticle(int iparticle, float beamRapidity);
+        Particle getMixParticle(int cent, int ievt, int iparticle, float beamRapidity);
 
 	struct MixBuffer {
 		unsigned int mBufferNTrack;

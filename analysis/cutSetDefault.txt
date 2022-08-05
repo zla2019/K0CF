@@ -26,4 +26,3 @@ THS: Mass2Pim 0 0
 THS: NHitsDedx 0 0
 SET: PurityPath cutSetDefault/Purity.root
 SET: NSigmaMass 2
-SET: Energy 3.5

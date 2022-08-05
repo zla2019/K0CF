@@ -221,21 +221,21 @@ void MyTree::copyToBuffer(std::vector<int>& idx)
 	}
 }
 
-MyTree::Particle MyTree::getParticle(int iparticle)
+MyTree::Particle MyTree::getParticle(int iparticle, float beamRapidity)
 {
 	Particle particle;
 	particle.pdg = mBufferPDG[iparticle];
 	particle.pt = mBufferPt[iparticle];
 	particle.phi = mBufferPhi[iparticle];
 	particle.eta = mBufferEta[iparticle];
-	particle.rap = -(mBufferRap[iparticle] + 1.24);
+	particle.rap = -(mBufferRap[iparticle] + beamRapidity);
 	particle.mass = mBufferMass[iparticle];
 	particle.chi2Topo = mBufferChi2Topo[iparticle];
 	particle.chi2NDF = mBufferChi2NDF[iparticle];
 	particle.chi2PrimPip = mBufferChi2PrimPip[iparticle];
 	particle.chi2PrimPim = mBufferChi2PrimPim[iparticle];
-	particle.rapPip = -(mBufferRapPip[iparticle] + 1.24);
-	particle.rapPim = -(mBufferRapPim[iparticle] + 1.24);
+	particle.rapPip = -(mBufferRapPip[iparticle] + beamRapidity);
+	particle.rapPim = -(mBufferRapPim[iparticle] + beamRapidity);
 	particle.ptPip = mBufferPtPip[iparticle];
 	particle.ptPim = mBufferPtPim[iparticle] / 1000.;
 	particle.bx = mBufferBx[iparticle];
@@ -272,12 +272,12 @@ MyTree::Particle MyTree::getParticle(int iparticle)
 	return particle;
 }
 
-MyTree::Particle MyTree::getMixParticle(int cent, int ievt, int iparticle)
+MyTree::Particle MyTree::getMixParticle(int cent, int ievt, int iparticle, float beamRapidity)
 {
 	MyTree::Particle particle = mMixBuffer[cent][ievt].particle[iparticle];
-	particle.rap = -(particle.rap + 1.24);
-	particle.rapPip = -(particle.rapPip + 1.24);
-	particle.rapPim = -(particle.rapPim + 1.24);
+	particle.rap = -(particle.rap + beamRapidity);
+	particle.rapPip = -(particle.rapPip + beamRapidity);
+	particle.rapPim = -(particle.rapPim + beamRapidity);
 	particle.ptPim /= 1000.;
 	particle.etaB /= 1000.;
 
