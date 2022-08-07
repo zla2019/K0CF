@@ -12,32 +12,32 @@ void 			dividePt(TGraphErrors* gr);
 TH1F* 			gr2h(TGraphErrors* gr);
 TGraphErrors* 		h2gr(TH1F* h);
 TH1F* 			f2h(TF1* f, float binWidth, float lower, float upper);
-TH1F* 			cutHist(float lowerEdge, float upperEdge, TH1F* h);
-TH1F* 			cutHist2(float lowerEdge, float upperEdge, TH1F* h);
-double 			combineIntegral(TH1F* h, TF1* f, float& err, float lower, float upper);
+TH1F* 			cutHist(float lowerEdge = 0, float upperEdge = 1., TH1F* h = NULL);
+TH1F* 			cutHist2(float lowerEdge = 0, float upperEdge = 1., TH1F* h = NULL);
+double 			combineIntegral(TH1F* h, TF1* f, float& err, float lower = 0, float upper = 1);
 TObject* 		getCopy(TFile* input, const char* name);
-TH1F* 			projectionZ(TH3F* _3h, float lowerX, float upperX, float lowerY, float upperY, const char* name);
-TH1F* 			projectionX(TH3F* _3h, float lowerY, float upperY, float lowerZ, float upperZ, const char* name);
-TH1F* 			projectionY(TH3F* _3h, float lowerX, float upperX, float lowerZ, float upperZ, const char* name);
-TH1F* 			projectionX(TH2F* _2h, float lowerY, float upperY, const char* name);
-TH1F* 			projectionY(TH2F* _2h, float lowerX, float upperX, const char* name);
-TH1F*			extractSig(TH1F* tot, TH1F* bg, float normalLower, float normalUpper, const char* opt);
+TH1F* 			projectionZ(TH3F* _3h, float lowerX, float upperX, float lowerY, float upperY, const char* name = "");
+TH1F* 			projectionX(TH3F* _3h, float lowerY, float upperY, float lowerZ, float upperZ, const char* name = "");
+TH1F* 			projectionY(TH3F* _3h, float lowerX, float upperX, float lowerZ, float upperZ, const char* name = "");
+TH1F* 			projectionX(TH2F* _2h, float lowerY, float upperY, const char* name = "");
+TH1F* 			projectionY(TH2F* _2h, float lowerX, float upperX, const char* name = "");
+TH1F*			extractSig(TH1F* tot, TH1F* bg, float normalLower, float normalUpper, const char* opt = "my");
 			//extract signal by tot - bg inv mass plot
 TH1F*			extractResidual(TH1F* sig, TF1* fitFunc, TF1* residualBg, int n, float lower, float upper);	//subtract by tf1 value  in each bin center
 TH1F*			extractResidual2(TH1F* sig, TF1* fitFunc, TF1* residualBg, int n, float lower, float upper);	//subtract by integral tf1 in each bins range
-void			setStyle(TH1F* h, int markerStyle, float markerSize, Color_t markerColor, int lineWidth, Color_t lineColor);
-void			setStyle(TGraphErrors* gr, int markerStyle, float markerSize, Color_t markerColor, int lineWidth, Color_t lineColor);
-void			drawText(float x, float y, float size, const char* txt1, const char* txt2, const char* txt3, const char* txt4, const char* txt5);
-void			drawText(float x, float y, float size, Color_t color, const char* txt1, const char* txt2, const char* txt3, const char* txt4, const char* txt5);
-void			drawXBaseLine(double xpoint, TPad* pad, Color_t color, int lineStyle, short lineWidth);	//developing
-void			drawYBaseLine(double ypoint, TPad* pad, Color_t color, int lineStyle, short lineWidth);	//developing
+void			setStyle(TH1F* h, int markerStyle, float markerSize, Color_t markerColor, int lineWidth = 1, Color_t lineColor = kBlack);
+void			setStyle(TGraphErrors* gr, int markerStyle, float markerSize, Color_t markerColor, int lineWidth = 1, Color_t lineColor = kBlack);
+void			drawText(float x, float y, float size, const char* txt1, const char* txt2 = NULL, const char* txt3 = NULL, const char* txt4 = NULL, const char* txt5 = NULL);
+void			drawText(float x, float y, float size, Color_t color, const char* txt1, const char* txt2 = NULL, const char* txt3 = NULL, const char* txt4 = NULL, const char* txt5 = NULL);
+void			drawXBaseLine(double xpoint, TPad* pad, Color_t color = kBlack, int lineStyle = 1, short lineWidth = 1);	//developing
+void			drawYBaseLine(double ypoint, TPad* pad, Color_t color = kBlack, int lineStyle = 1, short lineWidth = 1);	//developing
 void                    drawXRegion(double xpoint1, double xpoint2, TPad* pad, Color_t color = kRed, int lineStyle = 2, short lineWidth = 2);
 void                    drawYRegion(double ypoint1, double ypoint2, TPad* pad, Color_t color = kRed, int lineStyle = 2, short lineWidth = 2);
-float			getIntegral(TH1* h, float lower, float upper, const char* opt);
-float			getIntegral(TH1* h, float lower, float upper, double& err, const char* opt);
+float			getIntegral(TH1* h, float lower, float upper, const char* opt = "");
+float			getIntegral(TH1* h, float lower, float upper, double& err, const char* opt = "");
 void			setXYTitle(TH1* h, const char* xtitle, const char* ytitle);
 void			removeNegtive(TH1F* h);
-void			drawBox(float x1, float y1, float x2, float y2, int lineWidth, int lineStyle, Color_t lineColor);
+void			drawBox(float x1, float y1, float x2, float y2, int lineWidth = 2, int lineStyle = 2, Color_t lineColor = kRed);
 TH1F*			foldHist(TH1F* h, float centralLine = 0);
 void			addHist(TH1F*& h1, TH1F* h2, const char* name, float scale = 1, float baseline = 0);
 void			addHist(TH1F*& h1, TH1F* h2, const char* name, TH1F* hScale, float baseline = 0);
@@ -60,7 +60,7 @@ void scaleX(TH1F*& h1, float scale)
 		h2->SetBinError(ibin + 1, h1->GetBinError(ibin + 1));
 	}
 	delete h1;
-	h1 = nullptr;
+	h1 = NULL;
 	h1 = h2;
 }
 
@@ -208,7 +208,7 @@ TH1F* foldHist(TH1F* h, float centralLine) {
 	return h2;
 }
 
-void drawBox(float x1, float y1, float x2, float y2, int lineWidth = 2, int lineStyle = 2, Color_t lineColor = kRed)
+void drawBox(float x1, float y1, float x2, float y2, int lineWidth, int lineStyle, Color_t lineColor)
 {
 	TLine* line[4];
 	line[0] = new TLine(x1, y1, x1, y2);
@@ -239,24 +239,24 @@ void setXYTitle(TH1* h, const char* xtitle, const char* ytitle)
 	h->GetYaxis()->SetTitle(ytitle);
 }
 
-float getIntegral(TH1* h, float lower, float upper, double& err, const char* opt = "")
+float getIntegral(TH1* h, float lower, float upper, double& err, const char* opt)
 {
 	int lowerBin = h->GetXaxis()->FindBin(lower + 0.000001);
 	int upperBin = h->GetXaxis()->FindBin(upper - 0.000001);
 	return h->IntegralAndError(lowerBin, upperBin, err, opt);
 }
 
-float getIntegral(TH1* h, float lower, float upper, const char* opt = "")
+float getIntegral(TH1* h, float lower, float upper, const char* opt)
 {
 	int lowerBin = h->GetXaxis()->FindBin(lower + 0.000001);
 	int upperBin = h->GetXaxis()->FindBin(upper - 0.000001);
 	return h->Integral(lowerBin, upperBin, opt);
 }
 
-void drawYBaseLine(double ypoint, TPad* pad, Color_t color = kBlack, int lineStyle = 1, short lineWidth = 1) //developing
+void drawYBaseLine(double ypoint, TPad* pad, Color_t color, int lineStyle, short lineWidth) //developing
 {
         if(!pad) {
-                return nullptr;
+                return NULL;
         }
         pad->Update();
         pad->cd();
@@ -275,10 +275,10 @@ void drawYBaseLine(double ypoint, TPad* pad, Color_t color = kBlack, int lineSty
         line->Draw("same");
 }	//developing
 
-void drawXBaseLine(double xpoint, TPad* pad, Color_t color = kBlack, int lineStyle = 1, short lineWidth = 1) //developing
+void drawXBaseLine(double xpoint, TPad* pad, Color_t color, int lineStyle, short lineWidth) //developing
 {
         if(!pad) {
-                return nullptr;
+                return NULL;
         }
         pad->Update();
         pad->cd();
@@ -309,7 +309,7 @@ void drawYRegion(double ypoint1, double ypoint2, TPad* pad, Color_t color, int l
         drawYBaseLine(ypoint2, pad, color, lineStyle, lineWidth);
 }
 
-void drawText(float x, float y, float size, const char* txt1, const char* txt2 = nullptr, const char* txt3 = nullptr, const char* txt4 = nullptr, const char* txt5 = nullptr)
+void drawText(float x, float y, float size, const char* txt1, const char* txt2, const char* txt3, const char* txt4, const char* txt5)
 {
 	TLatex* ltx = new TLatex(x, y, txt1);
 	ltx->SetTextSize(size);
@@ -329,7 +329,7 @@ void drawText(float x, float y, float size, const char* txt1, const char* txt2 =
 	}
 }
 
-void drawText(float x, float y, float size, Color_t color, const char* txt1, const char* txt2 = nullptr, const char* txt3 = nullptr, const char* txt4 = nullptr, const char* txt5 = nullptr)
+void drawText(float x, float y, float size, Color_t color, const char* txt1, const char* txt2, const char* txt3, const char* txt4, const char* txt5)
 {
 	TLatex* ltx = new TLatex(x, y, txt1);
 	ltx->SetTextSize(size);
@@ -350,7 +350,7 @@ void drawText(float x, float y, float size, Color_t color, const char* txt1, con
 	}
 }
 
-void setStyle(TGraphErrors* gr, int markerStyle, float markerSize, Color_t markerColor, int lineWidth = 1, Color_t lineColor = kBlack)
+void setStyle(TGraphErrors* gr, int markerStyle, float markerSize, Color_t markerColor, int lineWidth, Color_t lineColor)
 {
 	gr->SetMarkerStyle(markerStyle);
 	gr->SetMarkerSize(markerSize);
@@ -359,7 +359,7 @@ void setStyle(TGraphErrors* gr, int markerStyle, float markerSize, Color_t marke
 	gr->SetLineColor(lineColor);
 }
 
-void setStyle(TH1F* h, int markerStyle, float markerSize, Color_t markerColor, int lineWidth = 1, Color_t lineColor = kBlack)
+void setStyle(TH1F* h, int markerStyle, float markerSize, Color_t markerColor, int lineWidth, Color_t lineColor)
 {
 	h->SetMarkerStyle(markerStyle);
 	h->SetMarkerSize(markerSize);
@@ -400,7 +400,7 @@ TH1F* extractResidual2(TH1F* sig, TF1* fitFunc, TF1* residualBg, int n, float lo
 	return finalPlot;
 }
 
-TH1F* extractSig(TH1F* tot, TH1F* bg, float normalLower, float normalUpper, const char* opt = "my")
+TH1F* extractSig(TH1F* tot, TH1F* bg, float normalLower, float normalUpper, const char* opt)
 {
 	TH1F* sig = new TH1F(*tot);
 	TH1F* bgTmp = new TH1F(*bg);
@@ -424,7 +424,7 @@ TH1F* extractSig(TH1F* tot, TH1F* bg, float normalLower, float normalUpper, cons
 	return sig;
 }
 
-TH1F* projectionZ(TH3F* _3h, float lowerX, float upperX, float lowerY, float upperY, const char* name = "")
+TH1F* projectionZ(TH3F* _3h, float lowerX, float upperX, float lowerY, float upperY, const char* name)
 {
 	int lowerXbin = _3h->GetXaxis()->FindBin(lowerX + 0.000001);
 	int upperXbin = _3h->GetXaxis()->FindBin(upperX - 0.000001);
@@ -436,7 +436,7 @@ TH1F* projectionZ(TH3F* _3h, float lowerX, float upperX, float lowerY, float upp
 	return h;
 }
 
-TH1F* projectionX(TH3F* _3h, float lowerY, float upperY, float lowerZ, float upperZ, const char* name = "")
+TH1F* projectionX(TH3F* _3h, float lowerY, float upperY, float lowerZ, float upperZ, const char* name)
 {
 	int lowerYbin = _3h->GetYaxis()->FindBin(lowerY + 0.000001);
 	int upperYbin = _3h->GetYaxis()->FindBin(upperY - 0.000001);
@@ -448,7 +448,7 @@ TH1F* projectionX(TH3F* _3h, float lowerY, float upperY, float lowerZ, float upp
 	return h;
 }
 
-TH1F* projectionY(TH3F* _3h, float lowerX, float upperX, float lowerZ, float upperZ, const char* name = "")
+TH1F* projectionY(TH3F* _3h, float lowerX, float upperX, float lowerZ, float upperZ, const char* name)
 {
 	int lowerXbin = _3h->GetXaxis()->FindBin(lowerX + 0.000001);
 	int upperXbin = _3h->GetXaxis()->FindBin(upperX - 0.000001);
@@ -460,7 +460,7 @@ TH1F* projectionY(TH3F* _3h, float lowerX, float upperX, float lowerZ, float upp
 	return h;
 }
 
-TH1F* projectionX(TH2F* _2h, float lowerY, float upperY, const char* name = "")
+TH1F* projectionX(TH2F* _2h, float lowerY, float upperY, const char* name)
 {
 	int lowerYbin = _2h->GetYaxis()->FindBin(lowerY + 0.000001);
 	int upperYbin = _2h->GetYaxis()->FindBin(upperY - 0.000001);
@@ -470,7 +470,7 @@ TH1F* projectionX(TH2F* _2h, float lowerY, float upperY, const char* name = "")
 	return h;
 }
 
-TH1F* projectionY(TH2F* _2h, float lowerX, float upperX, const char* name = "")
+TH1F* projectionY(TH2F* _2h, float lowerX, float upperX, const char* name)
 {
 	int lowerXbin = _2h->GetXaxis()->FindBin(lowerX + 0.000001);
 	int upperXbin = _2h->GetXaxis()->FindBin(upperX - 0.000001);
@@ -637,11 +637,11 @@ TH1F* f2h(TF1* f, float binWidth, float lower, float upper)
 	return h;
 }
 
-TH1F* cutHist(float lowerEdge = 0, float upperEdge = 1., TH1F* h = nullptr)
+TH1F* cutHist(float lowerEdge, float upperEdge, TH1F* h)
 {
 	if(!h) {
 		std::cout << "ZLALOG >> missing target object" << std::endl;
-		return nullptr;
+		return NULL;
 	}
 	int lowerBin = h->GetXaxis()->FindBin(lowerEdge + 0.000001);
 	int upperBin = h->GetXaxis()->FindBin(upperEdge - 0.000001);
@@ -656,15 +656,15 @@ TH1F* cutHist(float lowerEdge = 0, float upperEdge = 1., TH1F* h = nullptr)
 		h2->SetBinError(ibin + 1, h->GetBinError(lowerBin + ibin));
 	}
 	delete h;
-	h = nullptr;
+	h = NULL;
 	return h2;
 }
 
-TH1F* cutHist2(float lowerEdge = 0, float upperEdge = 1., TH1F* h = nullptr)
+TH1F* cutHist2(float lowerEdge, float upperEdge, TH1F* h)
 {
 	if(!h) {
 		std::cout << "ZLALOG >> missing target object" << std::endl;
-		return nullptr;
+		return NULL;
 	}
 	int lowerBin = h->GetXaxis()->FindBin(lowerEdge + 0.000001);
 	int upperBin = h->GetXaxis()->FindBin(upperEdge - 0.000001);
@@ -675,7 +675,7 @@ TH1F* cutHist2(float lowerEdge = 0, float upperEdge = 1., TH1F* h = nullptr)
 		h2->SetBinError(ibin + 1, h->GetBinError(lowerBin + ibin));
 	}
 	delete h;
-	h = nullptr;
+	h = NULL;
 	return h2;
 }
 
@@ -694,7 +694,7 @@ TH1F* reflectHist(TH1F* h, float centLine)
 	return hReflect;
 }
 
-double combineIntegral(TH1F* h, TF1* f, float& err, float lower = 0, float upper = 1)
+double combineIntegral(TH1F* h, TF1* f, float& err, float lower, float upper)
 {
 	int histStartBin = 1, histEndBin = h->GetNbinsX();
 	for(int ibin = 0; ibin < histEndBin; ++ibin) {
