@@ -1,4 +1,4 @@
-OBJS = MyTree.o Config.o generateHists.o
+OBJS = MyTree.o Config.o Hist.o generateHists.o
 EXE = generateHists
 
 ROOTCFLAGS    = $(shell root-config --cflags)

@@ -6,8 +6,8 @@ Cut: Chi2Topo -1e7 5
 Cut: Chi2NDF -1e7 5
 Cut: Chi2PrimPip 10 1e7
 Cut: Chi2PrimPim 10 1e7
-Cut: Rap -0.8 0.6
-Cut: Pt 0.2 2.5
+Cut: Rap -0.5 0.5
+Cut: Pt 0.2 1.5
 Cut: NHitsA 15 1e7
 Cut: NHitsB 15 1e7
 Cut: DCAA 0.6 1e7

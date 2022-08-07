@@ -1,3 +1,5 @@
+#ifndef CONFIG_H
+#define CONFIG_H
 #include <unordered_map>
 #include <fstream>
 
@@ -23,3 +25,4 @@ private:
 	void setSwitch(std::string switchName, bool _switch);
 	void setTHS(std::string thsName, float ths, bool pattern);
 };
+#endif
