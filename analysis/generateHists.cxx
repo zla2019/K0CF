@@ -29,63 +29,57 @@ bool loadBadRun(std::unordered_map<int, bool>* badRunList, std::ifstream* ifBadR
 bool passCut(double a, Config& config, std::string cutName);
 bool passCut(double a, double b, Config& config, std::string cutName);
 inline bool passAllCuts(MyTree::Particle& p, Config& config);
+void loadConfigList(std::ifstream& ifConfigList, std::vector<Config>& configList, std::vector<std::string>& configNameList);
 
 int main(int argc, char **argv)
 {
 	time_t first, second;
 	first = time(NULL);
 	//initial{{{
-	std::string ifListName, ifCutListName, ofName;
+	std::string ifListName, ifConfigListName, ofName;
 	if(argc < 4) {
 		return 1;
 	}
 	ifListName = argv[1];
-	ifCutListName = argv[2];
+	ifConfigListName = argv[2];
 	ofName = argv[3];
 	std::cout << "LOG: Reading file list: " << ifListName << std::endl;
-	std::cout << "LOG: Reading Cut File: " << ifCutListName << std::endl;
+	std::cout << "LOG: Reading Config file list: " << ifConfigListName << std::endl;
 	std::ifstream ifFilelist(ifListName);
-	std::ifstream ifCutList(ifCutListName);
-	std::ifstream ifCutList2("config2.txt");
-	Config config(&ifCutList);
-	Config config2(&ifCutList2);
-	//std::ifstream ifBadRunList("/star/u/lazhang/data01/CF/correlation_test/new_badruns_3.list");
+	std::ifstream ifConfigList(ifConfigListName);
+	std::vector<Config> configList;
+	std::vector<std::string> configNameList;
+	loadConfigList(ifConfigList, configList, configNameList);
 	std::unordered_map<int, bool> badRunList;
-	//loadBadRun(&badRunList, &ifBadRunList);
 	const float Kmass = 0.497611;
 	//mass window info
-	//const float Mean[3][4] = { { 0.4979, 0.4981, 0.4979, 0.4949 }, { 0.4978, 0.4981, 0.4979, 0.4979 }, { 0.4979, 0.4981, 0.4980, 0.4980 } };
-	//const float Sigma[3][4] = { { 0.0027, 0.0035, 0.0033, 0.0033 }, { 0.0027, 0.0034, 0.0036, 0.0036 }, { 0.0027, 0.0035, 0.0039, 0.0039 } };
 	const float Mean[3][4] = { { 0.4981, 0.4981, 0.4981, 0.4981 }, { 0.4981, 0.4981, 0.4981, 0.4981 }, { 0.4981, 0.4981, 0.4981, 0.4981 } };
 	const float Sigma[3][4] = { { 0.0035, 0.0035, 0.0035, 0.0035 }, { 0.0035, 0.0035, 0.0035, 0.0035 }, { 0.0035, 0.0035, 0.0035, 0.0035 } };
-	const int NMassSigma = std::stoi(config.mSetList["NSigmaMass"]);
+	const int NMassSigma = std::stoi(configList[0].mSetList["NSigmaMass"]);
 	const bool MuteWarning = true;	//used for debug
 
 	float beamRapidity;
-	if(config.mSetList["Energy"] == "3.0") beamRapidity = 1.045;
-	else if(config.mSetList["Energy"] == "3.2") beamRapidity = 1.135;
-	else if(config.mSetList["Energy"] == "3.5") beamRapidity = 1.24;
+	if(configList[0].mSetList["Energy"] == "3.0") beamRapidity = 1.045;
+	else if(configList[0].mSetList["Energy"] == "3.2") beamRapidity = 1.135;
+	else if(configList[0].mSetList["Energy"] == "3.5") beamRapidity = 1.24;
 
-	if(config.mSetList["Energy"] == "3.0") pidCalib_pion = pidCalib_pion_3p0;
-	else if(config.mSetList["Energy"] == "3.2") pidCalib_pion = pidCalib_pion_3p2;
-	else if(config.mSetList["Energy"] == "3.5") pidCalib_pion = pidCalib_pion_3p5;
-	//}}}
-
-	//Save cut info{{{
-	TCanvas* caCut = new TCanvas("cuts", "cuts", 1920, 1080);
-	caCut->cd();
-	TLatex* ltx = new TLatex(0.0, 0.9, "Cuts:");
+	if(configList[0].mSetList["Energy"] == "3.0") pidCalib_pion = pidCalib_pion_3p0;
+	else if(configList[0].mSetList["Energy"] == "3.2") pidCalib_pion = pidCalib_pion_3p2;
+	else if(configList[0].mSetList["Energy"] == "3.5") pidCalib_pion = pidCalib_pion_3p5;
 	//}}}
 
 	//prepare plots{{{
-	Hist hist1, hist2;
-	hist1.init();
-	hist2.init();
+	std::vector<Hist> histList;
+	for(int iconfig = 0; iconfig < configList.size(); ++iconfig) {
+		Hist histTmp;
+		histList.push_back(std::move(histTmp));
+		histList[iconfig].init();
+	}
 
 	TFile* ifPurity;
 	TH2F* hPurity[3];
-	if(config.mSwitchList["OpenPairPurity"]) {
-		ifPurity = TFile::Open(config.mSetList["PurityPath"].c_str());
+	if(configList[0].mSwitchList["OpenPairPurity"]) {
+		ifPurity = TFile::Open(configList[0].mSetList["PurityPath"].c_str());
 		if(!ifPurity->IsOpen()) {
 			std::cout << "ERROR: Purity file is not open" << std::endl;
 		}
@@ -141,23 +135,23 @@ int main(int argc, char **argv)
 				continue;
 			}
 
-			hist1.hVz->Fill(vz);
-			hist1.hVr->Fill(vx, vy);
-			hist1.hCent9->Fill((int)cent9);
-			hist2.hVz->Fill(vz);
-			hist2.hVr->Fill(vx, vy);
-			hist2.hCent9->Fill((int)cent9);
+			for(int iconfig = 0; iconfig < configList.size(); ++iconfig) {
+				histList[iconfig].hVz->Fill(vz);
+				histList[iconfig].hVr->Fill(vx, vy);
+				histList[iconfig].hCent9->Fill((int)cent9);
+			}
 			//pre select
 			std::vector<int> idxK;
 			for(int icurK = 0; icurK < nK; ++icurK) {
 				MyTree::Particle curKTmp = myTree->getParticle(icurK, beamRapidity);
-				if(!passAllCuts(curKTmp, config)) continue;
+				//if(!passAllCuts(curKTmp, configList[0])) continue;
 				idxK.push_back(icurK);
 			}
 			int nPassCutK = idxK.size();
 			for(int iK1 = 0; iK1 < nPassCutK; ++iK1) {
 				int icurK = idxK[iK1];
 				MyTree::Particle curK = myTree->getParticle(icurK, beamRapidity);
+				if(!passAllCuts(curK, configList[0])) continue;
 				TVector3 p(curK.px, curK.py, curK.pz);
 				TVector3 pos(curK.bx, curK.by, curK.bz);
 				TVector3 vectPmPos = pos - p;
@@ -167,20 +161,20 @@ int main(int argc, char **argv)
 
 				float nsigmaA = curK.nSigmaA;
 				float nsigmaB = curK.nSigmaB;
-				if(config.mSwitchList["OpenNSigmaShift"]) {
+				if(configList[0].mSwitchList["OpenNSigmaShift"]) {
 					nsigmaA -= pidCalib_pion[momBinA];
 					nsigmaB -= pidCalib_pion[momBinB];
 				}
 
 				float purity = 1;
-				if(config.mSwitchList["OpenPairPurity"]) {
+				if(configList[0].mSwitchList["OpenPairPurity"]) {
 					purity = hPurity[centForPurity]->GetBinContent(hPurity[centForPurity]->GetXaxis()->FindBin(curK.rap), hPurity[centForPurity]->GetYaxis()->FindBin(curK.pt)) / 100.;
 				}
 				int isSideBand = -1;	//defualt: -1; peak region: 0; left side: 1; right side: 2;
 
-				hist1.FillAll(curK, (int)cent9);
-				if(passAllCuts(curK, config2)) {
-					hist2.FillAll(curK, (int)cent9);
+				for(int iconfig = 0; iconfig < configList.size(); ++iconfig) {
+					if(!passAllCuts(curK, configList[iconfig])) continue;
+					histList[iconfig].FillAll(curK, (int)cent9);
 				}
 
 				int rapBin = 1;
@@ -188,32 +182,26 @@ int main(int argc, char **argv)
 					//if(passCut(curK.mass, 0.48, 0.51)) {
 					isSideBand = 0;
 					//} else if(passCut(mass, SideBand2Lower, SideBand2Upper)) {
-				} else if(passCut(curK.mass, config, "SideBand2")) {
+				} else if(passCut(curK.mass, configList[0], "SideBand2")) {
 					isSideBand = 1;
-				} else if(passCut(curK.mass, config, "SideBand")) {
+				} else if(passCut(curK.mass, configList[0], "SideBand")) {
 					isSideBand = 2;
 				} else {
 					continue;
 				}
 
 				//if(curK.rap < -0.8 || curK.rap > 0.4) continue;
-				if(isSideBand == 0) {
-					hist1.Fill(curK);
-					if(passAllCuts(curK, config2)) {
-						hist2.Fill(curK);
-					}
-				} else if(isSideBand == 1) {
-					hist1.FillLeft(curK);
-					if(passAllCuts(curK, config2)) {
-						hist2.FillLeft(curK);
-					}
-				} else if(isSideBand == 2) {
-					hist1.FillRight(curK);
-					if(passAllCuts(curK, config2)) {
-						hist2.FillRight(curK);
+				for(int iconfig = 0; iconfig < configList.size(); ++iconfig) {
+					if(!passAllCuts(curK, configList[iconfig])) continue;
+					if(isSideBand == 0) {
+						histList[iconfig].Fill(curK);
+					} else if(isSideBand == 1) {
+						histList[iconfig].FillLeft(curK);
+					} else if(isSideBand == 2) {
+						histList[iconfig].FillRight(curK);
 					}
 				}
-				if(!config.mSwitchList["OpenCF"]) continue;
+				if(!configList[0].mSwitchList["OpenCF"]) continue;
 				//same pair{{{
 				for(int iK2 = iK1 + 1; iK2 < nPassCutK; ++iK2) {
 					int icurK2 = idxK[iK2];
@@ -225,7 +213,7 @@ int main(int argc, char **argv)
 					int momBinA = getMomBin(curK2.pA, p_low, p_high, nPBins);
 					int momBinB = getMomBin(curK2.pB, p_low, p_high, nPBins);
 					float purity2 = 1;
-					if(config.mSwitchList["OpenPairPurity"]) {
+					if(configList[0].mSwitchList["OpenPairPurity"]) {
 						purity2 = hPurity[centForPurity]->GetBinContent(hPurity[centForPurity]->GetXaxis()->FindBin(curK2.rap), hPurity[centForPurity]->GetYaxis()->FindBin(curK2.pt)) / 100.;
 					}
 
@@ -236,9 +224,9 @@ int main(int argc, char **argv)
 					if(passCut(curK2.mass, Mean[2][rapBin2] - (NMassSigma * Sigma[2][rapBin2]), Mean[2][rapBin2] + (NMassSigma * Sigma[2][rapBin2]))) {
 						//if(passCut(curK2.mass, 0.48, 0.51)) {
 						isSideBand2 = 0;
-					} else if(passCut(curK2.mass, config, "SideBand")) {
+					} else if(passCut(curK2.mass, configList[0], "SideBand")) {
 						isSideBand2 = 2;
-					} else if(passCut(curK2.mass, config, "SideBand2")) {
+					} else if(passCut(curK2.mass, configList[0], "SideBand2")) {
 						isSideBand2 = 1;
 					} else {
 						continue;
@@ -261,9 +249,9 @@ int main(int argc, char **argv)
 					k2_v4.SetXYZT(curK2.px, curK2.py, curK2.pz, curK2.energy);
 					TLorentzVector kDiff_v4 = (k1_v4 - k2_v4);
 
-					hist1.Fill(fabs(kDiff_v4.Mag()), (int)cent9, isSideBand, isSideBand2);
-					if(passAllCuts(curK2, config2)) {
-						hist2.Fill(fabs(kDiff_v4.Mag()), (int)cent9, isSideBand, isSideBand2);
+					for(int iconfig = 0; iconfig < configList.size(); ++iconfig) {
+						if(!passAllCuts(curK2, configList[iconfig])) continue;
+						histList[iconfig].Fill(fabs(kDiff_v4.Mag()), (int)cent9, isSideBand, isSideBand2);
 					}
 				}
 				//}}}
@@ -275,7 +263,7 @@ int main(int argc, char **argv)
 						int momBinA = getMomBin(mixK.pA, p_low, p_high, nPBins);
 						int momBinB = getMomBin(mixK.pB, p_low, p_high, nPBins);
 						float purity2 = 1;
-						if(config.mSwitchList["OpenPairPurity"]) {
+						if(configList[0].mSwitchList["OpenPairPurity"]) {
 							purity2 = hPurity[centForPurity]->GetBinContent(hPurity[centForPurity]->GetXaxis()->FindBin(mixK.rap), hPurity[centForPurity]->GetYaxis()->FindBin(mixK.pt)) / 100.;
 						}
 						int isSideBand2 = -1;
@@ -285,16 +273,16 @@ int main(int argc, char **argv)
 						if(passCut(mixK.mass, Mean[2][rapBin2] - (NMassSigma * Sigma[2][rapBin2]), Mean[2][rapBin2] + (NMassSigma * Sigma[2][rapBin2]))) {
 							//if(passCut(mixK.mass, 0.48, 0.51)) {
 							isSideBand2 = 0;
-						} else if(passCut(mixK.mass, config, "SideBand")){
+						} else if(passCut(mixK.mass, configList[0], "SideBand")){
 							isSideBand2 = 2;
-						} else if(passCut(mixK.mass, config, "SideBand2")) {
+						} else if(passCut(mixK.mass, configList[0], "SideBand2")) {
 							isSideBand2 = 1;
 						} else {
 							continue;
 						}
 
 						float sideBandWeight[4] = { 0 };
-						if(config.mSwitchList["OpenPairPurity"]) {
+						if(configList[0].mSwitchList["OpenPairPurity"]) {
 							sideBandWeight[0] = purity * (1 - purity2);
 							sideBandWeight[1] = (1 - purity) * purity2;
 							sideBandWeight[2] = (1 - purity) * (1 - purity2);
@@ -306,9 +294,9 @@ int main(int argc, char **argv)
 						//k1_v4.SetXYZT(curK.px, curK.py, curK.pz, sqrt(curK.px*curK.px + curK.py*curK.py + curK.pz*curK.pz + 0.497611*0.497611));
 						//k2_v4.SetXYZT(mixK.px, mixK.py, mixK.pz, sqrt(mixK.px*mixK.px + mixK.py*mixK.py + mixK.pz*mixK.pz + 0.497611*0.497611));
 						TLorentzVector kDiff_v4 = (k1_v4 - k2_v4);
-						hist1.FillMix(fabs(kDiff_v4.Mag()), (int)cent9, isSideBand, isSideBand2, sideBandWeight);
-						if(passAllCuts(mixK, config2)) {
-							hist2.FillMix(fabs(kDiff_v4.Mag()), (int)cent9, isSideBand, isSideBand2, sideBandWeight);
+						for(int iconfig = 0; iconfig < configList.size(); ++iconfig) {
+							if(!passAllCuts(mixK, configList[iconfig])) continue;
+							histList[iconfig].FillMix(fabs(kDiff_v4.Mag()), (int)cent9, isSideBand, isSideBand2, sideBandWeight);
 						}
 					}
 				}
@@ -325,10 +313,13 @@ int main(int argc, char **argv)
 	//}}}
 
 	//prepare output{{{
-	TFile* ofPlots = new TFile(ofName.c_str(), "RECREATE");
-	hist1.Write(ofPlots);
-	TFile* ofPlots2 = new TFile(("bak" + ofName).c_str(), "RECREATE");
-	hist2.Write(ofPlots2);
+	//TFile* ofPlots = new TFile(ofName.c_str(), "RECREATE");
+	//histList[0].Write(ofPlots);
+	for(int iconfig = 0; iconfig < configList.size(); ++iconfig) {
+		configNameList[iconfig].replace(configNameList[iconfig].find(".txt"), 4, ".root");
+		TFile* ofPlots = new TFile(configNameList[iconfig].c_str(), "RECREATE");
+		histList[iconfig].Write(ofPlots);
+	}
 	//}}}
 	second = time(NULL);
 	std::cout << "processing time: " << difftime(second, first) << std::endl;
@@ -444,5 +435,16 @@ inline bool passAllCuts(MyTree::Particle& p, Config& config)
 	if(!passCut(nsigmaB, config, "NSigmaPi")) return false;
 	if(p.rap > 0 && p.pt < 0.3) return false;
 	return true;
+}
+
+void loadConfigList(std::ifstream& ifConfigList, std::vector<Config>& configList, std::vector<std::string>& configNameList)
+{
+	std::string ifName;
+	while(getline(ifConfigList, ifName)) {
+		std::ifstream configFile(ifName.c_str());
+		Config config(&configFile);
+		configList.push_back(std::move(config));
+		configNameList.push_back(std::move(ifName));
+	}
 }
 //}}}
