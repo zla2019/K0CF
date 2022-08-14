@@ -1,3 +1,5 @@
+#ifndef MYTREE_H
+#define MYTREE_H
 #include <TTree.h>
 
 class MyTree
@@ -118,3 +120,4 @@ public:
 	void copyToBuffer();
 	void copyToBuffer(std::vector<int>& idx);
 };
+#endif

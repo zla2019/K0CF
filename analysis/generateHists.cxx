@@ -12,6 +12,7 @@
 #include <TLatex.h>
 #include <fstream>
 #include <ctime>
+#include "Hist.h"
 
 const int nPBins = 23;
 //PID calibration
@@ -46,9 +47,7 @@ int main(int argc, char **argv)
 	std::ifstream ifFilelist(ifListName);
 	std::ifstream ifCutList(ifCutListName);
 	Config config(&ifCutList);
-	//std::ifstream ifBadRunList("/star/u/lazhang/data01/CF/correlation_test/new_badruns_3.list");
 	std::unordered_map<int, bool> badRunList;
-	//loadBadRun(&badRunList, &ifBadRunList);
 	const float Kmass = 0.497611;
 	//mass window info
 	//const float Mean[3][4] = { { 0.4979, 0.4981, 0.4979, 0.4949 }, { 0.4978, 0.4981, 0.4979, 0.4979 }, { 0.4979, 0.4981, 0.4980, 0.4980 } };
@@ -75,86 +74,8 @@ int main(int argc, char **argv)
 	//}}}
 
 	//prepare plots{{{
-	TH1F* hSameKPDG = new TH1F("hSameKPDG", "Kaon pdg distribution", 5, 280, 340);
-	TH1F* hVz = new TH1F("hVz", "V_{z} distribution;cm;cnts", 100, 198, 202);
-	TH2F* hVr = new TH2F("hVr", "V_{r} distribution;cm;cm", 100, -2, 2, 100, -4, 0);
-	TH1F* hCent9 = new TH1F("hCent9", "Cent9 dist.", 10, -1, 9);
-
-	TH1F* hCosTheta = new TH1F("hCosTheta", "cos(#theta) distribution", 50, 0.95, 1.0);
-	TH1F* hDecayLength = new TH1F("hDecayLength", "K^{0}_{s} decay length", 100, 0, 20);
-	TH1F* hDgDCA = new TH1F("hDgDCA", "K_{s}^{0} daughter DCA", 100, 0, 2);
-	TH1F* hDCA = new TH1F("hDCA", "K_{s}^{0} DCA", 100, 0, 2);
-
-	TH2F* hDedx = new TH2F("hDedx", "dEdx vs p*q;p*q;dEdx", 1000, -5, 5, 500, 1.5, 6.5);
-	TH2F* hMass2 = new TH2F("hMass2", "m^{2} vs p*q;p*q;m^{2}", 1000, -5, 5, 500, -2, 3);
-
-	TH2F* hSameKRapPt = new TH2F("hSameKRapPt", "K_{s}^{0} Acc.", 200, -1, 1, 300, 0, 3);
-	TH1F* hSameKMass = new TH1F("hSameKMass", "K_{s}^{0} mass distribution;M_{inv};cnts", 160, 0.48, 0.52);
-	TH1F* hSameKPhi = new TH1F("hSameKPhi", "K_{s}^{0} #phi distribution;#phi;cnts", 100, -TMath::Pi(), TMath::Pi());
-	TH2F* hSameKPipRapPt = new TH2F("hSameKPipRapPt", "K_{s}^{0} daughter #pi^{+} Acc.", 200, -1, 1, 500, 0, 5);
-	TH2F* hSameKPimRapPt = new TH2F("hSameKPimRapPt", "K_{s}^{0} daughter #pi^{-} Acc.", 200, -1, 1, 500, 0, 5);
-	TH1F* hDaughterPipDCA = new TH1F("hDaughterPipDCA", "K_{s}^{0} daughter #pi^{+} DCA distribution", 50, 0, 10);
-	TH1F* hDaughterPimDCA = new TH1F("hDaughterPimDCA", "K_{s}^{0} daughter #pi^{-} DCA distribution", 50, 0, 10);
-
-	TH2F* hLeftSideSameKRapPt = new TH2F("hLeftSideSameKRapPt", "K_{s}^{0} Acc.", 200, -1, 1, 300, 0, 3);
-	TH1F* hLeftSideSameKMass = new TH1F("hLeftSideSameKMass", "K_{s}^{0} mass distribution;M_{inv};cnts", 1200, 0.4, 0.70);
-	TH1F* hLeftSideSameKPhi = new TH1F("hLeftSideSameKPhi", "K_{s}^{0} #phi distribution;#phi;cnts", 100, -TMath::Pi(), TMath::Pi());
-	TH2F* hLeftSideSameKPipRapPt = new TH2F("hLeftSideSameKPipRapPt", "K_{s}^{0} daughter #pi^{+} Acc.", 200, -1, 1, 500, 0, 5);
-	TH2F* hLeftSideSameKPimRapPt = new TH2F("hLeftSideSameKPimRapPt", "K_{s}^{0} daughter #pi^{-} Acc.", 200, -1, 1, 500, 0, 5);
-
-	TH2F* hRightSideSameKRapPt = new TH2F("hRightSideSameKRapPt", "K_{s}^{0} Acc.", 200, -1, 1, 300, 0, 3);
-	TH1F* hRightSideSameKMass = new TH1F("hRightSideSameKMass", "K_{s}^{0} mass distribution;M_{inv};cnts", 1200, 0.4, 0.70);
-	TH1F* hRightSideSameKPhi = new TH1F("hRightSideSameKPhi", "K_{s}^{0} #phi distribution;#phi;cnts", 100, -TMath::Pi(), TMath::Pi());
-	TH2F* hRightSideSameKPipRapPt = new TH2F("hRightSideSameKPipRapPt", "K_{s}^{0} daughter #pi^{+} Acc.", 200, -1, 1, 500, 0, 5);
-	TH2F* hRightSideSameKPimRapPt = new TH2F("hRightSideSameKPimRapPt", "K_{s}^{0} daughter #pi^{-} Acc.", 200, -1, 1, 500, 0, 5);
-
-	TH1F* hPipNSigma = new TH1F("hPipNSigma", "#pi^{+} n#sigma distribution", 100, -5, 5);
-	TH1F* hPimNSigma = new TH1F("hPimNSigma", "#pi^{-} n#sigma distribution", 100, -5, 5);
-	TH1F* hPipNSigma2 = new TH1F("hPipNSigma2", "#pi^{+} n#sigma distribution", 100, -5, 5);
-	TH1F* hPimNSigma2 = new TH1F("hPimNSigma2", "#pi^{-} n#sigma distribution", 100, -5, 5);
-
-	TH1F* hDTheta = new TH1F("hDTheta", "K_{s}^{0}-K_{s}^{0} #Delta#theta dist.", 314, 0, TMath::Pi());
-	TH1F* hDPhi = new TH1F("hDPhi", "K_{s}^{0}-K_{s}^{0} #Delta#phi dist.", 314, 0, TMath::Pi());
-	TH2F* hDThetaDPhi = new TH2F("hDThetaDPhi", "K_{s}^{0}-K_{s}^{0} #DeltaTheta vs. #DeltaPhi", 314, 0, TMath::Pi(), 314, 0, TMath::Pi());
-
-	TH3F* hSameKPtRapMass[9];
-	TH1F* hSameKqinv[9];
-	TH1F* hMixKqinv[9];
-	TH1F* hMixKqinvWeight[9][4];		//cent, rap, case;	//case0: peak*side, case1: side*peak, case2: side*side, case3: peak*peak
-	TH1F* hMixKqinvLeftWeight[9][4];	//cent, rap, case;	//case0: peak*side, case1: side*peak, case2: side*side, case3: peak*peak
-	TH1F* hMixKqinvRightWeight[9][4];	//cent, rap, case;	//case0: peak*side, case1: side*peak, case2: side*side, case3: peak*peak
-	TH1F* hSameKqlong[9];
-	TH1F* hMixKqlong[9];
-	TH1F* hSameKqout[9];
-	TH1F* hMixKqout[9];
-	TH1F* hSameKqside[9];
-	TH1F* hMixKqside[9];
-
-	TH1F* hSameLeftSideKqinv[9][4];	//cent, rap, case. where case mean how we make a side pair 
-	TH1F* hMixLeftSideKqinv[9][4];
-	TH1F* hSameRightSideKqinv[9][4];	//cent, rap, case. where case mean how we make a side pair 
-	TH1F* hMixRightSideKqinv[9][4];
-	for(int icent = 0; icent < 9; ++icent) {
-		hSameKPtRapMass[icent] = new TH3F(Form("hMassCascadeRapidityvsPt_cent%d", icent),Form("hMassCascadeRapidityvsPt_cent%d", icent),160, 0.42, 0.58, 20, -1, 1, 30, 0, 3);
-		hSameKqinv[icent] = new TH1F(Form("hSameKqinv_cent%i", icent), Form("K_{s}^{0} q_{inv}(k^{*}) @cent%i", icent), 500, 0, 1);
-		hMixKqinv[icent] = new TH1F(Form("hMixKqinv_cent%i", icent), Form("Mix K_{s}^{0} q_{inv}(k^{*}) @cent%i", icent), 500, 0, 1);
-		hSameKqlong[icent] = new TH1F(Form("hSameKqlong_cent%i", icent), Form("K_{s}^{0} q_{inv}(k^{*}) @cent%i", icent), 2000, -2, 2);
-		hMixKqlong[icent] = new TH1F(Form("hMixKqlong_cent%i", icent), Form("Mix K_{s}^{0} q_{inv}(k^{*}) @cent%i", icent), 2000, -2, 2);
-		hSameKqout[icent] = new TH1F(Form("hSameKqout_cent%i", icent), Form("K_{s}^{0} q_{inv}(k^{*}) @cent%i", icent), 2000, -2, 2);
-		hMixKqout[icent] = new TH1F(Form("hMixKqout_cent%i", icent), Form("Mix K_{s}^{0} q_{inv}(k^{*}) @cent%i", icent), 2000, -2, 2);
-		hSameKqside[icent] = new TH1F(Form("hSameKqside_cent%i", icent), Form("K_{s}^{0} q_{inv}(k^{*}) @cent%i", icent), 2000, -2, 2);
-		hMixKqside[icent] = new TH1F(Form("hMixKqside_cent%i", icent), Form("Mix K_{s}^{0} q_{inv}(k^{*}) @cent%i", icent), 2000, -2, 2);
-		for(int icase = 0; icase < 4; ++icase) {
-			hSameLeftSideKqinv[icent][icase] = new TH1F(Form("hSameLeftSideKqinv_cent%i_case%i", icent, icase), Form("LeftSide Band K_{s}^{0} q_{inv}(k^{*}) @cent%i, case%i", icent, icase), 500, 0, 1);
-			hMixLeftSideKqinv[icent][icase] = new TH1F(Form("hMixLeftSideKqinv_cent%i_case%i", icent, icase), Form("LeftSide Band Mix K_{s}^{0} q_{inv}(k^{*}) @cent%i, case%i", icent, icase), 500, 0, 1);
-			hSameRightSideKqinv[icent][icase] = new TH1F(Form("hSameRightSideKqinv_cent%i_case%i", icent, icase), Form("RightSide Band K_{s}^{0} q_{inv}(k^{*}) @cent%i, case%i", icent, icase), 500, 0, 1);
-			hMixRightSideKqinv[icent][icase] = new TH1F(Form("hMixRightSideKqinv_cent%i_case%i", icent, icase), Form("RightSide Band Mix K_{s}^{0} q_{inv}(k^{*}) @cent%i, case%i", icent, icase), 500, 0, 1);
-			hMixKqinvWeight[icent][icase] = new TH1F(Form("hMixKqinvWeight_cent%i_case%i", icent, icase), Form("Weighted Mix K_{s}^{0} q_{inv} for SideBand @cent%i, case%i", icent, icase), 500, 0, 1);
-			hMixKqinvLeftWeight[icent][icase] = new TH1F(Form("hMixKqinvLeftWeight_cent%i_case%i", icent, icase), Form("LeftWeighted Mix K_{s}^{0} q_{inv} for SideBand @cent%i, case%i", icent, icase), 500, 0, 1);
-			hMixKqinvRightWeight[icent][icase] = new TH1F(Form("hMixKqinvRightWeight_cent%i_case%i", icent, icase), Form("RightWeighted Mix K_{s}^{0} q_{inv} for SideBand @cent%i, case%i", icent, icase), 500, 0, 1);
-		}
-	}
-
+	Hist hist;
+	hist.init();
 	TFile* ifPurity;
 	TH2F* hPurity[3];
 	if(config.mSwitchList["OpenPairPurity"]) {
@@ -213,10 +134,9 @@ int main(int argc, char **argv)
 			if(cent9 < 0 || cent9 > 8) {
 				continue;
 			}
-
-			hVz->Fill(vz);
-			hVr->Fill(vx, vy);
-			hCent9->Fill((int)cent9);
+			hist.hVz->Fill(vz);
+			hist.hVr->Fill(vx, vy);
+			hist.hCent9->Fill((int)cent9);
 			//pre select
 			std::vector<int> idxK;
 			for(int icurK = 0; icurK < nK; ++icurK) {
@@ -247,21 +167,11 @@ int main(int argc, char **argv)
 					purity = hPurity[centForPurity]->GetBinContent(hPurity[centForPurity]->GetXaxis()->FindBin(curK.rap), hPurity[centForPurity]->GetYaxis()->FindBin(curK.pt)) / 100.;
 				}
 				int isSideBand = -1;	//defualt: -1; peak region: 0; left side: 1; right side: 2;
-
-				hDaughterPipDCA->Fill(curK.dcaA);
-				hDaughterPimDCA->Fill(curK.dcaB);
-				hCosTheta->Fill(cosTheta);
-				hDecayLength->Fill(curK.decayLength);
-				hDgDCA->Fill(curK.dgDCA);
-				hDCA->Fill(curK.dca);
-				hSameKPtRapMass[(int)cent9]->Fill(curK.mass, curK.rap, curK.pt);
+				hist.FillAll(curK, (int)cent9);
 
 				int rapBin = 1;
 				if(passCut(curK.mass, Mean[2][rapBin] - (NMassSigma * Sigma[2][rapBin]), Mean[2][rapBin] + (NMassSigma * Sigma[2][rapBin]))) {
-					//if(passCut(curK.mass, 0.48, 0.51)) {
-					hSameKRapPt->Fill(curK.rap, curK.pt);
 					isSideBand = 0;
-					//} else if(passCut(mass, SideBand2Lower, SideBand2Upper)) {
 				} else if(passCut(curK.mass, config, "SideBand2")) {
 					isSideBand = 1;
 				} else if(passCut(curK.mass, config, "SideBand")) {
@@ -272,31 +182,12 @@ int main(int argc, char **argv)
 
 				//if(curK.rap < -0.8 || curK.rap > 0.4) continue;
 				if(isSideBand == 0) {
-					hSameKPDG->Fill(curK.pdg);
-					hSameKMass->Fill(curK.mass);
-					hSameKPipRapPt->Fill(curK.rapPip, curK.ptPip);
-					hSameKPimRapPt->Fill(curK.rapPim, curK.ptPim);
-					hSameKPhi->Fill(curK.phi);
-					hDedx->Fill(curK.pA, curK.dEdxA);
-					hDedx->Fill(-curK.pB, curK.dEdxB);
-					hMass2->Fill(curK.pA, curK.m2A);
-					hMass2->Fill(-curK.pB, curK.m2B);
-					hPipNSigma->Fill(nsigmaA);
-					hPimNSigma->Fill(nsigmaB);
-					hPipNSigma2->Fill(curK.nSigmaA);
-					hPimNSigma2->Fill(curK.nSigmaB);
+					hist.Fill(curK);
+					hist.FillCut(curK);
 				} else if(isSideBand == 1) {
-					hLeftSideSameKMass->Fill(curK.mass);
-					hLeftSideSameKPipRapPt->Fill(curK.rapPip, curK.ptPip);
-					hLeftSideSameKPimRapPt->Fill(curK.rapPim, curK.ptPim);
-					hLeftSideSameKRapPt->Fill(curK.rap, curK.pt);
-					hLeftSideSameKPhi->Fill(curK.phi);
+					hist.FillLeft(curK);
 				} else if(isSideBand == 2) {
-					hRightSideSameKMass->Fill(curK.mass);
-					hRightSideSameKPipRapPt->Fill(curK.rapPip, curK.ptPip);
-					hRightSideSameKPimRapPt->Fill(curK.rapPim, curK.ptPim);
-					hRightSideSameKRapPt->Fill(curK.rap, curK.pt);
-					hRightSideSameKPhi->Fill(curK.phi);
+					hist.FillRight(curK);
 				}
 				if(!config.mSwitchList["OpenCF"]) continue;
 				//same pair{{{
@@ -345,24 +236,7 @@ int main(int argc, char **argv)
 					k1_v4.SetXYZT(curK.px, curK.py, curK.pz, curK.energy);
 					k2_v4.SetXYZT(curK2.px, curK2.py, curK2.pz, curK2.energy);
 					TLorentzVector kDiff_v4 = (k1_v4 - k2_v4);
-
-					if(isSideBand == 0 && isSideBand2 == 0) {
-						hSameKqinv[(int)cent9]->Fill(fabs(kDiff_v4.Mag()));
-						hSameLeftSideKqinv[(int)cent9][3]->Fill(fabs(kDiff_v4.Mag()));
-						hSameRightSideKqinv[(int)cent9][3]->Fill(fabs(kDiff_v4.Mag()));
-					} else if(isSideBand == 0 && isSideBand2 == 1) {
-						hSameLeftSideKqinv[(int)cent9][0]->Fill(fabs(kDiff_v4.Mag()));
-					} else if(isSideBand == 0 && isSideBand2 == 2) {
-						hSameRightSideKqinv[(int)cent9][0]->Fill(fabs(kDiff_v4.Mag()));
-					} else if(isSideBand == 1 && isSideBand2 == 0) {
-						hSameLeftSideKqinv[(int)cent9][1]->Fill(fabs(kDiff_v4.Mag()));
-					} else if(isSideBand == 2 && isSideBand2 == 0) {
-						hSameRightSideKqinv[(int)cent9][1]->Fill(fabs(kDiff_v4.Mag()));
-					} else if(isSideBand == 1 && isSideBand2 == 1) {
-						hSameLeftSideKqinv[(int)cent9][2]->Fill(fabs(kDiff_v4.Mag()));
-					} else if(isSideBand == 2 && isSideBand2 == 2) {
-						hSameRightSideKqinv[(int)cent9][2]->Fill(fabs(kDiff_v4.Mag()));
-					}
+					hist.Fill(fabs(kDiff_v4.Mag()), (int)cent9, isSideBand, isSideBand2);
 				}
 				//}}}
 				//mix pair{{{
@@ -401,39 +275,8 @@ int main(int argc, char **argv)
 						TLorentzVector k1_v4, k2_v4;
 						k1_v4.SetXYZT(curK.px, curK.py, curK.pz, curK.energy);
 						k2_v4.SetXYZT(mixK.px, mixK.py, mixK.pz, mixK.energy);
-						//k1_v4.SetXYZT(curK.px, curK.py, curK.pz, sqrt(curK.px*curK.px + curK.py*curK.py + curK.pz*curK.pz + 0.497611*0.497611));
-						//k2_v4.SetXYZT(mixK.px, mixK.py, mixK.pz, sqrt(mixK.px*mixK.px + mixK.py*mixK.py + mixK.pz*mixK.pz + 0.497611*0.497611));
 						TLorentzVector kDiff_v4 = (k1_v4 - k2_v4);
-
-						if(isSideBand == 0 && isSideBand2 == 0) {
-							hMixKqinv[(int)cent9]->Fill(fabs(kDiff_v4.Mag()));
-							hMixLeftSideKqinv[(int)cent9][3]->Fill(fabs(kDiff_v4.Mag()));
-							hMixRightSideKqinv[(int)cent9][3]->Fill(fabs(kDiff_v4.Mag()));
-							hMixKqinvWeight[(int)cent9][0]->Fill(fabs(kDiff_v4.Mag()), sideBandWeight[0]);
-							hMixKqinvWeight[(int)cent9][1]->Fill(fabs(kDiff_v4.Mag()), sideBandWeight[1]);
-							hMixKqinvWeight[(int)cent9][2]->Fill(fabs(kDiff_v4.Mag()), sideBandWeight[2]);
-							hMixKqinvWeight[(int)cent9][3]->Fill(fabs(kDiff_v4.Mag()), sideBandWeight[3]);
-							hMixKqinvLeftWeight[(int)cent9][3]->Fill(fabs(kDiff_v4.Mag()), sideBandWeight[3]);
-							hMixKqinvRightWeight[(int)cent9][3]->Fill(fabs(kDiff_v4.Mag()), sideBandWeight[3]);
-						} else if(isSideBand == 0 && isSideBand2 == 1) {
-							hMixLeftSideKqinv[(int)cent9][0]->Fill(fabs(kDiff_v4.Mag()));
-							hMixKqinvLeftWeight[(int)cent9][0]->Fill(fabs(kDiff_v4.Mag()), sideBandWeight[0]);
-						} else if(isSideBand == 0 && isSideBand2 == 2) {
-							hMixRightSideKqinv[(int)cent9][0]->Fill(fabs(kDiff_v4.Mag()));
-							hMixKqinvRightWeight[(int)cent9][0]->Fill(fabs(kDiff_v4.Mag()), sideBandWeight[0]);
-						} else if(isSideBand == 1 && isSideBand2 == 0) {
-							hMixLeftSideKqinv[(int)cent9][1]->Fill(fabs(kDiff_v4.Mag()));
-							hMixKqinvLeftWeight[(int)cent9][1]->Fill(fabs(kDiff_v4.Mag()), sideBandWeight[1]);
-						} else if(isSideBand == 2 && isSideBand2 == 0) {
-							hMixRightSideKqinv[(int)cent9][1]->Fill(fabs(kDiff_v4.Mag()));
-							hMixKqinvRightWeight[(int)cent9][1]->Fill(fabs(kDiff_v4.Mag()), sideBandWeight[1]);
-						} else if(isSideBand == 1 && isSideBand2 == 1) {
-							hMixLeftSideKqinv[(int)cent9][2]->Fill(fabs(kDiff_v4.Mag()));
-							hMixKqinvLeftWeight[(int)cent9][2]->Fill(fabs(kDiff_v4.Mag()), sideBandWeight[2]);
-						} else if(isSideBand == 2 && isSideBand2 == 2) {
-							hMixRightSideKqinv[(int)cent9][2]->Fill(fabs(kDiff_v4.Mag()));
-							hMixKqinvRightWeight[(int)cent9][2]->Fill(fabs(kDiff_v4.Mag()), sideBandWeight[2]);
-						}
+						hist.FillMix(fabs(kDiff_v4.Mag()), (int)cent9, isSideBand, isSideBand2, sideBandWeight);
 					}
 				}
 				//}}}
@@ -450,67 +293,8 @@ int main(int argc, char **argv)
 
 	//prepare output{{{
 	TFile* ofPlots = new TFile(ofName.c_str(), "RECREATE");
-	ofPlots->cd();
-	caCut->Write();
-	hVz->Write();
-	hVr->Write();
-	hCent9->Write();
-	hSameKPDG->Write();
-	hSameKMass->Write();
-	hSameKPhi->Write();
-	hSameKRapPt->Write();
-	hSameKPipRapPt->Write();
-	hSameKPimRapPt->Write();
-
-	hLeftSideSameKMass->Write();
-	hLeftSideSameKPhi->Write();
-	hLeftSideSameKRapPt->Write();
-	hLeftSideSameKPipRapPt->Write();
-	hLeftSideSameKPimRapPt->Write();
-	hRightSideSameKMass->Write();
-	hRightSideSameKPhi->Write();
-	hRightSideSameKRapPt->Write();
-	hRightSideSameKPipRapPt->Write();
-	hRightSideSameKPimRapPt->Write();
-
-	hDaughterPipDCA->Write();
-	hDaughterPimDCA->Write();
-	hCosTheta->Write();
-	hDecayLength->Write();
-	hDgDCA->Write();
-	hDCA->Write();
-	hDedx->Write();
-	hMass2->Write();
-	hPipNSigma->Write();
-	hPimNSigma->Write();
-	hPipNSigma2->Write();
-	hPimNSigma2->Write();
-
-	hDTheta->Write();
-	hDPhi->Write();
-	hDThetaDPhi->Write();
-	for(int icent = 0; icent < 9; ++icent) {
-		hSameKPtRapMass[icent]->Write();
-		hSameKqinv[icent]->Write();
-		hMixKqinv[icent]->Write();
-		if(config.mSwitchList["Open3DCF"]) {
-			hSameKqlong[icent]->Write();
-			hMixKqlong[icent]->Write();
-			hSameKqout[icent]->Write();
-			hMixKqout[icent]->Write();
-			hSameKqside[icent]->Write();
-			hMixKqside[icent]->Write();
-		}
-		for(int icase = 0; icase < 4; ++icase) {
-			hSameLeftSideKqinv[icent][icase]->Write();
-			hMixLeftSideKqinv[icent][icase]->Write();
-			hSameRightSideKqinv[icent][icase]->Write();
-			hMixRightSideKqinv[icent][icase]->Write();
-			hMixKqinvWeight[icent][icase]->Write();
-			hMixKqinvLeftWeight[icent][icase]->Write();
-			hMixKqinvRightWeight[icent][icase]->Write();
-		}
-	}
+	hist.Write(ofPlots);
+	ofPlots->Close();
 	delete ofPlots;
 	//}}}
 	second = time(NULL);
