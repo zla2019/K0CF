@@ -39,11 +39,17 @@ bool MyTree::setBranchAddress()
 		mTree->SetBranchAddress("fCentrality", &mBufferCent9);
 
 		//mTree->SetBranchAddress("pdg", mBufferPDG);
-		mTree->SetBranchAddress("pt", mBufferPt);
-		mTree->SetBranchAddress("phi", mBufferPhi);
-		mTree->SetBranchAddress("eta", mBufferEta);
-		mTree->SetBranchAddress("rap", mBufferRap);
-		mTree->SetBranchAddress("mass", mBufferMass);
+		//mTree->SetBranchAddress("pt", mBufferPt);
+		//mTree->SetBranchAddress("phi", mBufferPhi);
+		//mTree->SetBranchAddress("eta", mBufferEta);
+		//mTree->SetBranchAddress("rap", mBufferRap);
+		//mTree->SetBranchAddress("mass", mBufferMass);
+		mTree->SetBranchAddress("SIMD_pt", mBufferPt);
+		mTree->SetBranchAddress("SIMD_phi", mBufferPhi);
+		mTree->SetBranchAddress("SIMD_eta", mBufferEta);
+		mTree->SetBranchAddress("SIMD_rapidity", mBufferRap);
+		mTree->SetBranchAddress("SIMD_mass", mBufferMass);
+
 		mTree->SetBranchAddress("SIMD_chi2topo", mBufferChi2Topo);
 		mTree->SetBranchAddress("SIMD_chi2ndf", mBufferChi2NDF);
 		mTree->SetBranchAddress("chi2primaryA", mBufferChi2PrimPip);
@@ -67,7 +73,7 @@ bool MyTree::setBranchAddress()
 		//mTree->SetBranchAddress("thDBRF", mBufferTrkIdB);
 		//mTree->SetBranchAddress("dgdca", mBufferDgDCA);
 		mTree->SetBranchAddress("SIMD_dca", mBufferDCA);
-		//mTree->SetBranchAddress("SIMD_decaylength", mBufferDecayLength);
+		mTree->SetBranchAddress("SIMD_decaylength", mBufferDecayLength);
 		mTree->SetBranchAddress("nsigmaA0", mBufferNSigmaA);
 		mTree->SetBranchAddress("nsigmaB0", mBufferNSigmaB);
 		//mTree->SetBranchAddress("dedxA", mBufferdEdxA);

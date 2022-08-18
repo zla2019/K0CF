@@ -1,0 +1,29 @@
+Switch: OpenCF true
+Switch: OpenNSigmaShift true
+Switch: OpenPairPurity true
+Switch: Open3DCF false
+Cut: Chi2Topo 0 5
+Cut: Chi2NDF 0 5
+Cut: Chi2PrimPip 10 1e7
+Cut: Chi2PrimPim 10 1e7
+Cut: Rap -0.8 0.0
+Cut: Pt 0.2 1.5
+Cut: NHitsA 15 1e7
+Cut: NHitsB 15 1e7
+Cut: DCAA 0.6 1e7
+Cut: DCAB 0.6 1e7
+Cut: Mass 0.48 0.52
+Cut: Mass2Pip -0.1 0.15
+Cut: Mass2Pim -0.1 0.15
+Cut: KS0DCA -1e7 1e7
+Cut: DecayLength 2 1e7
+Cut: NSigmaPi -3 3
+Cut: SideBand 0.52 0.58
+Cut: SideBand2 0.42 0.48
+Cut: NHitsDedx 25 1e7
+THS: Mass2Pip 1.0 1
+THS: Mass2Pim 0 0
+THS: NHitsDedx 0 0
+SET: PurityPath 3p0cutSet1.0/Purity.root
+SET: NSigmaMass 2
+SET: Energy 3.0

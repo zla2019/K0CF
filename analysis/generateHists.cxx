@@ -406,7 +406,7 @@ inline bool passAllCuts(MyTree::Particle& p, Config& config)
 	if(!passCut(p.m2A, p.pA, config, "Mass2Pip")) return false;
 	if(!passCut(p.m2B, p.pB, config, "Mass2Pim")) return false;
 	if(!passCut(p.dca, config, "KS0DCA")) return false;
-	//if(!passCut(p.decayLength, config, "DecayLength")) return false;
+	if(!passCut(p.decayLength, config, "DecayLength")) return false;
 	if(!passCut(nsigmaA, config, "NSigmaPi")) return false;
 	if(!passCut(nsigmaB, config, "NSigmaPi")) return false;
 	if(p.rap > 0 && p.pt < 0.3) return false;
