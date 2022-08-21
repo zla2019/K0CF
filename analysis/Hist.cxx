@@ -78,6 +78,7 @@ void Hist::init()
 	hCutDCAA = new TH1F("hCutDCAA", "DCA A after cut", 50, 0, 10);
 	hCutDCAB = new TH1F("hCutDCAB", "DCA B after cut", 50, 0, 10);
 	hCutDecayLength = new TH1F("hCutDecayLength", "DecayLength after cut", 50, 0, 10);
+	hEtaPt = new TH2F("hEtaPt", "#eta vs. p_{T}", 270, -2.5, 0.2, 300, 0, 3);
 }
 
 void Hist::FillAll(MyTree::Particle& p, int cent9)
@@ -187,6 +188,7 @@ void Hist::FillCut(MyTree::Particle& p)
 	hCutDCAA->Fill(p.dcaA);
 	hCutDCAB->Fill(p.dcaB);
 	hCutDecayLength->Fill(p.decayLength);
+	hEtaPt->Fill(p.etaB, p.ptPim);
 }
 
 void Hist::Write(TFile* of)
@@ -240,6 +242,7 @@ void Hist::Write(TFile* of)
 	hCutDCAA->Write();
 	hCutDCAB->Write();
 	hCutDecayLength->Write();
+	hEtaPt->Write();
 
 	//CF plots
         for(int icent = 0; icent < 9; ++icent) {

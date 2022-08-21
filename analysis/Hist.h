@@ -88,5 +88,6 @@ public:
 	TH1F* hCutDCAA;
 	TH1F* hCutDCAB;
 	TH1F* hCutDecayLength;
+	TH2F* hEtaPt;
 };
 #endif

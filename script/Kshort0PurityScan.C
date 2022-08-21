@@ -2,7 +2,7 @@
 #include "utils.h"
 #include "func.h"
 
-void Kshort0PurityScan(std::string inputName, std::string cutSetName)
+void Kshort0PurityScan(std::string inputName, std::string cutSetName, std::string nSigma)
 {
 	//initial{{{
 	const int NCent9 = 9;
@@ -25,7 +25,8 @@ void Kshort0PurityScan(std::string inputName, std::string cutSetName)
 	//TFile* ifPlots = new TFile("/home/zla/CF/data/CFPlots/cutSet8/3sigma12chi2.root");
 	const float Mean[3][4] = { { 0.4979, 0.4981, 0.4979, 0.4949 }, { 0.4978, 0.4981, 0.4979, 0.4979 }, { 0.4979, 0.4981, 0.4980, 0.4980 } };
 	const float Sigma[3][4] = { { 0.0027, 0.0035, 0.0033, 0.0033 }, { 0.0027, 0.0034, 0.0036, 0.0036 }, { 0.0027, 0.0035, 0.0039, 0.0039 } };
-	const float NSigma = 2;
+	const float NSigma = std::stof(nSigma);
+	std::cout << "NSigma window: " << NSigma << std::endl;
 	//TFile* ifPlots = new TFile("/home/zla/CF/data/check/cut0.root");
 	//TFile* ifPlots = new TFile("/home/zla/CF/analysis/test.root");
 	TH3F* hMassRapPt[NCent9];

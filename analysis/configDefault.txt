@@ -12,7 +12,6 @@ Cut: NHitsA 15 1e7
 Cut: NHitsB 15 1e7
 Cut: DCAA 0.6 1e7
 Cut: DCAB 0.6 1e7
-Cut: Mass 0.48 0.52
 Cut: Mass2Pip -0.1 0.15
 Cut: Mass2Pim -0.1 0.15
 Cut: KS0DCA -1e7 1e7
