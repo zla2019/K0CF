@@ -2,7 +2,7 @@
 #include "utils.h"
 #include "Kshort0_SideBandWeight.C"
 
-void Kshort0CF_v1()
+void Kshort0CF()
 {
 	//inital{{{
 	//TFile* ifPlots = TFile::Open("~/CF/analysis_dev/3p5Default.root");	//all rapidity 3p5
@@ -382,227 +382,203 @@ void Kshort0CF_v1()
 }
 
 
-void Kshort0CF_v1(const char* ifName, TH1F***& hCFMisid, float SideBandLower, float SideBandUpper, float SideBand2Lower, float SideBand2Upper)
+void Kshort0CF(TFile* ifPlots, TH1F**& hCFGenuine, float SideBandLower, float SideBandUpper, float SideBand2Lower, float SideBand2Upper)
 {
 	//inital{{{
-	TFile* ifPlots = TFile::Open(ifName);	//side band left and right
 	const int NCent9 = 9;
 	const int NCent = 3;
 	const int NRap = 3;
 	const int NCase = 3;
 	const int Rebin = 20;
-	const float NormalizeLower = 0.5, NormalizeUpper = 1.0;
+	const float NormalizeLower = 0.3, NormalizeUpper = 1.0;
 	const float RapEdge[NRap + 1] = { -1.00, -0.8, 0.4, 0.5 };
 	const std::string CentName[NCent] = { "0-10%", "10-60%", "0-60%" };
 	const std::string CaseName[NCase] = { "K_{s}^{0}#tilde{K_{s}^{0}}", "#tilde{K_{s}^{0}}K_{s}^{0}", "#tilde{K_{s}^{0}}#tilde{K_{s}^{0}}" };
-	const int Cent9To3[NCent9] = { -1, -1, 1, 1, 1, 1, 1, 1, 0 };
+	const int Cent9To3[NCent9] = { -1, -1, 1, 1, 1, 1, 1, 0, 0 };
 	const int Cent9To1[NCent9] = { -1, -1, 2, 2, 2, 2, 2, 2, 2 };
 	float LeftWeight = 0.61, RightWeight = 0.39;
+	LeftWeight = Kshort0_SideBandWeight(ifPlots, 0.42, 0.48, 0.52, 0.58);
+	RightWeight = 1 - LeftWeight;
+	std::cout << " LeftWeight: " << LeftWeight << " RightWeight: " << RightWeight << std::endl;
 	//}}}
 
 	//plots list{{{
-	TH1F* hSameQinvCent9[NCent9][NRap] = { 0 };
-	TH1F* hMixQinvCent9[NCent9][NRap] = { 0 };
-	TH1F* hSameLeftSideKqinvCent9[NCent9][NRap][NCase + 1] = { 0 };
-	TH1F* hMixLeftSideKqinvCent9[NCent9][NRap][NCase + 1] = { 0 };
-	TH1F* hMixKqinvLeftWeightCent9[NCent9][NRap][NCase + 1] = { 0 };
-	TH1F* hSameRightSideKqinvCent9[NCent9][NRap][NCase + 1] = { 0 };
-	TH1F* hMixRightSideKqinvCent9[NCent9][NRap][NCase + 1] = { 0 };
-	TH1F* hMixKqinvRightWeightCent9[NCent9][NRap][NCase + 1] = { 0 };
+	TH1F* hSameQinvCent9[NCent9] = { 0 };
+	TH1F* hMixQinvCent9[NCent9] = { 0 };
+	TH1F* hSameLeftSideKqinvCent9[NCent9][NCase + 1] = { 0 };
+	TH1F* hMixLeftSideKqinvCent9[NCent9][NCase + 1] = { 0 };
+	TH1F* hMixKqinvLeftWeightCent9[NCent9][NCase + 1] = { 0 };
+	TH1F* hSameRightSideKqinvCent9[NCent9][NCase + 1] = { 0 };
+	TH1F* hMixRightSideKqinvCent9[NCent9][NCase + 1] = { 0 };
+	TH1F* hMixKqinvRightWeightCent9[NCent9][NCase + 1] = { 0 };
 
-	TH1F* hSameQinv[NCent][NRap] = { 0 };
-	TH1F* hMixQinv[NCent][NRap] = { 0 };
-	TH1F* hSameLeftSideKqinv[NCent][NRap][NCase + 1] = { 0 };
-	TH1F* hMixLeftSideKqinv[NCent][NRap][NCase + 1] = { 0 };
-	TH1F* hMixKqinvLeftWeight[NCent][NRap][NCase + 1] = { 0 };
-	TH1F* hSameRightSideKqinv[NCent][NRap][NCase + 1] = { 0 };
-	TH1F* hMixRightSideKqinv[NCent][NRap][NCase + 1] = { 0 };
-	TH1F* hMixKqinvRightWeight[NCent][NRap][NCase + 1] = { 0 };
+	TH1F* hSameQinv[NCent] = { 0 };
+	TH1F* hMixQinv[NCent] = { 0 };
+	TH1F* hSameLeftSideKqinv[NCent][NCase + 1] = { 0 };
+	TH1F* hMixLeftSideKqinv[NCent][NCase + 1] = { 0 };
+	TH1F* hMixKqinvLeftWeight[NCent][NCase + 1] = { 0 };
+	TH1F* hSameRightSideKqinv[NCent][NCase + 1] = { 0 };
+	TH1F* hMixRightSideKqinv[NCent][NCase + 1] = { 0 };
+	TH1F* hMixKqinvRightWeight[NCent][NCase + 1] = { 0 };
 
-	TH1F* hLeftWeight[NCent][NRap][NCase + 1] = { 0 };
-	TH1F* hRightWeight[NCent][NRap][NCase + 1] = { 0 };
-	TH1F* hLeftSideCF[NCent][NRap][NCase + 1] = { 0 };
-	TH1F* hRightSideCF[NCent][NRap][NCase + 1] = { 0 };
+	TH1F* hLeftWeight[NCent][NCase + 1] = { 0 };
+	TH1F* hRightWeight[NCent][NCase + 1] = { 0 };
+	TH1F* hLeftSideCF[NCent][NCase + 1] = { 0 };
+	TH1F* hRightSideCF[NCent][NCase + 1] = { 0 };
 
-	TH1F* hLeftSideCFTot[NCent][NRap] = { 0 };
-	TH1F* hRightSideCFTot[NCent][NRap] = { 0 };
+	TH1F* hLeftSideCFTot[NCent] = { 0 };
+	TH1F* hRightSideCFTot[NCent] = { 0 };
 
-	TH1F* hLeftSideCFWeight[NCent][NRap] = { 0 };
-	TH1F* hRightSideCFWeight[NCent][NRap] = { 0 };
-	//TH1F* hCFMisid[NCent][NRap] = { 0 };
-	TH1F* hCFRaw[NCent][NRap] = { 0 };
-	TH1F* hCFGenuine[NCent][NRap] = { 0 };
-	//}}}
-
-	//get weightLeft and weightRight {{{
-	LeftWeight = Kshort0_SideBandWeight(ifPlots, SideBandLower, SideBandUpper, SideBand2Lower, SideBand2Upper);
-	RightWeight = 1 - LeftWeight;
-	std::cout << ifName << " LeftWeight: " << LeftWeight << " RightWeight: " << RightWeight << std::endl;
+	TH1F* hLeftSideCFWeight[NCent] = { 0 };
+	TH1F* hRightSideCFWeight[NCent] = { 0 };
+	TH1F* hCFMisid[NCent] = { 0 };
+	TH1F* hCFRaw[NCent] = { 0 };
 	//}}}
 
 	//get plots{{{
 	for(int icent = 0; icent < NCent9; ++icent) {
-		for(int irap = 0; irap < NRap; ++irap) {
-			hSameQinvCent9[icent][irap] = (TH1F*)getCopy(ifPlots, Form("hSameKqinv_cent%d_rap%d", icent, irap));
-			hMixQinvCent9[icent][irap] = (TH1F*)getCopy(ifPlots, Form("hMixKqinv_cent%d_rap%d", icent, irap));
-			hSameQinvCent9[icent][irap]->Sumw2();
-			hMixQinvCent9[icent][irap]->Sumw2();
-			hSameQinvCent9[icent][irap]->Rebin(Rebin);
-			hMixQinvCent9[icent][irap]->Rebin(Rebin);
-			for(int icase = 0; icase < NCase + 1; ++icase) {
-				hSameLeftSideKqinvCent9[icent][irap][icase] = (TH1F*)getCopy(ifPlots, Form("hSameLeftSideKqinv_cent%d_rap%d_case%d", icent, irap, icase));
-				hMixLeftSideKqinvCent9[icent][irap][icase] = (TH1F*)getCopy(ifPlots, Form("hMixLeftSideKqinv_cent%d_rap%d_case%d", icent, irap, icase));
-				hMixKqinvLeftWeightCent9[icent][irap][icase] = (TH1F*)getCopy(ifPlots, Form("hMixKqinvLeftWeight_cent%d_rap%d_case%d", icent, irap, icase));
-				hSameRightSideKqinvCent9[icent][irap][icase] = (TH1F*)getCopy(ifPlots, Form("hSameRightSideKqinv_cent%d_rap%d_case%d", icent, irap, icase));
-				hMixRightSideKqinvCent9[icent][irap][icase] = (TH1F*)getCopy(ifPlots, Form("hMixRightSideKqinv_cent%d_rap%d_case%d", icent, irap, icase));
-				hMixKqinvRightWeightCent9[icent][irap][icase] = (TH1F*)getCopy(ifPlots, Form("hMixKqinvRightWeight_cent%d_rap%d_case%d", icent, irap, icase));
+		hSameQinvCent9[icent] = (TH1F*)getCopy(ifPlots, Form("hSameKqinv_cent%d", icent));
+		hMixQinvCent9[icent] = (TH1F*)getCopy(ifPlots, Form("hMixKqinv_cent%d", icent));
+		hSameQinvCent9[icent]->Sumw2();
+		hMixQinvCent9[icent]->Sumw2();
+		hSameQinvCent9[icent]->Rebin(Rebin);
+		hMixQinvCent9[icent]->Rebin(Rebin);
+		for(int icase = 0; icase < NCase + 1; ++icase) {
+			hSameLeftSideKqinvCent9[icent][icase] = (TH1F*)getCopy(ifPlots, Form("hSameLeftSideKqinv_cent%d_case%d", icent, icase));
+			hMixLeftSideKqinvCent9[icent][icase] = (TH1F*)getCopy(ifPlots, Form("hMixLeftSideKqinv_cent%d_case%d", icent, icase));
+			hMixKqinvLeftWeightCent9[icent][icase] = (TH1F*)getCopy(ifPlots, Form("hMixKqinvLeftWeight_cent%d_case%d", icent, icase));
+			hSameRightSideKqinvCent9[icent][icase] = (TH1F*)getCopy(ifPlots, Form("hSameRightSideKqinv_cent%d_case%d", icent, icase));
+			hMixRightSideKqinvCent9[icent][icase] = (TH1F*)getCopy(ifPlots, Form("hMixRightSideKqinv_cent%d_case%d", icent, icase));
+			hMixKqinvRightWeightCent9[icent][icase] = (TH1F*)getCopy(ifPlots, Form("hMixKqinvRightWeight_cent%d_case%d", icent, icase));
 
-				hSameLeftSideKqinvCent9[icent][irap][icase]->Sumw2();
-				hMixLeftSideKqinvCent9[icent][irap][icase]->Sumw2();
-				hMixKqinvLeftWeightCent9[icent][irap][icase]->Sumw2();
-				hSameRightSideKqinvCent9[icent][irap][icase]->Sumw2();
-				hMixRightSideKqinvCent9[icent][irap][icase]->Sumw2();
-				hMixKqinvRightWeightCent9[icent][irap][icase]->Sumw2();
+			hSameLeftSideKqinvCent9[icent][icase]->Sumw2();
+			hMixLeftSideKqinvCent9[icent][icase]->Sumw2();
+			hMixKqinvLeftWeightCent9[icent][icase]->Sumw2();
+			hSameRightSideKqinvCent9[icent][icase]->Sumw2();
+			hMixRightSideKqinvCent9[icent][icase]->Sumw2();
+			hMixKqinvRightWeightCent9[icent][icase]->Sumw2();
 
-				hSameLeftSideKqinvCent9[icent][irap][icase]->Rebin(Rebin);
-				hMixLeftSideKqinvCent9[icent][irap][icase]->Rebin(Rebin);
-				hMixKqinvLeftWeightCent9[icent][irap][icase]->Rebin(Rebin);
-				hSameRightSideKqinvCent9[icent][irap][icase]->Rebin(Rebin);
-				hMixRightSideKqinvCent9[icent][irap][icase]->Rebin(Rebin);
-				hMixKqinvRightWeightCent9[icent][irap][icase]->Rebin(Rebin);
-			}
+			hSameLeftSideKqinvCent9[icent][icase]->Rebin(Rebin);
+			hMixLeftSideKqinvCent9[icent][icase]->Rebin(Rebin);
+			hMixKqinvLeftWeightCent9[icent][icase]->Rebin(Rebin);
+			hSameRightSideKqinvCent9[icent][icase]->Rebin(Rebin);
+			hMixRightSideKqinvCent9[icent][icase]->Rebin(Rebin);
+			hMixKqinvRightWeightCent9[icent][icase]->Rebin(Rebin);
 		}
 	}
 
-	for(int irap = 0; irap < NRap; ++irap) {
-		for(int icase = 0; icase < NCase + 1; ++icase) {
-			for(int icent = 2; icent < NCent9; ++icent) {
-				if(Cent9To3[icent] < 0 || Cent9To1[icent] < 0) {
-					continue;
-				}
-				addHist(hSameLeftSideKqinv[Cent9To3[icent]][irap][icase], hSameLeftSideKqinvCent9[icent][irap][icase], Form("hSameLeftSideKqinv_cent%d_rap%d_case%d", Cent9To3[icent], irap, icase));
-				addHist(hMixLeftSideKqinv[Cent9To3[icent]][irap][icase], hMixLeftSideKqinvCent9[icent][irap][icase], Form("hMixLeftSideKqinv_cent%d_rap%d_case%d", Cent9To3[icent], irap, icase));
-				addHist(hMixKqinvLeftWeight[Cent9To3[icent]][irap][icase], hMixKqinvLeftWeightCent9[icent][irap][icase], Form("hMixKqinvLeftWeight_cent%d_rap%d_case%d", Cent9To3[icent], irap, icase));
-				addHist(hSameRightSideKqinv[Cent9To3[icent]][irap][icase], hSameRightSideKqinvCent9[icent][irap][icase], Form("hSameRightSideKqinv_cent%d_rap%d_case%d", Cent9To3[icent], irap, icase));
-				addHist(hMixRightSideKqinv[Cent9To3[icent]][irap][icase], hMixRightSideKqinvCent9[icent][irap][icase], Form("hMixRightSideKqinv_cent%d_rap%d_case%d", Cent9To3[icent], irap, icase));
-				addHist(hMixKqinvRightWeight[Cent9To3[icent]][irap][icase], hMixKqinvRightWeightCent9[icent][irap][icase], Form("hMixKqinvRightWeight_cent%d_rap%d_case%d", Cent9To3[icent], irap, icase));
-
-				addHist(hSameLeftSideKqinv[Cent9To1[icent]][irap][icase], hSameLeftSideKqinvCent9[icent][irap][icase], Form("hSameLeftSideKqinv_cent%d_rap%d_case%d", Cent9To1[icent], irap, icase));
-				addHist(hMixLeftSideKqinv[Cent9To1[icent]][irap][icase], hMixLeftSideKqinvCent9[icent][irap][icase], Form("hMixLeftSideKqinv_cent%d_rap%d_case%d", Cent9To1[icent], irap, icase));
-				addHist(hMixKqinvLeftWeight[Cent9To1[icent]][irap][icase], hMixKqinvLeftWeightCent9[icent][irap][icase], Form("hMixKqinvLeftWeight_cent%d_rap%d_case%d", Cent9To1[icent], irap, icase));
-				addHist(hSameRightSideKqinv[Cent9To1[icent]][irap][icase], hSameRightSideKqinvCent9[icent][irap][icase], Form("hSameRightSideKqinv_cent%d_rap%d_case%d", Cent9To1[icent], irap, icase));
-				addHist(hMixRightSideKqinv[Cent9To1[icent]][irap][icase], hMixRightSideKqinvCent9[icent][irap][icase], Form("hMixRightSideKqinv_cent%d_rap%d_case%d", Cent9To1[icent], irap, icase));
-				addHist(hMixKqinvRightWeight[Cent9To1[icent]][irap][icase], hMixKqinvRightWeightCent9[icent][irap][icase], Form("hMixKqinvRightWeight_cent%d_rap%d_case%d", Cent9To1[icent], irap, icase));
-			}
-		}
+	for(int icase = 0; icase < NCase + 1; ++icase) {
 		for(int icent = 2; icent < NCent9; ++icent) {
 			if(Cent9To3[icent] < 0 || Cent9To1[icent] < 0) {
 				continue;
 			}
-			addHist(hSameQinv[Cent9To3[icent]][irap], hSameQinvCent9[icent][irap], Form("hSameQinv_cent%d_rap%d", Cent9To3[icent], irap));
-			addHist(hMixQinv[Cent9To3[icent]][irap], hMixQinvCent9[icent][irap], Form("hMixQinv_cent%d_rap%d", Cent9To3[icent], irap));
+			addHist(hSameLeftSideKqinv[Cent9To3[icent]][icase], hSameLeftSideKqinvCent9[icent][icase], Form("hSameLeftSideKqinv_cent%d_case%d", Cent9To3[icent], icase));
+			addHist(hMixLeftSideKqinv[Cent9To3[icent]][icase], hMixLeftSideKqinvCent9[icent][icase], Form("hMixLeftSideKqinv_cent%d_case%d", Cent9To3[icent], icase));
+			addHist(hMixKqinvLeftWeight[Cent9To3[icent]][icase], hMixKqinvLeftWeightCent9[icent][icase], Form("hMixKqinvLeftWeight_cent%d_case%d", Cent9To3[icent], icase));
+			addHist(hSameRightSideKqinv[Cent9To3[icent]][icase], hSameRightSideKqinvCent9[icent][icase], Form("hSameRightSideKqinv_cent%d_case%d", Cent9To3[icent], icase));
+			addHist(hMixRightSideKqinv[Cent9To3[icent]][icase], hMixRightSideKqinvCent9[icent][icase], Form("hMixRightSideKqinv_cent%d_case%d", Cent9To3[icent], icase));
+			addHist(hMixKqinvRightWeight[Cent9To3[icent]][icase], hMixKqinvRightWeightCent9[icent][icase], Form("hMixKqinvRightWeight_cent%d_case%d", Cent9To3[icent], icase));
 
-			addHist(hSameQinv[Cent9To1[icent]][irap], hSameQinvCent9[icent][irap], Form("hSameQinv_cent%d_rap%d", Cent9To1[icent], irap));
-			addHist(hMixQinv[Cent9To1[icent]][irap], hMixQinvCent9[icent][irap], Form("hMixQinv_cent%d_rap%d", Cent9To1[icent], irap));
+			addHist(hSameLeftSideKqinv[Cent9To1[icent]][icase], hSameLeftSideKqinvCent9[icent][icase], Form("hSameLeftSideKqinv_cent%d_case%d", Cent9To1[icent], icase));
+			addHist(hMixLeftSideKqinv[Cent9To1[icent]][icase], hMixLeftSideKqinvCent9[icent][icase], Form("hMixLeftSideKqinv_cent%d_case%d", Cent9To1[icent], icase));
+			addHist(hMixKqinvLeftWeight[Cent9To1[icent]][icase], hMixKqinvLeftWeightCent9[icent][icase], Form("hMixKqinvLeftWeight_cent%d_case%d", Cent9To1[icent], icase));
+			addHist(hSameRightSideKqinv[Cent9To1[icent]][icase], hSameRightSideKqinvCent9[icent][icase], Form("hSameRightSideKqinv_cent%d_case%d", Cent9To1[icent], icase));
+			addHist(hMixRightSideKqinv[Cent9To1[icent]][icase], hMixRightSideKqinvCent9[icent][icase], Form("hMixRightSideKqinv_cent%d_case%d", Cent9To1[icent], icase));
+			addHist(hMixKqinvRightWeight[Cent9To1[icent]][icase], hMixKqinvRightWeightCent9[icent][icase], Form("hMixKqinvRightWeight_cent%d_case%d", Cent9To1[icent], icase));
 		}
+	}
+	for(int icent = 2; icent < NCent9; ++icent) {
+		if(Cent9To3[icent] < 0 || Cent9To1[icent] < 0) {
+			continue;
+		}
+		addHist(hSameQinv[Cent9To3[icent]], hSameQinvCent9[icent], Form("hSameQinv_cent%d", Cent9To3[icent]));
+		addHist(hMixQinv[Cent9To3[icent]], hMixQinvCent9[icent], Form("hMixQinv_cent%d", Cent9To3[icent]));
+
+		addHist(hSameQinv[Cent9To1[icent]], hSameQinvCent9[icent], Form("hSameQinv_cent%d", Cent9To1[icent]));
+		addHist(hMixQinv[Cent9To1[icent]], hMixQinvCent9[icent], Form("hMixQinv_cent%d", Cent9To1[icent]));
 	}
 	//}}}
 
 	//get weight vs. qinv{{{
 	for(int icent = 0; icent < NCent; ++icent) {
-		for(int irap = 0; irap < NRap; ++irap) {
-			for(int icase = 0; icase < NCase + 1; ++icase) {
-				addHist(hLeftWeight[icent][irap][icase], hMixKqinvLeftWeight[icent][irap][icase], Form("hLeftWeight_cent%d_rap%d_case%d", icent, irap, icase));
-				addHist(hRightWeight[icent][irap][icase], hMixKqinvRightWeight[icent][irap][icase], Form("hRightWeight_cent%d_rap%d_case%d", icent, irap, icase));
-				hLeftWeight[icent][irap][icase]->Divide(hLeftWeight[icent][irap][icase], hMixLeftSideKqinv[icent][irap][icase]);
-				hRightWeight[icent][irap][icase]->Divide(hRightWeight[icent][irap][icase], hMixRightSideKqinv[icent][irap][icase]);
-			}
+		for(int icase = 0; icase < NCase + 1; ++icase) {
+			addHist(hLeftWeight[icent][icase], hMixKqinvLeftWeight[icent][icase], Form("hLeftWeight_cent%d_case%d", icent, icase));
+			addHist(hRightWeight[icent][icase], hMixKqinvRightWeight[icent][icase], Form("hRightWeight_cent%d_case%d", icent, icase));
+			hLeftWeight[icent][icase]->Divide(hLeftWeight[icent][icase], hMixLeftSideKqinv[icent][icase]);
+			hRightWeight[icent][icase]->Divide(hRightWeight[icent][icase], hMixRightSideKqinv[icent][icase]);
 		}
 	}
 	//}}}
 
 	//calculate Side Band CF{{{
 	for(int icent = 0; icent < NCent; ++icent) {
-		for(int irap = 0; irap < NRap; ++irap) {
-			for(int icase = 0; icase < NCase; ++icase) {
-				addHist(hLeftSideCF[icent][irap][icase], hSameLeftSideKqinv[icent][irap][icase], Form("hLeftSideCF_cent%d_rap%d_case%d", icent, irap, icase));
-				addHist(hRightSideCF[icent][irap][icase], hSameRightSideKqinv[icent][irap][icase], Form("hRightSideCF_cent%d_rap%d_case%d", icent, irap, icase));
-				//hLeftSideCF[icent][irap][icase]->Divide(hSameLeftSideKqinv[icent][irap][icase], hMixLeftSideKqinv[icent][irap][icase], 1 / hSameLeftSideKqinv[icent][irap][icase]->Integral(), 1 / hMixLeftSideKqinv[icent][irap][icase]->Integral());
-				//hRightSideCF[icent][irap][icase]->Divide(hSameRightSideKqinv[icent][irap][icase], hMixRightSideKqinv[icent][irap][icase], 1 / hSameRightSideKqinv[icent][irap][icase]->Integral(), 1 / hMixRightSideKqinv[icent][irap][icase]->Integral());
-				hLeftSideCF[icent][irap][icase]->Divide(hSameLeftSideKqinv[icent][irap][icase], hMixLeftSideKqinv[icent][irap][icase], 1 / getIntegral(hSameLeftSideKqinv[icent][irap][icase], NormalizeLower, NormalizeUpper), 1 / getIntegral(hMixLeftSideKqinv[icent][irap][icase], NormalizeLower, NormalizeUpper));
-				hRightSideCF[icent][irap][icase]->Divide(hSameRightSideKqinv[icent][irap][icase], hMixRightSideKqinv[icent][irap][icase], 1 / getIntegral(hSameRightSideKqinv[icent][irap][icase], NormalizeLower, NormalizeUpper), 1 / getIntegral(hMixRightSideKqinv[icent][irap][icase], NormalizeLower, NormalizeUpper));
-			}
+		for(int icase = 0; icase < NCase; ++icase) {
+			addHist(hLeftSideCF[icent][icase], hSameLeftSideKqinv[icent][icase], Form("hLeftSideCF_cent%d_case%d", icent, icase));
+			addHist(hRightSideCF[icent][icase], hSameRightSideKqinv[icent][icase], Form("hRightSideCF_cent%d_case%d", icent, icase));
+			hLeftSideCF[icent][icase]->Divide(hSameLeftSideKqinv[icent][icase], hMixLeftSideKqinv[icent][icase], 1 / getIntegral(hSameLeftSideKqinv[icent][icase], NormalizeLower, NormalizeUpper), 1 / getIntegral(hMixLeftSideKqinv[icent][icase], NormalizeLower, NormalizeUpper));
+			hRightSideCF[icent][icase]->Divide(hSameRightSideKqinv[icent][icase], hMixRightSideKqinv[icent][icase], 1 / getIntegral(hSameRightSideKqinv[icent][icase], NormalizeLower, NormalizeUpper), 1 / getIntegral(hMixRightSideKqinv[icent][icase], NormalizeLower, NormalizeUpper));
 		}
 	}
 
 	for(int icent = 0; icent < NCent; ++icent) {
-		for(int irap = 0; irap < NRap; ++irap) {
-			for(int icase = 0; icase < 1; ++icase) {
-				addHist(hLeftSideCFTot[icent][irap], hLeftSideCF[icent][irap][icase], Form("hLeftSideCFTot_cent%d_rap%d", icent, irap), hLeftWeight[icent][irap][icase], 1);
-				addHist(hRightSideCFTot[icent][irap], hRightSideCF[icent][irap][icase], Form("hRightSideCFTot_cent%d_rap%d", icent, irap), hRightWeight[icent][irap][icase], 1);
-			}
+		for(int icase = 0; icase < 1; ++icase) {
+			addHist(hLeftSideCFTot[icent], hLeftSideCF[icent][icase], Form("hLeftSideCFTot_cent%d", icent), hLeftWeight[icent][icase], 1);
+			addHist(hRightSideCFTot[icent], hRightSideCF[icent][icase], Form("hRightSideCFTot_cent%d", icent), hRightWeight[icent][icase], 1);
 		}
 	}
 
 	for(int icent = 0; icent < NCent; ++icent) {
-		for(int irap = 0; irap < NRap; ++irap) {
-			hLeftSideCFWeight[icent][irap] = (TH1F*)hLeftSideCFTot[icent][irap]->Clone();
-			hLeftSideCFWeight[icent][irap]->SetName(Form("hLeftSideCFWeight_cent%d_rap%d", icent, irap));
-			scale(hLeftSideCFWeight[icent][irap], LeftWeight, 1);
-			hRightSideCFWeight[icent][irap] = (TH1F*)hRightSideCFTot[icent][irap]->Clone();
-			hRightSideCFWeight[icent][irap]->SetName(Form("hRightSideCFWeight_cent%d_rap%d", icent, irap));
-			scale(hRightSideCFWeight[icent][irap], LeftWeight, 1);
+		hLeftSideCFWeight[icent] = (TH1F*)hLeftSideCFTot[icent]->Clone();
+		hLeftSideCFWeight[icent]->SetName(Form("hLeftSideCFWeight_cent%d", icent));
+		scale(hLeftSideCFWeight[icent], LeftWeight, 1);
+		hRightSideCFWeight[icent] = (TH1F*)hRightSideCFTot[icent]->Clone();
+		hRightSideCFWeight[icent]->SetName(Form("hRightSideCFWeight_cent%d", icent));
+		scale(hRightSideCFWeight[icent], (1 - LeftWeight), 1);
 
-			addHist(hCFMisid[icent][irap], hLeftSideCFWeight[icent][irap], Form("hCFMisid_cent%d_rap%d", icent, irap), 1, 1);
-			addHist(hCFMisid[icent][irap], hRightSideCFWeight[icent][irap], Form("hCFMisid_cent%d_rap%d", icent, irap), 1, 1);
-		}
+		addHist(hCFMisid[icent], hLeftSideCFWeight[icent], Form("hCFMisid_cent%d", icent), 1, 1);
+		addHist(hCFMisid[icent], hRightSideCFWeight[icent], Form("hCFMisid_cent%d", icent), 1, 1);
 	}
 
 	for(int icent = 0; icent < NCent; ++icent) {
-		for(int irap = 0; irap < NRap; ++irap) {
-			hCFRaw[icent][irap] = (TH1F*)hSameQinv[icent][irap]->Clone();
-			hCFRaw[icent][irap]->SetName(Form("hCFRaw_cent%d_rap%d", icent, irap));
-			hCFRaw[icent][irap]->Divide(hSameQinv[icent][irap], hMixQinv[icent][irap], 1 / getIntegral(hSameQinv[icent][irap], NormalizeLower, NormalizeUpper), 1 / getIntegral(hMixQinv[icent][irap], NormalizeLower, NormalizeUpper));
+		hCFRaw[icent] = (TH1F*)hSameQinv[icent]->Clone();
+		hCFRaw[icent]->SetName(Form("hCFRaw_cent%d", icent));
+		hCFRaw[icent]->Divide(hSameQinv[icent], hMixQinv[icent], 1 / getIntegral(hSameQinv[icent], NormalizeLower, NormalizeUpper), 1 / getIntegral(hMixQinv[icent], NormalizeLower, NormalizeUpper));
 
-			addHist(hCFGenuine[icent][irap], hCFRaw[icent][irap], Form("hCFGenuine_cent%d_rap%d", icent, irap), 1, 1);
-			addHist(hCFGenuine[icent][irap], hCFMisid[icent][irap], Form("hCFGenuine_cent%d_rap%d", icent, irap), -1, 1);
-			divide(hCFGenuine[icent][irap], hLeftWeight[icent][irap][3], 1);
-		}
+		addHist(hCFGenuine[icent], hCFRaw[icent], Form("hCFGenuine_cent%d", icent), 1, 1);
+		addHist(hCFGenuine[icent], hCFMisid[icent], Form("hCFGenuine_cent%d", icent), -1, 1);
+		divide(hCFGenuine[icent], hLeftWeight[icent][3], 1);
 	}
 	//}}}
 
 	//release memory{{{
 	for(int icent = 0; icent < NCent9; ++icent) {
-		for(int irap = 0; irap < NRap; ++irap) {
-			delete hSameQinvCent9[icent][irap];
-			delete hMixQinvCent9[icent][irap];
-			for(int icase = 0; icase < NCase + 1; ++icase) {
-				delete hSameLeftSideKqinvCent9[icent][irap][icase];
-				delete hMixLeftSideKqinvCent9[icent][irap][icase];
-				delete hMixKqinvLeftWeightCent9[icent][irap][icase];
-				delete hSameRightSideKqinvCent9[icent][irap][icase];
-				delete hMixRightSideKqinvCent9[icent][irap][icase];
-				delete hMixKqinvRightWeightCent9[icent][irap][icase];
-			}
+		delete hSameQinvCent9[icent];
+		delete hMixQinvCent9[icent];
+		for(int icase = 0; icase < NCase + 1; ++icase) {
+			delete hSameLeftSideKqinvCent9[icent][icase];
+			delete hMixLeftSideKqinvCent9[icent][icase];
+			delete hMixKqinvLeftWeightCent9[icent][icase];
+			delete hSameRightSideKqinvCent9[icent][icase];
+			delete hMixRightSideKqinvCent9[icent][icase];
+			delete hMixKqinvRightWeightCent9[icent][icase];
 		}
 	}
 
 	for(int icent = 0; icent < NCent; ++icent) {
-		for(int irap = 0; irap < NRap; ++irap) {
-			delete hSameQinv[icent][irap];
-			delete hMixQinv[icent][irap];
-			delete hCFRaw[icent][irap];
-			delete hCFGenuine[icent][irap];
-			for(int icase = 0; icase < NCase + 1; ++icase) {
-				delete hSameLeftSideKqinv[icent][irap][icase];
-				delete hMixLeftSideKqinv[icent][irap][icase];
-				delete hMixKqinvLeftWeight[icent][irap][icase];
-				delete hSameRightSideKqinv[icent][irap][icase];
-				delete hMixRightSideKqinv[icent][irap][icase];
-				delete hMixKqinvRightWeight[icent][irap][icase];
-			}
+		delete hSameQinv[icent];
+		delete hMixQinv[icent];
+		delete hCFRaw[icent];
+		//delete hCFGenuine[icent];
+		for(int icase = 0; icase < NCase + 1; ++icase) {
+			delete hSameLeftSideKqinv[icent][icase];
+			delete hMixLeftSideKqinv[icent][icase];
+			delete hMixKqinvLeftWeight[icent][icase];
+			delete hSameRightSideKqinv[icent][icase];
+			delete hMixRightSideKqinv[icent][icase];
+			delete hMixKqinvRightWeight[icent][icase];
 		}
 	}
 	//}}}
-	return (TH1F***)hCFMisid;
+	return;
 }
+
