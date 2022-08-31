@@ -394,7 +394,7 @@ void Kshort0CF(TFile* ifPlots, TH1F**& hCFGenuine, float SideBandLower, float Si
 	const float RapEdge[NRap + 1] = { -1.00, -0.8, 0.4, 0.5 };
 	const std::string CentName[NCent] = { "0-10%", "10-60%", "0-60%" };
 	const std::string CaseName[NCase] = { "K_{s}^{0}#tilde{K_{s}^{0}}", "#tilde{K_{s}^{0}}K_{s}^{0}", "#tilde{K_{s}^{0}}#tilde{K_{s}^{0}}" };
-	const int Cent9To3[NCent9] = { -1, -1, 1, 1, 1, 1, 1, 0, 0 };
+	const int Cent9To3[NCent9] = { -1, -1, 1, 1, 1, 1, 0, 0, 0 };
 	const int Cent9To1[NCent9] = { -1, -1, 2, 2, 2, 2, 2, 2, 2 };
 	float LeftWeight = 0.61, RightWeight = 0.39;
 	LeftWeight = Kshort0_SideBandWeight(ifPlots, 0.42, 0.48, 0.52, 0.58);
