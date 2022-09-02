@@ -1,8 +1,8 @@
 #!/bin/bash
-energy="3p2"
-preidx="Test3."
+energy="3p9"
+preidx="Acc4_4.1."
 
-for num in {1..1}
+for num in {0..0}
 do
 	#mkdir -p cutSet${num}
 	#mv cutSet${num}InvM.txt cutSet${num}
