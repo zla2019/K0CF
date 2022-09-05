@@ -2,10 +2,10 @@
 #include <iostream>
 #include <ctime>
 #include <TMath.h>
+#include <TLorentzVector.h>
 
 void Hist::init()
 {
-	hSameKPDG = new TH1F("hSameKPDG", "Kaon pdg distribution", 5, 280, 340);
 	hVz = new TH1F("hVz", "V_{z} distribution;cm;cnts", 100, 198, 202);
 	hVr = new TH2F("hVr", "V_{r} distribution;cm;cm", 100, -2, 2, 100, -4, 0);
 	hCent9 = new TH1F("hCent9", "Cent9 dist.", 10, -1, 9);
@@ -33,6 +33,12 @@ void Hist::init()
 		hSameKPtRapMass[icent] = new TH3F(Form("hMassCascadeRapidityvsPt_cent%d", icent),Form("hMassCascadeRapidityvsPt_cent%d", icent),160, 0.42, 0.58, 20, -1, 1, 30, 0, 3);
 	}
 
+	for(int ieta = 0; ieta < 10; ++ieta) {
+		hDiffTheta[ieta] = new TH2F(Form("hDiffTheta_eta%d", ieta), Form("hDiffTheta_eta%d", ieta), 500, 0, 5, 400, -0.2, 0.2);
+		hDiffPhi[ieta] = new TH2F(Form("hDiffPhi_eta%d", ieta), Form("hDiffPhi_eta%d", ieta), 500, 0, 5, 400, -0.2, 0.2);
+		hDiffPt[ieta] = new TH2F(Form("hDiffPt_eta%d", ieta), Form("hDiffPt_eta%d", ieta), 500, 0, 5, 400, -0.2, 0.2);
+	}
+
 	//cut plots
 	hCutChi2Topo = new TH1F("hCutChi2Topo", "#chi^{2}_{topo} after cut", 50, 0, 10);
 	hCutChi2NDF = new TH1F("hCutChi2NDF", "#chi^{2}_{NDF} after cut", 50, 0, 10);
@@ -48,20 +54,21 @@ void Hist::init()
 
 void Hist::FillAll(MyTree::Particle& p, int cent9)
 {
+	float mcEnergy = sqrt(p.mcPx*p.mcPx + p.mcPy*p.mcPy + p.mcPz*p.mcPz + 0.497611*0.497611);
+	float rcEnergy = p.energy;
+	TLorentzVector mc_v4(p.mcPx, p.mcPy, p.mcPz, mcEnergy);
+	TLorentzVector rc_v4(p.px, p.py, p.pz, rcEnergy);
+
 	hDecayLength->Fill(p.decayLength);
 	hDgDCA->Fill(p.dgDCA);
 	hDCA->Fill(p.dca);
-	hSameKPtRapMass[cent9]->Fill(p.mass, p.rap, p.pt);
-}
 
-void Hist::Fill(MyTree::Particle& p)
-{
-	hSameKRapPt->Fill(p.rap, p.pt);
-	hSameKPDG->Fill(p.pdg);
+	hSameKPtRapMass[cent9]->Fill(p.mass, p.rap, p.pt);
+	hSameKRapPt->Fill(mc_v4.Rapidity(), mc_v4.Pt());
 	hSameKMass->Fill(p.mass);
 	hSameKPipRapPt->Fill(p.rapPip, p.ptPip);
 	hSameKPimRapPt->Fill(p.rapPim, p.ptPim);
-	hSameKPhi->Fill(p.phi);
+	hSameKPhi->Fill(mc_v4.Phi());
 	hDedx->Fill(p.pA, p.dEdxA);
 	hDedx->Fill(-p.pB, p.dEdxB);
 	hMass2->Fill(p.pA, p.m2A);
@@ -84,29 +91,41 @@ void Hist::FillCut(MyTree::Particle& p)
 	hEtaPt->Fill(p.etaB, p.ptPim);
 }
 
+void Hist::Fill(MyTree::Particle& p)
+{
+	int ieta = (p.eta + 2.0) / 0.2;
+	if(ieta < 0 || ieta > 10) return;
+	float mcEnergy = sqrt(p.mcPx*p.mcPx + p.mcPy*p.mcPy + p.mcPz*p.mcPz + 0.497611*0.497611);
+	float rcEnergy = p.energy;
+	TLorentzVector mc_v4(p.mcPx, p.mcPy, p.mcPz, mcEnergy);
+	TLorentzVector rc_v4(p.px, p.py, p.pz, rcEnergy);
+	hDiffTheta[ieta]->Fill(mc_v4.P(), mc_v4.Theta() - rc_v4.Theta());
+	hDiffPhi[ieta]->Fill(mc_v4.P(), mc_v4.Phi() - rc_v4.Phi());
+	hDiffPt[ieta]->Fill(mc_v4.P(), mc_v4.Pt() - rc_v4.Pt());
+}
+
 void Hist::Write(TFile* of)
 {
 	of->cd();
-        hVz->Write();
-        hVr->Write();
-        hCent9->Write();
-        hSameKPDG->Write();
-        hSameKMass->Write();
-        hSameKPhi->Write();
-        hSameKRapPt->Write();
-        hSameKPipRapPt->Write();
-        hSameKPimRapPt->Write();
+	hVz->Write();
+	hVr->Write();
+	hCent9->Write();
+	hSameKMass->Write();
+	hSameKPhi->Write();
+	hSameKRapPt->Write();
+	hSameKPipRapPt->Write();
+	hSameKPimRapPt->Write();
 
-        hCosTheta->Write();
-        hDecayLength->Write();
-        hDgDCA->Write();
-        hDCA->Write();
-        hDedx->Write();
-        hMass2->Write();
-        hPipNSigma->Write();
-        hPimNSigma->Write();
-        hPipNSigma2->Write();
-        hPimNSigma2->Write();
+	hCosTheta->Write();
+	hDecayLength->Write();
+	hDgDCA->Write();
+	hDCA->Write();
+	hDedx->Write();
+	hMass2->Write();
+	hPipNSigma->Write();
+	hPimNSigma->Write();
+	hPipNSigma2->Write();
+	hPimNSigma2->Write();
 
 	//cut plots
 	hCutChi2Topo->Write();
@@ -121,7 +140,13 @@ void Hist::Write(TFile* of)
 	hEtaPt->Write();
 
 	//CF plots
-        for(int icent = 0; icent < 9; ++icent) {
-                hSameKPtRapMass[icent]->Write();
-        }
+	for(int icent = 0; icent < 9; ++icent) {
+		hSameKPtRapMass[icent]->Write();
+	}
+
+	for(int ieta = 0; ieta < 10; ++ieta) {
+		hDiffTheta[ieta]->Write();
+		hDiffPhi[ieta]->Write();
+		hDiffPt[ieta]->Write();
+	}
 }

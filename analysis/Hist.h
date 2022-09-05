@@ -13,14 +13,13 @@ public:
 	~Hist() {};
 	void init();
 
-	void Fill(MyTree::Particle& p);
 	void FillAll(MyTree::Particle& p, int cent9);
 	void FillCut(MyTree::Particle& p);
+	void Fill(MyTree::Particle& p);
 
 	void Write(TFile* of);
 
 	//hist list
-	TH1F* hSameKPDG;
 	TH1F* hVz;
 	TH2F* hVr;
 	TH1F* hCent9;

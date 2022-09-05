@@ -65,6 +65,10 @@ public:
 	float mBufferdEdxB[nTrackMax];
 	float mBufferNHitsDedxA[nTrackMax];
 	float mBufferNHitsDedxB[nTrackMax];
+	int mBufferIsMC[nTrackMax];
+	float mBufferMCPx[nTrackMax];
+	float mBufferMCPy[nTrackMax];
+	float mBufferMCPz[nTrackMax];
 
 	struct Particle {
 		int pdg;
@@ -107,6 +111,10 @@ public:
 		float dEdxB;
 		float nHitsDedxA;
 		float nHitsDedxB;
+		int isMC;
+		float mcPx;
+		float mcPy;
+		float mcPz;
 	};
         Particle getParticle(int iparticle, float beamRapidity);
         Particle getMixParticle(int cent, int ievt, int iparticle, float beamRapidity);

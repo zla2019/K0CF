@@ -80,6 +80,10 @@ bool MyTree::setBranchAddress()
 		//mTree->SetBranchAddress("dedxB", mBufferdEdxB);
 		//mTree->SetBranchAddress("nHitsDedxA", mBufferNHitsDedxA);
 		//mTree->SetBranchAddress("nHitsDedxB", mBufferNHitsDedxB);
+		mTree->SetBranchAddress("isMC", mBufferIsMC);
+		mTree->SetBranchAddress("mcPx", mBufferMCPx);
+		mTree->SetBranchAddress("mcPy", mBufferMCPy);
+		mTree->SetBranchAddress("mcPz", mBufferMCPz);
 		return true;
 	} else {
 		return false;
@@ -155,6 +159,10 @@ void MyTree::copyToBuffer()
 			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].dEdxB = mBufferdEdxB[iK];
 			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].nHitsDedxA = mBufferNHitsDedxA[iK];
 			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].nHitsDedxB = mBufferNHitsDedxB[iK];
+			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].isMC = mBufferIsMC[iK];
+			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].mcPx = mBufferMCPx[iK];
+			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].mcPy = mBufferMCPy[iK];
+			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].mcPz = mBufferMCPz[iK];
 		}
 		if(mMaxMixEvent[(int)mBufferCent9] < 13) {
 			mMaxMixEvent[(int)mBufferCent9]++;
@@ -218,6 +226,10 @@ void MyTree::copyToBuffer(std::vector<int>& idx)
 			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].dEdxB = mBufferdEdxB[iK];
 			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].nHitsDedxA = mBufferNHitsDedxA[iK];
 			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].nHitsDedxB = mBufferNHitsDedxB[iK];
+			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].isMC = mBufferIsMC[iK];
+			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].mcPx = mBufferMCPx[iK];
+			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].mcPy = mBufferMCPy[iK];
+			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].mcPz = mBufferMCPz[iK];
 		}
 		if(mMaxMixEvent[(int)mBufferCent9] < 23) {
 			mMaxMixEvent[(int)mBufferCent9]++;
@@ -266,6 +278,10 @@ MyTree::Particle MyTree::getParticle(int iparticle, float beamRapidity)
 	particle.dEdxB = mBufferdEdxB[iparticle];
 	particle.nHitsDedxA = mBufferNHitsDedxA[iparticle];
 	particle.nHitsDedxB = mBufferNHitsDedxB[iparticle];
+	particle.isMC = mBufferIsMC[iparticle];
+	particle.mcPx = mBufferMCPx[iparticle];
+	particle.mcPy = mBufferMCPy[iparticle];
+	particle.mcPz = mBufferMCPz[iparticle];
 
 	particle.px = particle.pt * TMath::Cos(particle.phi);
 	particle.py = particle.pt * TMath::Sin(particle.phi);
