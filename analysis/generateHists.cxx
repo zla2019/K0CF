@@ -190,9 +190,7 @@ int main(int argc, char **argv)
 					hist.Fill(curK);
 					hist.FillCut(curK);
 				} else if(isSideBand == 1) {
-					hist.FillLeft(curK);
 				} else if(isSideBand == 2) {
-					hist.FillRight(curK);
 				}
 				if(!config.mSwitchList["OpenCF"]) continue;
 				//same pair{{{
@@ -241,7 +239,6 @@ int main(int argc, char **argv)
 					k1_v4.SetXYZT(curK.px, curK.py, curK.pz, curK.energy);
 					k2_v4.SetXYZT(curK2.px, curK2.py, curK2.pz, curK2.energy);
 					TLorentzVector kDiff_v4 = (k1_v4 - k2_v4);
-					hist.Fill(fabs(kDiff_v4.Mag()), (int)cent9, isSideBand, isSideBand2);
 				}
 				//}}}
 				//mix pair{{{
@@ -281,7 +278,6 @@ int main(int argc, char **argv)
 						k1_v4.SetXYZT(curK.px, curK.py, curK.pz, curK.energy);
 						k2_v4.SetXYZT(mixK.px, mixK.py, mixK.pz, mixK.energy);
 						TLorentzVector kDiff_v4 = (k1_v4 - k2_v4);
-						hist.FillMix(fabs(kDiff_v4.Mag()), (int)cent9, isSideBand, isSideBand2, sideBandWeight);
 					}
 				}
 				//}}}
