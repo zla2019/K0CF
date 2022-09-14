@@ -36,6 +36,7 @@ public:
 	TH1F* hDCA;
 	TH2F* hDedx;
 	TH2F* hMass2;
+	TH2F* hAllKRapPt;
 	TH2F* hSameKRapPt;
 	TH1F* hSameKMass;
 	TH1F* hSameKPhi;

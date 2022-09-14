@@ -1,3 +1,4 @@
 *.[o]
 analysis/generateHists
 *.swp
+tool/scanCut.sh

@@ -26,7 +26,7 @@ float* pidCalib_pion = nullptr;
 
 bool passCut(double a, double lower, double upper);
 int getMomBin(float mom, const float* MomLower, const float* MomUpper, const float NMom);
-bool loadBadRun(std::unordered_map<int, bool>* badRunList, std::ifstream* ifBadRunList);
+bool loadBadRun(std::unordered_map<int, bool>& badRunList, std::ifstream& ifBadRunList);
 bool passCut(double a, Config& config, std::string cutName);
 bool passCut(double a, double b, Config& config, std::string cutName);
 inline bool passAllCuts(MyTree::Particle& p, Config& config);
@@ -68,6 +68,11 @@ int main(int argc, char **argv)
 	else if(config.mSetList["Energy"] == "3.2") pidCalib_pion = pidCalib_pion_3p2;
 	else if(config.mSetList["Energy"] == "3.5") pidCalib_pion = pidCalib_pion_3p5;
 	else if(config.mSetList["Energy"] == "3.9") pidCalib_pion = pidCalib_pion_3p9;
+
+	if(config.mSetList["Energy"] == "3.2") {
+		std::ifstream ifBadRun("/home/zla/CF/K0CF/analysis/3p2badRun.list");
+		loadBadRun(badRunList, ifBadRun);
+	}
 	//}}}
 
 	//Save cut info{{{
@@ -116,7 +121,7 @@ int main(int argc, char **argv)
 			myTree->getEntry(ievt);
 			if(badRunList[myTree->mBufferRunId] == true) {
 				if(!MuteWarning) {
-					std::cout << "WARNING: Bad run " << myTree->mBufferRunId << " event found, will continue this event" << std::endl;
+					std::cout << "WARNING: Bad run " << myTree->mBufferRunId << std::endl;
 				}
 				continue;
 			}
@@ -308,18 +313,21 @@ int main(int argc, char **argv)
 }
 
 //my tools{{{
-bool loadBadRun(std::unordered_map<int, bool>* badRunList, std::ifstream* ifBadRunList)
+bool loadBadRun(std::unordered_map<int, bool>& badRunList, std::ifstream& ifBadRunList)
 {
-	while(!ifBadRunList->eof()) {
+	if(!ifBadRunList.is_open()) {
+		std::cout << "ERROR: Bad run list file not open" << std::endl;
+	}
+	while(!ifBadRunList.eof()) {
 		std::string badRunStr = "";
-		*ifBadRunList >> badRunStr;
+		ifBadRunList >> badRunStr;
 		if(badRunStr == "") {
-			continue;
+			break;
 		}
 		int badRun = std::stoi(badRunStr);
-		(*(badRunList))[badRun] = true;
+		badRunList[badRun] = true;
 	}
-	std::cout << "LOG: " << badRunList->size() << " Bad Runs Loaded" << std::endl;
+	std::cout << "LOG: " << badRunList.size() << " Bad Runs Loaded" << std::endl;
 	return true;
 }
 
@@ -415,6 +423,8 @@ inline bool passAllCuts(MyTree::Particle& p, Config& config)
 	if(!passCut(nsigmaA, config, "NSigmaPi")) return false;
 	if(!passCut(nsigmaB, config, "NSigmaPi")) return false;
 	if(p.rap > 0 && p.pt < 0.3) return false;
+	if(p.etaA < -2.0 || p.etaA > 0) return false;
+	if(p.etaB < -2.0 || p.etaB > 0) return false;
 	return true;
 }
 //}}}

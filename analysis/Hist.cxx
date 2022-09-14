@@ -18,6 +18,7 @@ void Hist::init()
 	hDedx = new TH2F("hDedx", "dEdx vs p*q;p*q;dEdx", 1000, -5, 5, 500, 1.5, 6.5);
 	hMass2 = new TH2F("hMass2", "m^{2} vs p*q;p*q;m^{2}", 1000, -5, 5, 500, -2, 3);
 
+	hAllKRapPt = new TH2F("hAllKRapPt", "K_{s}^{0} Acc.", 200, -1, 1, 300, 0, 3);
 	hSameKRapPt = new TH2F("hSameKRapPt", "K_{s}^{0} Acc.", 200, -1, 1, 300, 0, 3);
 	hSameKMass = new TH1F("hSameKMass", "K_{s}^{0} mass distribution;M_{inv};cnts", 160, 0.48, 0.52);
 	hSameKPhi = new TH1F("hSameKPhi", "K_{s}^{0} #phi distribution;#phi;cnts", 100, -TMath::Pi(), TMath::Pi());
@@ -200,6 +201,7 @@ void Hist::Write(TFile* of)
         hSameKPDG->Write();
         hSameKMass->Write();
         hSameKPhi->Write();
+        hAllKRapPt->Write();
         hSameKRapPt->Write();
         hSameKPipRapPt->Write();
         hSameKPimRapPt->Write();
