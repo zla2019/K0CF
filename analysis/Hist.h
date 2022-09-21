@@ -29,6 +29,7 @@ public:
 	TH1F* hVz;
 	TH2F* hVr;
 	TH1F* hCent9;
+	TH1F* hRefMult;
 
 	TH1F* hCosTheta;
 	TH1F* hDecayLength;

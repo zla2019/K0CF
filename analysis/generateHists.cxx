@@ -139,6 +139,7 @@ int main(int argc, char **argv)
 				centForPurity = 2;
 			}
 			unsigned int nK = myTree->mBufferNTrack;
+			hist.hRefMult->Fill(myTree->mBufferRefMult);
 			if(cent9 < 0 || cent9 > 8) {
 				continue;
 			}

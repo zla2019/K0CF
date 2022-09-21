@@ -9,6 +9,7 @@ void Hist::init()
 	hVz = new TH1F("hVz", "V_{z} distribution;cm;cnts", 100, 198, 202);
 	hVr = new TH2F("hVr", "V_{r} distribution;cm;cm", 100, -2, 2, 100, -4, 0);
 	hCent9 = new TH1F("hCent9", "Cent9 dist.", 10, -1, 9);
+	hRefMult = new TH1F("hRefMult", "countrefmult", 400, 0, 400);
 
 	hCosTheta = new TH1F("hCosTheta", "cos(#theta) distribution", 50, 0.95, 1.0);
 	hDecayLength = new TH1F("hDecayLength", "K^{0}_{s} decay length", 100, 0, 20);
@@ -198,6 +199,7 @@ void Hist::Write(TFile* of)
         hVz->Write();
         hVr->Write();
         hCent9->Write();
+	hRefMult->Write();
         hSameKPDG->Write();
         hSameKMass->Write();
         hSameKPhi->Write();
