@@ -2,3 +2,16 @@
 analysis/generateHists
 *.swp
 tool/scanCut.sh
+*.dataset
+*.xml
+analysis/test*
+analysis/*.list
+analysis/plotsFile
+analysis/csh
+analysis/err
+analysis/plotsFile
+analysis/report
+analysis/list
+analysis/log
+analysis/rm.sh
+analysis/monitorAndSubmit.sh
