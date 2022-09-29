@@ -1,4 +1,6 @@
 #include <iostream>
+//#include "CFLLFunc.C"
+#include "/home/zla/CF/code/CFLLFunc.C"
 #define SETTING
 const int NCent9 = 9;
 const int NCent = 3;
@@ -44,11 +46,42 @@ void PureCF(double Energy)
 	PureCF(hCFRaw, hCFMisid, hCFPure, hPairPurity);
 	//}}}
 
+	//fitting {{{
+	TF1* fCFGaus = new TF1("fCF", "1 + [0] * exp((-1 * [1]^2 * (x)^2) / 0.038937929230)", 0, 1);
+	fCFGaus->SetLineColor(kBlack);
+	fCFGaus->SetParameter(0, 1);
+	fCFGaus->SetParameter(1, 3);
+	float fitLower = hCFPure[2]->GetBinLowEdge(2);
+	float fitUpper = hCFPure[2]->GetBinLowEdge(hCFPure[2]->GetNbinsX()) + hCFPure[2]->GetBinWidth(hCFPure[2]->GetNbinsX());
+	hCFPure[2]->Fit(fCFGaus, "RN", "", fitLower, fitUpper);
+
+	TF1* fCFLL = new TF1("fCF", CFLL, 0, 0.4, 2);
+	fCFLL->SetParameters(fCFGaus->GetParameters());
+	fCFLL->SetParLimits(1, 0.2, 7);
+	fCFLL->SetParLimits(0, 0.2, 1);
+	hCFPure[2]->Fit(fCFLL, "RN", "", fitLower, 0.4);
+	//}}}
+
 	//plotting {{{
-	TCanvas* caPure = new TCanvas("caPure", "caPure", 1080, 1080);
+	TCanvas* caPure = new TCanvas("caPure", "caPure", 900, 900);
+	TF1* fCFDrawGaus = new TF1("fCFDrawGaus", "1 + [0] * exp((-1 * [1]^2 * (x)^2) / 0.038937929230)", 0, 1);
+	TF1* fCFDrawLL = new TF1("fCFDrawLL", CFLL, 0, 0.4, 2);
+	TF1* fCFDrawLLSI = new TF1("fCFDrawLLSI", CFLLSI, 0, 0.4, 2);
+	fCFDrawGaus->SetLineColor(kBlack);
+	fCFDrawGaus->SetParameters(fCFGaus->GetParameters());
+	fCFDrawGaus->SetLineWidth(3);
+	fCFDrawLL->SetLineColor(kRed);
+	fCFDrawLL->SetParameters(fCFLL->GetParameters());
+	fCFDrawLL->SetLineWidth(3);
+	fCFDrawLLSI->SetLineColor(kGreen-5);
+	fCFDrawLLSI->SetParameters(fCFLL->GetParameters());
+	fCFDrawLLSI->SetLineWidth(3);
+
 	thisPad = (TPad*)caPure->cd();
 	thisPad->SetGrid();
 	thisPad->SetMargin(0.12, 0.02, 0.12, 0.02);
+	TLegend* leg = new TLegend(0.5, 0.2, 0.9, 0.4);
+	leg->SetLineWidth(0);
 	setMarker(hCFPure[2], 20, 2, kBlack);
 	hCFPure[2]->GetXaxis()->SetRangeUser(0, 0.6);
 	hCFPure[2]->SetLineColor(kBlack);
@@ -59,11 +92,20 @@ void PureCF(double Energy)
 	hCFPure[2]->SetYTitle("C_{pure}(q_{inv})");
 	hCFPure[2]->SetStats(0);
 	hCFPure[2]->SetTitle("");
-	hCFPure[2]->SetMaximum(hCFPure[2]->GetMaximum() * 1.3);
-	hCFPure[2]->SetMinimum(hCFPure[2]->GetMinimum() * 0.7);
+	hCFPure[2]->SetMaximum(2.0);
+	hCFPure[2]->SetMinimum(0.6);
 	hCFPure[2]->Draw("ep");
+	fCFDrawGaus->Draw("same");
+	fCFDrawLL->Draw("same");
+	fCFDrawLLSI->Draw("same");
+	leg->AddEntry(fCFDrawGaus, "Gaus", "l");
+	leg->AddEntry(fCFDrawLL, "LL", "l");
+	leg->AddEntry(fCFDrawLLSI, "SI(= LL - Gaus.)", "l");
 	drawYBaseLine(1, thisPad, kBlue, 2, 2);
 	drawText(0.35, 0.9, 0.05, Form("%.1f GeV Au+Au collisions", Energy));
-	drawText(0.35, 0.8, 0.03, "-0.8<y<0.4, 0.2<p_{T}<1.5(p_{T}>0.3 @ y>0) GeV/c");
+	drawText(0.35, 0.85, 0.03, "-1.0<y<0.0, 0.2<p_{T}<1.8 GeV/c");
+	drawText(0.6, 0.75, 0.04, Form("R_{inv}: %.2f#pm%.2f", fCFGaus->GetParameter(1), fCFGaus->GetParError(1)), Form("#lambda: %.2f#pm%.2f", fCFGaus->GetParameter(0), fCFGaus->GetParError(0)));
+	drawText(0.6, 0.57, 0.04, kRed, Form("R_{inv}: %.2f#pm%.2f", fCFLL->GetParameter(1), fCFLL->GetParError(1)), Form("#lambda: %.2f#pm%.2f", fCFLL->GetParameter(0), fCFLL->GetParError(0)));
+	leg->Draw("same");
 	//}}}
 }
