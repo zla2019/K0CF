@@ -2,3 +2,4 @@
 analysis/generateHists
 *.swp
 tool/scanCut.sh
+script/PureCFTest.C

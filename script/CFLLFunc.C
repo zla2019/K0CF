@@ -65,9 +65,9 @@ void CFLLFunc()
 double CFLLSI(double* x, double* par)
 {
 	double tKstar = 0.5 * x[0] / hbarc;
-	double fsiTerm1 = 0.5 * par[0] * pow((std::abs(amplitude(tKstar)) / par[1]), 2);
-	double fsiTerm2 = 0.5 * par[0] * 4 / sqrt(TMath::Pi()) / par[1] * amplitude(tKstar).real() * F1(2. * tKstar * par[1]);
-	double fsiTerm3 = - 0.5 * par[0] * 2 / par[1] * amplitude(tKstar).imag() * F2(2. * tKstar * par[1]);
+	double fsiTerm1 = 0.5 * par[0] * pow((std::abs(amplitude(tKstar * hbarc)) / par[1]), 2);
+	double fsiTerm2 = 0.5 * par[0] * 4 / sqrt(TMath::Pi()) / par[1] * amplitude(tKstar * hbarc).real() * F1(2. * tKstar * par[1]);
+	double fsiTerm3 = - 0.5 * par[0] * 2 / par[1] * amplitude(tKstar * hbarc).imag() * F2(2. * tKstar * par[1]);
 	return fsiTerm1 + fsiTerm2 + fsiTerm3 + 1;
 }
 
