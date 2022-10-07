@@ -2,6 +2,7 @@
 analysis/generateHists
 *.swp
 tool/scanCut.sh
+<<<<<<< HEAD
 *.dataset
 *.xml
 analysis/test*
@@ -22,3 +23,6 @@ analysis/3p9_out
 analysis/debug.log
 analysis/results
 analysis/submit.sh
+=======
+script/PureCFTest.C
+>>>>>>> main
