@@ -15,3 +15,10 @@ analysis/list
 analysis/log
 analysis/rm.sh
 analysis/monitorAndSubmit.sh
+analysis/3p0_out
+analysis/3p2_out
+analysis/3p5_out
+analysis/3p9_out
+analysis/debug.log
+analysis/results
+analysis/submit.sh
