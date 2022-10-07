@@ -13,7 +13,7 @@ public:
 	int getEntry(Long64_t entry);
 	//private:
 	TTree* mTree;
-	static const unsigned int nTrackMax = 1000;
+	static const unsigned int nTrackMax = 3000;
 	Long64_t mNEvent;
 	unsigned int mBufferCent9;
 	unsigned int mBufferNTrack;

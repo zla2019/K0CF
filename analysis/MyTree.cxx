@@ -60,7 +60,8 @@ Long64_t MyTree::getNEvent()
 
 int MyTree::getEntry(Long64_t entry)
 {
-	mPsi = 2 * TMath::Pi() * gRandom->Rndm() - TMath::Pi();
+	//mPsi = 2 * TMath::Pi() * gRandom->Rndm() - TMath::Pi();
+	mPsi = 0;
 	return mTree->GetEntry(entry);
 }
 
@@ -128,8 +129,8 @@ MyTree::Particle MyTree::getParticle(int iparticle)
                 rPhi = rPhi + mPsi;
         }
 
-        particle.frx = rt * TMath::Cos(rPhi);
-        particle.fry = rt * TMath::Sin(rPhi);
+        //particle.frx = rt * TMath::Cos(rPhi);
+        //particle.fry = rt * TMath::Sin(rPhi);
         particle.px = particle.pt * TMath::Cos(particle.phi);
         particle.py = particle.pt * TMath::Sin(particle.phi);
         particle.p = sqrt(particle.pt*particle.pt + particle.pz*particle.pz);

@@ -3,6 +3,7 @@
 #include <TH2F.h>
 #include <TH1F.h>
 #include <TH3F.h>
+#include <TF1.h>
 #include <TMath.h>
 #include <TLorentzVector.h>
 #include "MyTree.h"
@@ -12,6 +13,7 @@
 #include <TLatex.h>
 #include <fstream>
 #include <ctime>
+#include "LLFunc.h"
 #include "Hist.h"
 
 //CRAB header file
@@ -22,12 +24,14 @@ long IDUM=-1234;
 #define NBMAX 5
 #define NPHASEMAX 1000000
 #define ABSOLUTE_MAXMOM 100
+
 #include "source_files/crab.h"
-#include "interactions/crab_interaction_kpluskplus.cpp"
+//#include "interactions/crab_interaction_kpluskplus.cpp"
+#include "interactions/crab_interaction_k0k0.cpp"
+//#include "interactions/crab_interaction_pp.cpp"
 #include "binnings/crab_bindefs_qinv.cpp"
 #include "source_files/crab_main.cpp"
 #include "source_files/crab_prinput.cpp"
-
 #ifdef STRONG_INTERACTION
 #include "source_files/crab_partwaveinit.cpp"
 #endif
@@ -51,15 +55,13 @@ int getCent(int refMult);
 inline bool passAllCuts(MyTree::Particle& p, Config& config);
 MyTree::Particle boostParticle(TLorentzVector& p_cm, MyTree::Particle& p);
 
-double CorrW_010[20] = {0, 0.122, 0.219, 0.653, 0.849, 1.17, 1.32, 1.40, 1.41, 1.38, 1.35, 1.25, 1.22, 1.15, 1.11, 1.09, 1.04, 1.03, 1.02, 1.0};
-double  getCorrW(Float_t qred)
-{
-    for(int z = 0; z < 20; z++)
-    {
-        if((0+2.5*z)<= qred && (0+2.5*(z+1))>qred) return CorrW_010[z];
-    }
-    return 1.0;
-}
+										//centraility defined by -1.0 < eta < 1.0
+const int centFull_7p7[9] = { 11, 22, 39, 65, 102, 152, 220, 314, 379 }; 	// 7.7 GeV
+const int centFull_3p9[9] = { 7, 13, 24, 39, 60, 89, 128, 181, 217 }; 		// 3.9 GeV
+const int centFull_3p5[9] = { 6, 12, 21, 35, 54, 79, 113, 159, 190 }; 		// 3.5 GeV
+const int centFull_3p2[9] = { 6, 11, 20, 32, 49, 71, 101, 142, 169 }; 		// 3.2 GeV
+const int centFull_3p0[9] = { 5, 10, 18, 29, 45, 65, 93, 130, 155 }; 		// 3.0 GeV
+const int* centFull = nullptr;
 
 int main(int argc, char **argv)
 {
@@ -85,11 +87,39 @@ int main(int argc, char **argv)
 	else if(config.mSetList["Energy"] == "3.2") beamRapidity = 1.135;
 	else if(config.mSetList["Energy"] == "3.5") beamRapidity = 1.24;
 	else if(config.mSetList["Energy"] == "3.9") beamRapidity = 1.36;
+
+	bininit();
+#ifdef STRONG_INTERACTION
+	partwaveinit();
+#endif
+#ifdef COULOMB
+	coulset();
+#endif
 	//}}}
 
 	//prepare plots{{{
 	Hist hist;
 	hist.init();
+
+	//addition weight function
+	TF1* fLLWeight = new TF1("fLLWeight", CFLLSI, 0, 0.4, 2);
+	fLLWeight->SetParameters(0.44, 2.15);
+	if(config.mSetList["Energy"] == "3.0")  {
+		fLLWeight->SetParameters(0.41, 2.05);
+		centFull = centFull_3p0;
+	}
+	else if(config.mSetList["Energy"] == "3.2") {
+		fLLWeight->SetParameters(0.44, 2.15);
+		centFull = centFull_3p2;
+	}
+	else if(config.mSetList["Energy"] == "3.5") {
+		fLLWeight->SetParameters(0.64, 2.65);
+		centFull = centFull_3p5;
+	}
+	else if(config.mSetList["Energy"] == "3.9") {
+		fLLWeight->SetParameters(0.63, 2.72);
+		centFull = centFull_3p9;
+	}
 	//}}}
 
 	//processing{{{
@@ -119,23 +149,27 @@ int main(int argc, char **argv)
                         std::vector<MyTree::Particle> vLabK;
 			int refMult = 0;
                         for(int itrk = 0; itrk < myTree->mMul; ++itrk) {
-                                if(myTree->mFrx[itrk] == 0) continue;
-                                if(myTree->mFrt[itrk] > 50) continue;
+                                if(myTree->mFrt[itrk] == 0) continue;
+                                if(fabs(myTree->mFrt[itrk]) > 50) continue;
                                 float p = sqrt(myTree->mPx[itrk]*myTree->mPx[itrk] + myTree->mPy[itrk]*myTree->mPy[itrk] + myTree->mPz[itrk]*myTree->mPz[itrk]);
                                 float eta = 0.5 * log((p + myTree->mPz[itrk]) / (p - myTree->mPz[itrk]));
                                 MyTree::Particle urqmdK = myTree->getParticle(itrk); 
                                 TLorentzVector p_cm(0, 0, 1.1686, 1.498);
                                 MyTree::Particle labCurK = boostParticle(p_cm, urqmdK);
+				if(fabs(urqmdK.eta) > 1) continue;
                                 
                                 if(fabs(myTree->mPid[itrk]) == 321 || fabs(myTree->mPid[itrk]) == 2212 || fabs(myTree->mPid[itrk]) == 211) ++refMult;
                                 
                                 if(fabs(myTree->mPid[itrk] != 311)) continue;
-                                labCurK.y = -(labCurK.y + 1.045);
+                                //labCurK.y = -(labCurK.y + 1.045);
+				if(urqmdK.y < -1.0 || urqmdK.y > 0.0) continue;
+				if(urqmdK.pt < 0.2 || urqmdK.pt > 1.8) continue;
 
                                 vLabK.push_back(std::move(labCurK));
                                 vUrqmdK.push_back(std::move(urqmdK));
                         }
 
+			if(refMult == 0) continue;
 			myTree->mBufferCent9 = getCent(refMult);
 			int cent9 = (int)myTree->mBufferCent9;
 			hist.hCent9->Fill(cent9);
@@ -144,19 +178,62 @@ int main(int argc, char **argv)
 			for(int iK = 0; iK < vLabK.size(); ++iK) {
 				MyTree::Particle urqmdK = vUrqmdK[iK];
 				MyTree::Particle labCurK = vLabK[iK];
-				hist.Fill(labCurK);
+				hist.Fill(urqmdK);
 				for(int iK2 = iK + 1; iK2 < vLabK.size(); ++iK2) {
 					MyTree::Particle urqmdK2 = vUrqmdK[iK2];
 					MyTree::Particle labCurK2 = vLabK[iK2];
 
+					//declear lorentz vector for two particle
                                         TLorentzVector k1_v4, k2_v4;
-                                        k1_v4.SetXYZT(labCurK.px, labCurK.py, labCurK.pz, labCurK.energy);
-                                        k2_v4.SetXYZT(labCurK2.px, labCurK2.py, labCurK2.pz, labCurK2.energy);
+                                        k1_v4.SetXYZT(urqmdK.px, urqmdK.py, urqmdK.pz, urqmdK.energy);
+                                        k2_v4.SetXYZT(urqmdK2.px, urqmdK2.py, urqmdK2.pz, urqmdK2.energy);
                                         TLorentzVector kDiff_v4 = k1_v4 - k2_v4;
-					//float corrW = getCorrW(fabs(kDiff_v4.Mag()) * 1000.);
-					//if(corrW != 1.) std::cout << "corrW: " << corrW << std::endl;
-					float corrW = 1.;
-					hist.hSameKqinv[cent9]->Fill(fabs(kDiff_v4.Mag()), corrW);
+					float qinv = fabs(kDiff_v4.Mag());
+
+					//CRAB correction
+					float rr = urqmdK2.frt - urqmdK.frt;
+					float pp = urqmdK2.energy + urqmdK.energy;
+					float pdotr = rr * pp;
+					float kdotr = (urqmdK2.energy - urqmdK.energy) * rr;
+					float ptot2 = pp*pp;
+					float r = -rr*rr;
+
+					float rx = urqmdK2.frx - urqmdK.frx;
+					float px = urqmdK2.px + urqmdK.px;
+					float ry = urqmdK2.fry - urqmdK.fry;
+					float py = urqmdK2.py + urqmdK.py;
+					float rz = urqmdK2.frz - urqmdK.frz;
+					float pz = urqmdK2.pz + urqmdK.pz;
+
+					pdotr = pdotr - px * rx;
+					pdotr = pdotr - py * ry;
+					pdotr = pdotr - pz * rz;
+					kdotr = kdotr - (urqmdK2.px - urqmdK.px) * rx;
+					kdotr = kdotr - (urqmdK2.py - urqmdK.py) * ry;
+					kdotr = kdotr - (urqmdK2.pz - urqmdK.pz) * rz;
+					ptot2 = ptot2 - px*px;
+					ptot2 = ptot2 - py*py;
+					ptot2 = ptot2 - pz*pz;
+					r = r + rx*rx;
+					r = r + ry*ry;
+					r = r + rz*rz;
+					float qdotr = kdotr;
+					r = sqrt(r + pdotr*pdotr / ptot2);
+					double corr = corrcalc(fabs(kDiff_v4.Mag()) * 500., qdotr * 500., r);
+					double llWeight = fabs(kDiff_v4.Mag()) > 0.4 ? 0 : fLLWeight->Eval(fabs(kDiff_v4.Mag()));
+
+					hist.hQinvCorr->Fill(fabs(kDiff_v4.Mag()), corr);
+					hist.hQdotrCorr->Fill(qdotr, corr);
+					hist.hRCorr->Fill(r, corr);
+
+					hist.hLLWeight->Fill(fabs(kDiff_v4.Mag()), llWeight);
+					hist.hTotWeight->Fill(fabs(kDiff_v4.Mag()), llWeight + corr);
+
+					// fill histo
+					hist.hSameKqinvSI[cent9]->Fill(fabs(kDiff_v4.Mag()), 1 + llWeight);
+					hist.hSameKqinvQS[cent9]->Fill(fabs(kDiff_v4.Mag()), corr);
+					hist.hSameKqinv[cent9]->Fill(fabs(kDiff_v4.Mag()), corr + llWeight);
+					hist.hSameKqinvWoCrab[cent9]->Fill(fabs(kDiff_v4.Mag()));
 					//hist.FillSame(fabs(kDiff_v4.Mag()), cent9);
 				}
 				for(int imixevt = 0; imixevt < myTree->mMaxMixEvent[cent9] + 1; ++imixevt) {
@@ -166,8 +243,8 @@ int main(int argc, char **argv)
                                                 MyTree::Particle urqmdMixK = myTree->mMixBuffer[(int)cent9][imixevt].urqmdParticle[imixK];
 
                                                 TLorentzVector k1_v4, k2_v4;
-                                                k1_v4.SetXYZT(labCurK.px, labCurK.py, labCurK.pz, labCurK.energy);
-                                                k2_v4.SetXYZT(labMixK.px, labMixK.py, labMixK.pz, labMixK.energy);
+                                                k1_v4.SetXYZT(urqmdK.px, urqmdK.py, urqmdK.pz, urqmdK.energy);
+                                                k2_v4.SetXYZT(urqmdMixK.px, urqmdMixK.py, urqmdMixK.pz, urqmdMixK.energy);
                                                 TLorentzVector kDiff_v4 = k1_v4 - k2_v4;
                                                 hist.FillMix(fabs(kDiff_v4.Mag()), cent9);
                                         }     
@@ -305,7 +382,6 @@ MyTree::Particle boostParticle(TLorentzVector& p_cm, MyTree::Particle& p)
 int getCent(int refMult)
 {
         int centrality;
-        Int_t centFull[9] = {13, 22, 34, 49, 67, 89, 116, 151, 173}; // -2 < eta_lab < 0, pi/k/p, jam
 
         if      (refMult>=centFull[8]) centrality=8;
         else if (refMult>=centFull[7]) centrality=7;

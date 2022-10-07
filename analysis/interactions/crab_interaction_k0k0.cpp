@@ -7,21 +7,24 @@
 #define N2TYPES 1
 /* These are the identifications. See pdg.lbl.gov/rpp/mcdata/all.mc for a
    list of identification numbers */
-const int IDENT1[N1TYPES]={321};
-const int IDENT2[N2TYPES]={321};
+const int IDENT1[N1TYPES]={311};
+const int IDENT2[N2TYPES]={311};
 
-#define MASS1 493.7
-#define MASS2 493.7
+#define MASS1 497.611
+#define MASS2 497.611
+//#define MASS1 493.7
+//#define MASS2 493.7
 
 /* Define if particles are identical */
 #define IDENTICAL
+#define REDUCED_MOM
 /* Turn off and on the Coulomb Interaction */
-#define COULOMB
+//#define COULOMB
 /* Turn off and on the Strong Interaction */
 //#define STRONG_INTERACTION
 
 
-#define Q1Q2 1
+#define Q1Q2 0
 
 #define INTERACTION_WSYM 1.0
 #define  INTERACTION_WANTI 0.0

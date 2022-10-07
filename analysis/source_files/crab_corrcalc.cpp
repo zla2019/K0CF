@@ -10,7 +10,6 @@ double  corrcalc(double trueqred,double trueqdotr,double truer){
 #ifdef STRONG_INTERACTION
   double_complex cfar,cphi[STRONG_NSPINS];
 #endif
-
 #if ! defined STRONG_INTERACTION
 #if ! defined COULOMB
   arg=trueqdotr/197.323-2.0*pi*floor(trueqdotr/(197.323*2.0*pi));
@@ -89,7 +88,9 @@ double  corrcalc(double trueqred,double trueqdotr,double truer){
       wsym_leftover=wsym_leftover-STRONG_WEIGHT[ispin];
     }
     for(ipartcount=0;ipartcount<STRONG_NPARTIALS[ispin];ipartcount++){
+	std::cout << "ipartcount: " << ipartcount << std::endl;
       if(jj<STRONG_NRMAX){
+	std::cout << "ispin: " << ispin << " kk: " << kk << " jj: " << jj << std::endl;
 	if(STRONG_L[ipart]==0) cphi[ispin]=cphi[ispin]
 				 +pfactor*partwave[ipart][kk]->delpsi[jj]/xx;
 	if(STRONG_L[ipart]==1) cphi[ispin]=cphi[ispin]
@@ -110,18 +111,19 @@ double  corrcalc(double trueqred,double trueqdotr,double truer){
 				 +ci*pfactor*5*0.5*(3*(p1*p1)-1.0)*partwave[ipart][kk]->delpsifar*cfar/xx;
       }
       ipart=ipart+1;
+	std::cout << "ipart: " << ipart << std::endl;
     }
   }
   for(ispin=0;ispin<STRONG_NSPINS;ispin++){
     corr0=corr0+real(STRONG_WEIGHT[ispin]*cphi[ispin]*conj(cphi[ispin]));
   }
+
 //printf("######## finish STRONG_INTERACTION #########\n");
 #endif
   corr0=corr0+real(wsym_leftover*cphis*conj(cphis)
 		   +wanti_leftover*cphia*conj(cphia)
 		   +wnosym_leftover*cphi1*conj(cphi1));
 OUTSIDE_INTERACTION_RANGE:
-
 #ifdef BREIT_WIGNER
   corr0=corr0+bwcalc(trueqred,truer);
 #endif
