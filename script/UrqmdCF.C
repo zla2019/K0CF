@@ -1,7 +1,19 @@
 #include <iostream>
+#define SETTING
+const int NCent9 = 9;
+const int NCent = 3;
+const int NCase = 3;
+const int Rebin = 5;
+const float PtEdge[2] = { 0.2, 1.8 };
+const float RapEdge[2] = { 1.0, 0.0 };
+const int Cent9To3[NCent9] = { -1, -1, 1, 1, 1, 1, 1, 0, 0 };
+const int Cent9To1[NCent9] = { -1, -1, 2, 2, 2, 2, 2, 2, 2 };
+const std::string CentName[NCent] = { "0-20%", "20-60%", "0-60%" };
+float weightLeft, weightRight;
+TPad* thisPad = 0;
 #include "CFutils.h"
 
-void UrqmdCF(double energy)
+void UrqmdCF(double energy = 3.0)
 {
 	//inital {{{
 	TFile* ifPlots = nullptr;
@@ -41,7 +53,7 @@ void UrqmdCF(double energy)
 	thisPad->SetMargin(0.12, 0.02, 0.12, 0.02);
 	thisPad->SetGridx();
 	thisPad->SetGridy();
-	TLegend* legCF = new TLegend(0.5, 0.60, 0.85, 0.8);
+	TLegend* legCF = new TLegend(0.5, 0.5, 0.85, 0.7);
 	legCF->SetLineWidth(0);
 	hCF[2]->SetTitle("");
 	hCF[2]->GetYaxis()->SetRangeUser(0.6, 2.0);
