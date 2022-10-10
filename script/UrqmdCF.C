@@ -42,9 +42,9 @@ void UrqmdCF(double energy = 3.0)
 
 	//processing {{{
 	getUrqmdCF(ifPlots, "", hCF);
-	getUrqmdCF(ifPlots, "QS", hCFQS);
-	getUrqmdCF(ifPlots, "SI", hCFSI);
-	getUrqmdCF(ifPlots, "WoCrab", hCFWoCrab);
+	//getUrqmdCF(ifPlots, "QS", hCFQS);
+	//getUrqmdCF(ifPlots, "SI", hCFSI);
+	//getUrqmdCF(ifPlots, "WoCrab", hCFWoCrab);
 	//}}}
 
 	//Plotting {{{
