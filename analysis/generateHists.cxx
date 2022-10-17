@@ -13,6 +13,7 @@
 #include <TLatex.h>
 #include <fstream>
 #include <ctime>
+#include <TRandom.h>
 #include "LLFunc.h"
 #include "Hist.h"
 
@@ -83,10 +84,19 @@ int main(int argc, char **argv)
 	const bool MuteWarning = true;	//used for debug
 
 	float beamRapidity;
-	if(config.mSetList["Energy"] == "3.0") beamRapidity = 1.045;
-	else if(config.mSetList["Energy"] == "3.2") beamRapidity = 1.135;
-	else if(config.mSetList["Energy"] == "3.5") beamRapidity = 1.24;
-	else if(config.mSetList["Energy"] == "3.9") beamRapidity = 1.36;
+	if(config.mSetList["Energy"] == "3.0") {
+		beamRapidity = 1.045;
+		centFull = centFull_3p0;
+	} else if(config.mSetList["Energy"] == "3.2") {
+		beamRapidity = 1.135;
+		centFull = centFull_3p2;
+	} else if(config.mSetList["Energy"] == "3.5") {
+		beamRapidity = 1.24;
+		centFull = centFull_3p5;
+	} else if(config.mSetList["Energy"] == "3.9") {
+		centFull = centFull_3p9;
+		beamRapidity = 1.36;
+	}
 
 	bininit();
 #ifdef STRONG_INTERACTION
@@ -101,24 +111,23 @@ int main(int argc, char **argv)
 	Hist hist;
 	hist.init();
 
-	//addition weight function
-	TF1* fLLWeight = new TF1("fLLWeight", CFLLSI, 0, 0.4, 2);
-	fLLWeight->SetParameters(0.44, 2.15);
+	//SI weight function
+	gRandom->SetSeed(2);
+	float rMean = 0, rErr = 0;
+	float lambdaMean = 0, lambdaErr = 0;
+
 	if(config.mSetList["Energy"] == "3.0")  {
-		fLLWeight->SetParameters(0.41, 2.05);
-		centFull = centFull_3p0;
-	}
-	else if(config.mSetList["Energy"] == "3.2") {
-		fLLWeight->SetParameters(0.44, 2.15);
-		centFull = centFull_3p2;
-	}
-	else if(config.mSetList["Energy"] == "3.5") {
-		fLLWeight->SetParameters(0.64, 2.65);
-		centFull = centFull_3p5;
-	}
-	else if(config.mSetList["Energy"] == "3.9") {
-		fLLWeight->SetParameters(0.63, 2.72);
-		centFull = centFull_3p9;
+		rMean = 2.05, rErr = 0.61;
+		lambdaMean = 0.41, lambdaErr = 0.26;
+	} else if(config.mSetList["Energy"] == "3.2") {
+		rMean = 2.15, rErr = 0.49;
+		lambdaMean = 0.44, lambdaErr = 0.18;
+	} else if(config.mSetList["Energy"] == "3.5") {
+		rMean = 2.65, rErr = 0.60;
+		lambdaMean = 0.64, lambdaErr = 0.22;
+	} else if(config.mSetList["Energy"] == "3.9") {
+		rMean = 2.36, rErr = 0.45;
+		lambdaMean = 0.40, lambdaErr = 0.16;
 	}
 	//}}}
 
@@ -220,7 +229,19 @@ int main(int argc, char **argv)
 					float qdotr = kdotr;
 					r = sqrt(r + pdotr*pdotr / ptot2);
 					double corr = corrcalc(fabs(kDiff_v4.Mag()) * 500., qdotr * 500., r);
-					double llWeight = fabs(kDiff_v4.Mag()) > 0.4 ? 0 : fLLWeight->Eval(fabs(kDiff_v4.Mag()));
+
+					TF1 fLLWeight = TF1("fLLTmp", CFLLSI, 0, 0.4, 2);
+					TF1 fGausR = TF1("fGausR", "gaus", rMean - rErr, rMean + rErr);
+					TF1 fGausLambda = TF1("fGausLambda", "gaus", lambdaMean - lambdaErr, lambdaMean + lambdaErr);
+					fGausR.SetParameters(1, rMean, rErr);
+					fGausLambda.SetParameters(1, lambdaMean, lambdaErr);
+
+					float lambdaTmp = fGausLambda.GetRandom();
+					float rTmp = fGausR.GetRandom();
+					fLLWeight.SetParameter(0, lambdaTmp);
+					fLLWeight.SetParameter(1, rTmp);
+
+					double llWeight = fabs(kDiff_v4.Mag()) > 0.4 ? 0 : fLLWeight.Eval(fabs(kDiff_v4.Mag()));
 
 					hist.hQinvCorr->Fill(fabs(kDiff_v4.Mag()), corr);
 					hist.hQdotrCorr->Fill(qdotr, corr);
