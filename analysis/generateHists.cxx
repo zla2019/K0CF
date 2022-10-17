@@ -165,14 +165,15 @@ int main(int argc, char **argv)
                                 MyTree::Particle urqmdK = myTree->getParticle(itrk); 
                                 TLorentzVector p_cm(0, 0, 1.1686, 1.498);
                                 MyTree::Particle labCurK = boostParticle(p_cm, urqmdK);
-				if(fabs(urqmdK.eta) > 1) continue;
+				//if(fabs(urqmdK.eta) > 1) continue;
                                 
                                 if(fabs(myTree->mPid[itrk]) == 321 || fabs(myTree->mPid[itrk]) == 2212 || fabs(myTree->mPid[itrk]) == 211) ++refMult;
                                 
                                 if(fabs(myTree->mPid[itrk] != 311)) continue;
-                                //labCurK.y = -(labCurK.y + 1.045);
-				if(urqmdK.y < -1.0 || urqmdK.y > 0.0) continue;
-				if(urqmdK.pt < 0.2 || urqmdK.pt > 1.8) continue;
+                                labCurK.y = -(labCurK.y + 1.045);
+				if(labCurK.y < -1.0 || labCurK.y > 0.0) continue;
+				if(labCurK.pt < 0.2 || labCurK.pt > 1.8) continue;
+				if(labCurK.eta < -2.0 || labCurK.eta > 0) continue;
 
                                 vLabK.push_back(std::move(labCurK));
                                 vUrqmdK.push_back(std::move(urqmdK));
@@ -187,39 +188,39 @@ int main(int argc, char **argv)
 			for(int iK = 0; iK < vLabK.size(); ++iK) {
 				MyTree::Particle urqmdK = vUrqmdK[iK];
 				MyTree::Particle labCurK = vLabK[iK];
-				hist.Fill(urqmdK);
+				hist.Fill(labCurK);
 				for(int iK2 = iK + 1; iK2 < vLabK.size(); ++iK2) {
 					MyTree::Particle urqmdK2 = vUrqmdK[iK2];
 					MyTree::Particle labCurK2 = vLabK[iK2];
 
 					//declear lorentz vector for two particle
                                         TLorentzVector k1_v4, k2_v4;
-                                        k1_v4.SetXYZT(urqmdK.px, urqmdK.py, urqmdK.pz, urqmdK.energy);
-                                        k2_v4.SetXYZT(urqmdK2.px, urqmdK2.py, urqmdK2.pz, urqmdK2.energy);
+                                        k1_v4.SetXYZT(labCurK.px, labCurK.py, labCurK.pz, labCurK.energy);
+                                        k2_v4.SetXYZT(labCurK2.px, labCurK2.py, labCurK2.pz, labCurK2.energy);
                                         TLorentzVector kDiff_v4 = k1_v4 - k2_v4;
 					float qinv = fabs(kDiff_v4.Mag());
 
 					//CRAB correction
-					float rr = urqmdK2.frt - urqmdK.frt;
-					float pp = urqmdK2.energy + urqmdK.energy;
+					float rr = labCurK2.frt - labCurK.frt;
+					float pp = labCurK2.energy + labCurK.energy;
 					float pdotr = rr * pp;
-					float kdotr = (urqmdK2.energy - urqmdK.energy) * rr;
+					float kdotr = (labCurK2.energy - labCurK.energy) * rr;
 					float ptot2 = pp*pp;
 					float r = -rr*rr;
 
-					float rx = urqmdK2.frx - urqmdK.frx;
-					float px = urqmdK2.px + urqmdK.px;
-					float ry = urqmdK2.fry - urqmdK.fry;
-					float py = urqmdK2.py + urqmdK.py;
-					float rz = urqmdK2.frz - urqmdK.frz;
-					float pz = urqmdK2.pz + urqmdK.pz;
+					float rx = labCurK2.frx - labCurK.frx;
+					float px = labCurK2.px + labCurK.px;
+					float ry = labCurK2.fry - labCurK.fry;
+					float py = labCurK2.py + labCurK.py;
+					float rz = labCurK2.frz - labCurK.frz;
+					float pz = labCurK2.pz + labCurK.pz;
 
 					pdotr = pdotr - px * rx;
 					pdotr = pdotr - py * ry;
 					pdotr = pdotr - pz * rz;
-					kdotr = kdotr - (urqmdK2.px - urqmdK.px) * rx;
-					kdotr = kdotr - (urqmdK2.py - urqmdK.py) * ry;
-					kdotr = kdotr - (urqmdK2.pz - urqmdK.pz) * rz;
+					kdotr = kdotr - (labCurK2.px - labCurK.px) * rx;
+					kdotr = kdotr - (labCurK2.py - labCurK.py) * ry;
+					kdotr = kdotr - (labCurK2.pz - labCurK.pz) * rz;
 					ptot2 = ptot2 - px*px;
 					ptot2 = ptot2 - py*py;
 					ptot2 = ptot2 - pz*pz;
@@ -264,8 +265,8 @@ int main(int argc, char **argv)
                                                 MyTree::Particle urqmdMixK = myTree->mMixBuffer[(int)cent9][imixevt].urqmdParticle[imixK];
 
                                                 TLorentzVector k1_v4, k2_v4;
-                                                k1_v4.SetXYZT(urqmdK.px, urqmdK.py, urqmdK.pz, urqmdK.energy);
-                                                k2_v4.SetXYZT(urqmdMixK.px, urqmdMixK.py, urqmdMixK.pz, urqmdMixK.energy);
+                                                k1_v4.SetXYZT(labCurK.px, labCurK.py, labCurK.pz, labCurK.energy);
+                                                k2_v4.SetXYZT(labMixK.px, labMixK.py, labMixK.pz, labMixK.energy);
                                                 TLorentzVector kDiff_v4 = k1_v4 - k2_v4;
                                                 hist.FillMix(fabs(kDiff_v4.Mag()), cent9);
                                         }     

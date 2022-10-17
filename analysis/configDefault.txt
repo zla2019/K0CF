@@ -1,1 +1,3 @@
+SWITCH: Efficiency true
 SET: Energy 3.0
+SET: EffPath /star/u/lazhang/data01/CF/urqmd/K0CF_urqmd/analysis/Eff.root
