@@ -212,7 +212,7 @@ void Kshort0PurityScan(std::string inputName, std::string cutSetName, std::strin
 		hKPurity[icent]->SetStats(0);
 		hKPurity[icent]->Draw("colz text");
 	}
-	TFile* ofPurity = new TFile(Form("%s/Purity2.root", cutSetName.c_str()), "RECREATE");
+	TFile* ofPurity = new TFile(Form("%s/Purity.root", cutSetName.c_str()), "RECREATE");
 	ofPurity->cd();
 	for(icent = 0; icent < NCent; ++icent) {
 		hKPurity[icent]->Write();

@@ -21,12 +21,16 @@ void PureCF(double Energy)
 	//inital {{{
 	TFile* ifPlots;
 	if(Energy == 3.0) {
-		ifPlots = TFile::Open("~/CF/K0CF_output/3p0cutSetAcc2_1.1.0/3p0cutSetAcc2_1.1.0.root", "READ");
+		ifPlots = TFile::Open("~/CF/K0CF_output/20220913StarCollaboration/3p0cutSetAcc2_1.1.0/3p0cutSetAcc2_1.1.0.root", "READ");
+		//ifPlots = TFile::Open("~/CF/K0CF_output/3p0cutSetAcc2_1.1.0/3p0cutSetAcc2_1.1.0.root", "READ");
 	} else if(Energy == 3.2) {
+		//ifPlots = TFile::Open("~/CF/K0CF_output/20220913StarCollaboration/3p2cutSetAcc2_3.1.0/3p2cutSetAcc2_3.1.0.root", "READ");
 		ifPlots = TFile::Open("~/CF/K0CF_output/3p2cutSetAcc2_3.1.0/3p2cutSetAcc2_3.1.0.root", "READ");
 	} else if(Energy == 3.5) {
+		//ifPlots = TFile::Open("~/CF/K0CF_output/20220913StarCollaboration/3p5cutSetAcc2_3.1.0/3p5cutSetAcc2_3.1.0.root", "READ");
 		ifPlots = TFile::Open("~/CF/K0CF_output/3p5cutSetAcc2_3.1.0/3p5cutSetAcc2_3.1.0.root", "READ");
 	} else if(Energy == 3.9) {
+		//ifPlots = TFile::Open("~/CF/K0CF_output/20220913StarCollaboration/3p9cutSetAcc2_3.1.0/3p9cutSetAcc2_3.1.0.root", "READ");
 		ifPlots = TFile::Open("~/CF/K0CF_output/3p9cutSetAcc2_3.1.0/3p9cutSetAcc2_3.1.0.root", "READ");
 	}
 	//}}}
@@ -51,7 +55,7 @@ void PureCF(double Energy)
 	fCFGaus->SetLineColor(kBlack);
 	fCFGaus->SetParameter(0, 1);
 	fCFGaus->SetParameter(1, 3);
-	float fitLower = hCFPure[2]->GetBinLowEdge(2);
+	float fitLower = hCFPure[2]->GetBinLowEdge(1);
 	float fitUpper = hCFPure[2]->GetBinLowEdge(hCFPure[2]->GetNbinsX()) + hCFPure[2]->GetBinWidth(hCFPure[2]->GetNbinsX());
 	hCFPure[2]->Fit(fCFGaus, "RN", "", fitLower, fitUpper);
 
@@ -80,7 +84,7 @@ void PureCF(double Energy)
 	thisPad = (TPad*)caPure->cd();
 	thisPad->SetGrid();
 	thisPad->SetMargin(0.12, 0.02, 0.12, 0.02);
-	TLegend* leg = new TLegend(0.5, 0.2, 0.9, 0.4);
+	TLegend* leg = new TLegend(0.25, 0.8, 0.6, 0.6);
 	leg->SetLineWidth(0);
 	setMarker(hCFPure[2], 20, 2, kBlack);
 	hCFPure[2]->GetXaxis()->SetRangeUser(0, 0.6);

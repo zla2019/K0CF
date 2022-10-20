@@ -39,6 +39,7 @@ void scanConfig()
 			} else {
 				nSigma = nSigma.substr(pos + 11);
 				std::cout << "nSigma: " << nSigma << std::endl;
+				break;
 			}
 		}
 
@@ -53,7 +54,7 @@ void scanConfig()
 		} else {
 			std::cout << Form("./../K0CF/analysis/generateHists %sTree.list %scutSet%s%d/cutSet%s%dInvM.txt %scutSet%s%d/%scutSet%s%dInvM.root\n", 
 						energy.c_str(), energy.c_str(), prefix.c_str(), icfg, prefix.c_str(), icfg, energy.c_str(), prefix.c_str(), icfg, energy.c_str(), prefix.c_str(), icfg);
-			std::cout << "Kshort0PurityScan(" << Form("\"%scutSet%s%d/%scutSet%s%dInvM.root\"", energy.c_str(), prefix.c_str(), icfg, energy.c_str(), prefix.c_str(), icfg) << ", " << Form("\"%scutSet%s%d\"", energy.c_str(), prefix.c_str(), icfg) << ", nSigma)\n";
+			std::cout << "Kshort0PurityScan(" << Form("\"%scutSet%s%d/%scutSet%s%dInvM.root\"", energy.c_str(), prefix.c_str(), icfg, energy.c_str(), prefix.c_str(), icfg) << ", " << Form("\"%scutSet%s%d\", %s)\n", energy.c_str(), prefix.c_str(), icfg, nSigma.c_str());
 			std::cout << Form("./../K0CF/analysis/generateHists %sTree.list %scutSet%s%d/cutSet%s%d.txt %scutSet%s%d/%scutSet%s%d.root\n", 
 						energy.c_str(), energy.c_str(), prefix.c_str(), icfg, prefix.c_str(), icfg, energy.c_str(), prefix.c_str(), icfg, energy.c_str(), prefix.c_str(), icfg);
 		}

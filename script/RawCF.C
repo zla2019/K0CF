@@ -19,7 +19,7 @@ void RawCF(float Energy)
 	//inital {{{
 	TFile* ifPlots;
 	if(Energy == 3.0) {
-		ifPlots = TFile::Open("~/CF/K0CF_output/3p0cutSetAcc2_1.1.0/3p0cutSetAcc2_1.1.0.root", "READ");
+		ifPlots = TFile::Open("~/CF/K0CF_output/3p0cutSetAcc4_1.1.0/3p0cutSetAcc4_1.1.0.root", "READ");
 	} else if(Energy == 3.2) {
 		ifPlots = TFile::Open("~/CF/K0CF_output/3p2cutSetAcc2_3.1.0/3p2cutSetAcc2_3.1.0.root", "READ");
 	} else if(Energy == 3.5) {

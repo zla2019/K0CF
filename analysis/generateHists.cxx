@@ -55,7 +55,7 @@ int main(int argc, char **argv)
 	//const float Sigma[3][4] = { { 0.0027, 0.0035, 0.0033, 0.0033 }, { 0.0027, 0.0034, 0.0036, 0.0036 }, { 0.0027, 0.0035, 0.0039, 0.0039 } };
 	const float Mean[3][4] = { { 0.4981, 0.4981, 0.4981, 0.4981 }, { 0.4981, 0.4981, 0.4981, 0.4981 }, { 0.4981, 0.4981, 0.4981, 0.4981 } };
 	const float Sigma[3][4] = { { 0.0035, 0.0035, 0.0035, 0.0035 }, { 0.0035, 0.0035, 0.0035, 0.0035 }, { 0.0035, 0.0035, 0.0035, 0.0035 } };
-	const int NMassSigma = std::stof(config.mSetList["NSigmaMass"]);
+	const float NMassSigma = std::stof(config.mSetList["NSigmaMass"]);
 	const bool MuteWarning = true;	//used for debug
 
 	float beamRapidity;
@@ -278,9 +278,9 @@ int main(int argc, char **argv)
 
 						float sideBandWeight[4] = { 0 };
 						if(config.mSwitchList["OpenPairPurity"]) {
-							sideBandWeight[0] = purity * (1 - purity2);
-							sideBandWeight[1] = (1 - purity) * purity2;
-							sideBandWeight[2] = (1 - purity) * (1 - purity2);
+							sideBandWeight[0] = 1 - purity2;
+							sideBandWeight[1] = 1 - purity;
+							sideBandWeight[2] = -1 * (1 - purity) * (1 - purity2);
 							sideBandWeight[3] = purity * purity2;
 						}
 						TLorentzVector k1_v4, k2_v4;
