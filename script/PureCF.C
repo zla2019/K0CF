@@ -31,7 +31,7 @@ void PureCF(double Energy)
 		ifPlots = TFile::Open("~/CF/K0CF_output/3p5cutSetAcc2_3.1.0/3p5cutSetAcc2_3.1.0.root", "READ");
 	} else if(Energy == 3.9) {
 		//ifPlots = TFile::Open("~/CF/K0CF_output/20220913StarCollaboration/3p9cutSetAcc2_3.1.0/3p9cutSetAcc2_3.1.0.root", "READ");
-		ifPlots = TFile::Open("~/CF/K0CF_output/3p9cutSetAcc2_3.1.0/3p9cutSetAcc2_3.1.0.root", "READ");
+		ifPlots = TFile::Open("/home/zla/CF/rcfWork/3p9cutSetAcc2_3.1.0.root", "READ");
 	}
 	//}}}
 
@@ -111,5 +111,11 @@ void PureCF(double Energy)
 	drawText(0.6, 0.75, 0.04, Form("R_{inv}: %.2f#pm%.2f", fCFGaus->GetParameter(1), fCFGaus->GetParError(1)), Form("#lambda: %.2f#pm%.2f", fCFGaus->GetParameter(0), fCFGaus->GetParError(0)));
 	drawText(0.6, 0.57, 0.04, kRed, Form("R_{inv}: %.2f#pm%.2f", fCFLL->GetParameter(1), fCFLL->GetParError(1)), Form("#lambda: %.2f#pm%.2f", fCFLL->GetParameter(0), fCFLL->GetParError(0)));
 	leg->Draw("same");
+	//}}}
+
+	//saveing {{{
+	TFile* ofCF = new TFile(Form("%.1f_MB_CF.root", Energy), "RECREATE");
+	ofCF->cd();
+	hCFPure[2]->Write();
 	//}}}
 }
