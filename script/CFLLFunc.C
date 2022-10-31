@@ -15,13 +15,13 @@ const double MassK0s = 0.497611;
 const double MassPi = 0.13957039;
 const double MassEta = 0.547862;
 
-////Antonelli
-//const double MassF0 = 0.973;
-//const double GammaF0KK = 2.763;
-//const double GammaF0PiPi = 0.5283;
-//const double MassA0 = 0.985;
-//const double GammaA0KK = 0.4038;
-//const double GammaA0PiPi = 0.3711;
+//Antonelli
+const double MassF0 = 0.973;
+const double GammaF0KK = 2.763;
+const double GammaF0PiPi = 0.5283;
+const double MassA0 = 0.985;
+const double GammaA0KK = 0.4038;
+const double GammaA0PiPi = 0.3711;
 ////Achasov2001
 //const double MassF0 = 0.996;
 //const double GammaF0KK = 1.305;
@@ -36,13 +36,13 @@ const double MassEta = 0.547862;
 //const double MassA0 = 1.003;
 //const double GammaA0KK = 0.8365;
 //const double GammaA0PiPi = 0.4580;
-//Martin
-const double MassF0 = 0.978;
-const double GammaF0KK = 0.792;
-const double GammaF0PiPi = 0.1990;
-const double MassA0 = 0.974;
-const double GammaA0KK = 0.3330;
-const double GammaA0PiPi = 0.2220;
+////Martin
+//const double MassF0 = 0.978;
+//const double GammaF0KK = 0.792;
+//const double GammaF0PiPi = 0.1990;
+//const double MassA0 = 0.974;
+//const double GammaA0KK = 0.3330;
+//const double GammaA0PiPi = 0.2220;
 
 void CFLLFunc()
 {
