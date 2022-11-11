@@ -1,3 +1,5 @@
+#ifndef CFLLFUNC_C
+#define CFLLFUNC_C
 #include <iostream>
 #include "utils.h"
 
@@ -65,10 +67,10 @@ void CFLLFunc()
 double CFLLSI(double* x, double* par)
 {
 	double tKstar = 0.5 * x[0] / hbarc;
-	double fsiTerm1 = 0.5 * par[0] * pow((std::abs(amplitude(tKstar * hbarc)) / par[1]), 2);
+	double fsiTerm1 = 0.5 * par[0] * pow(std::abs(amplitude(tKstar * hbarc) / par[1]), 2);
 	double fsiTerm2 = 0.5 * par[0] * 4 / sqrt(TMath::Pi()) / par[1] * amplitude(tKstar * hbarc).real() * F1(2. * tKstar * par[1]);
 	double fsiTerm3 = - 0.5 * par[0] * 2 / par[1] * amplitude(tKstar * hbarc).imag() * F2(2. * tKstar * par[1]);
-	return fsiTerm1 + fsiTerm2 + fsiTerm3 + 1;
+	return fsiTerm1 + fsiTerm2 + fsiTerm3;
 }
 
 double CFLL(double* x, double* par)
@@ -135,3 +137,4 @@ double a0refMom(double tKstar)
 	double s = 4 * (MassK0s*MassK0s + tKstar*tKstar);
 	return sqrt(pow(MassPi, 4) + pow(MassEta, 4) + s*s - 2 * (MassPi*MassPi * MassEta*MassEta + MassPi*MassPi * s + MassEta*MassEta * s)) / (2 * sqrt(s));
 }
+#endif

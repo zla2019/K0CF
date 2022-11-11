@@ -3,6 +3,7 @@
 #ifndef _UTILS_H_
 #define _UTILS_H_
 
+void			shiftGr(TGraphErrors* gr, float shift = 0.2);
 double			getYield(TGraphErrors *gr, TF1 *f, double& err);	//get yield from the dN/dpt/dy spectrum, and unmeaured part calculate by TF1 function
 double			getYield(TGraphErrors *gr, TH1F *h, double& err);
 TGraphErrors*		timePt2(TGraphErrors* gr);
@@ -42,7 +43,8 @@ TH1F*			foldHist(TH1F* h, float centralLine = 0);
 void			addHist(TH1F*& h1, TH1F* h2, const char* name, float scale = 1, float baseline = 0);
 void			addHist(TH1F*& h1, TH1F* h2, const char* name, TH1F* hScale, float baseline = 0);
 void			addHist(TH3F*& _3h1, TH3F* _3h2, const char* name);
-void			setMarker(TH1F* h1, int markerStyle = 20, int markerSize = 1, int markerColor = 1);
+void			setMarker(TH1F* h1, int markerStyle = 20, float markerSize = 1, int markerColor = 1);
+void			setMarker(TGraphErrors* gr, int markerStyle = 20, float markerSize = 1, int markerColor = 1);
 void			setLine(TH1F* h1, int lineStyle = 1, int lineWidth = 1, int lineColor = 1);
 float			getMax(TH1F* h1, TH1F* h2);
 void			scale(TH1F* h1, float scale, float baseline = 0);
@@ -157,11 +159,18 @@ void setLine(TH1F* h1, int lineStyle, int lineWidth, int lineColor)
 	h1->SetLineColor(lineColor);
 }
 
-void setMarker(TH1F* h1, int markerStyle, int markerSize, int markerColor)
+void setMarker(TH1F* h1, int markerStyle, float markerSize, int markerColor)
 {
 	h1->SetMarkerStyle(markerStyle);
 	h1->SetMarkerSize(markerSize);
 	h1->SetMarkerColor(markerColor);
+}
+
+void setMarker(TGraphErrors* gr, int markerStyle, float markerSize, int markerColor)
+{
+	gr->SetMarkerStyle(markerStyle);
+	gr->SetMarkerSize(markerSize);
+	gr->SetMarkerColor(markerColor);
 }
 
 void addHist(TH1F*& h1, TH1F* h2, const char* name, float scale, float baseline)
@@ -725,4 +734,11 @@ double combineIntegral(TH1F* h, TF1* f, float& err, float lower, float upper)
 	return integral;
 }
 
+void shiftGr(TGraphErrors* gr, float shift)
+{
+	int nPoint = gr->GetN();
+	for(int ipoint = 0; ipoint < nPoint; ++ipoint) {
+		gr->SetPointX(ipoint, gr->GetPointX(ipoint) + shift);
+	}
+}
 #endif
