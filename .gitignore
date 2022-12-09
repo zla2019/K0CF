@@ -7,3 +7,5 @@ script/3.9_MB_CF.root
 analysis/Makefile
 script/PureCF.C
 tool/scanCut.sh
+*.list
+*.root

@@ -12,7 +12,7 @@ LDFLAGS = -L$(ROOTSYS)/lib
 CXX = g++ -m64
 FLAGS = -Wall -g $(INCFLAGS) $(LDFLAGS) -fPIC
 
-COMPILE = $(CXX) $(FLAGS) -c -std=c++14
+COMPILE = $(CXX) $(FLAGS) -c -std=c++11
 
 all: $(EXE)
 

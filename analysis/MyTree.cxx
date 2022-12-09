@@ -22,6 +22,9 @@ MyTree::~MyTree()
 	if(mTree) {
 		delete mTree;
 	}
+	for(int icent = 0; icent < 9; ++icent) {
+		mMixBuffer[icent].clear();
+	}
 }
 
 bool MyTree::setBranchAddress()
@@ -73,7 +76,7 @@ bool MyTree::setBranchAddress()
 		//mTree->SetBranchAddress("thDBRF", mBufferTrkIdB);
 		//mTree->SetBranchAddress("dgdca", mBufferDgDCA);
 		mTree->SetBranchAddress("SIMD_dca", mBufferDCA);
-		mTree->SetBranchAddress("SIMD_decaylength", mBufferDecayLength);
+		//mTree->SetBranchAddress("SIMD_decaylength", mBufferDecayLength);
 		mTree->SetBranchAddress("nsigmaA0", mBufferNSigmaA);
 		mTree->SetBranchAddress("nsigmaB0", mBufferNSigmaB);
 		//mTree->SetBranchAddress("dedxA", mBufferdEdxA);
@@ -103,126 +106,14 @@ int MyTree::getEntry(Long64_t entry)
 	return mTree->GetEntry(entry);
 }
 
-void MyTree::copyToBuffer()
+void MyTree::copyToBuffer(std::vector<Particle>& vect)
 {
-	if(mBufferCent9 >= 0 && mBufferCent9 <= 8) {
-		int replaceEvents = -1;
-		srand((int)time(0));
-		if(mMaxMixEvent[(int)mBufferCent9] >= 14) {
-			replaceEvents = rand()%15;
-			if(replaceEvents < 0 || replaceEvents > 14) {
-				std::cout << "ERROR: wrong replace events number" << std::endl;
-			}
-		} else {
-			replaceEvents = mMaxMixEvent[(int)mBufferCent9] + 1;
-		}
-		mMixBuffer[(int)mBufferCent9][replaceEvents].mBufferNTrack = mBufferNTrack;
-		mMixBuffer[(int)mBufferCent9][replaceEvents].mBufferEventId = mBufferEventId;
-		for(int iK = 0; iK < mBufferNTrack; ++iK) {
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].pdg = mBufferPDG[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].pt = mBufferPt[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].phi = mBufferPhi[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].eta = mBufferEta[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].rap = mBufferRap[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].mass = mBufferMass[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].chi2Topo = mBufferChi2Topo[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].chi2NDF = mBufferChi2NDF[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].chi2PrimPip = mBufferChi2PrimPip[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].chi2PrimPim = mBufferChi2PrimPim[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].rapPip = mBufferRapPip[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].rapPim = mBufferRapPim[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].ptPip = mBufferPtPip[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].ptPim = mBufferPtPim[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].bx = mBufferBx[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].by = mBufferBy[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].bz = mBufferBz[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].nHitsA = mBufferNHitsA[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].nHitsB = mBufferNHitsB[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].m2A = mBufferM2A[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].m2B = mBufferM2B[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].etaA = mBufferEtaA[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].etaB = mBufferEtaB[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].dcaA = mBufferDCAA[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].dcaB = mBufferDCAB[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].trkIdA = mBufferTrkIdA[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].trkIdB = mBufferTrkIdB[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].dgDCA = mBufferDgDCA[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].dca = mBufferDCA[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].decayLength = mBufferDecayLength[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].nSigmaA = mBufferNSigmaA[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].nSigmaB = mBufferNSigmaB[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].dEdxA = mBufferdEdxA[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].dEdxB = mBufferdEdxB[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].nHitsDedxA = mBufferNHitsDedxA[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iK].nHitsDedxB = mBufferNHitsDedxB[iK];
-		}
-		if(mMaxMixEvent[(int)mBufferCent9] < 13) {
-			mMaxMixEvent[(int)mBufferCent9]++;
-		} else {
-			mMaxMixEvent[(int)mBufferCent9] = 14;
-		}
-	}
-}
+	int cent9 = (int)mBufferCent9;
+	if(cent9 >= 0 && cent9 <= 8) {
+		mMixBuffer[cent9].push_front(std::move(vect));
 
-
-void MyTree::copyToBuffer(std::vector<int>& idx)
-{
-	if(mBufferCent9 >= 0 && mBufferCent9 <= 8) {
-		int replaceEvents = -1;
-		srand((int)time(0));
-		if(mMaxMixEvent[(int)mBufferCent9] >= 24) {
-			replaceEvents = rand()%25;
-			if(replaceEvents < 0 || replaceEvents > 24) {
-				std::cout << "ERROR: wrong replace events number" << std::endl;
-			}
-		} else {
-			replaceEvents = mMaxMixEvent[(int)mBufferCent9] + 1;
-		}
-		mMixBuffer[(int)mBufferCent9][replaceEvents].mBufferNTrack = idx.size();
-		mMixBuffer[(int)mBufferCent9][replaceEvents].mBufferEventId = mBufferEventId;
-		for(int iiK = 0; iiK < idx.size(); ++iiK) {
-			int iK = idx[iiK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].pdg = mBufferPDG[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].pt = mBufferPt[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].phi = mBufferPhi[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].eta = mBufferEta[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].rap = mBufferRap[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].mass = mBufferMass[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].chi2Topo = mBufferChi2Topo[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].chi2NDF = mBufferChi2NDF[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].chi2PrimPip = mBufferChi2PrimPip[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].chi2PrimPim = mBufferChi2PrimPim[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].rapPip = mBufferRapPip[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].rapPim = mBufferRapPim[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].ptPip = mBufferPtPip[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].ptPim = mBufferPtPim[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].bx = mBufferBx[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].by = mBufferBy[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].bz = mBufferBz[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].nHitsA = mBufferNHitsA[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].nHitsB = mBufferNHitsB[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].m2A = mBufferM2A[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].m2B = mBufferM2B[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].etaA = mBufferEtaA[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].etaB = mBufferEtaB[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].dcaA = mBufferDCAA[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].dcaB = mBufferDCAB[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].trkIdA = mBufferTrkIdA[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].trkIdB = mBufferTrkIdB[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].dgDCA = mBufferDgDCA[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].dca = mBufferDCA[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].decayLength = mBufferDecayLength[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].nSigmaA = mBufferNSigmaA[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].nSigmaB = mBufferNSigmaB[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].dEdxA = mBufferdEdxA[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].dEdxB = mBufferdEdxB[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].nHitsDedxA = mBufferNHitsDedxA[iK];
-			mMixBuffer[(int)mBufferCent9][replaceEvents].particle[iiK].nHitsDedxB = mBufferNHitsDedxB[iK];
-		}
-		if(mMaxMixEvent[(int)mBufferCent9] < 23) {
-			mMaxMixEvent[(int)mBufferCent9]++;
-		} else {
-			mMaxMixEvent[(int)mBufferCent9] = 24;
+		if(mMixBuffer[cent9].size() > 25) {
+			mMixBuffer[cent9].pop_back();
 		}
 	}
 }
@@ -280,20 +171,6 @@ MyTree::Particle MyTree::getParticle(int iparticle, float beamRapidity)
 
 MyTree::Particle MyTree::getMixParticle(int cent, int ievt, int iparticle, float beamRapidity)
 {
-	MyTree::Particle particle = mMixBuffer[cent][ievt].particle[iparticle];
-	particle.rap = -(particle.rap + beamRapidity);
-	particle.rapPip = -(particle.rapPip + beamRapidity);
-	particle.rapPim = -(particle.rapPim + beamRapidity);
-	particle.ptPim /= 1000.;
-	particle.etaB /= 1000.;
-
-	particle.px = particle.pt * TMath::Cos(particle.phi);
-	particle.py = particle.pt * TMath::Sin(particle.phi);
-	particle.pz = particle.pt * TMath::SinH(particle.eta);
-	particle.energy = sqrt(particle.pz*particle.pz + particle.pt*particle.pt + particle.mass*particle.mass);
-	particle.pzA = particle.ptPip * TMath::SinH(particle.etaA);
-	particle.pzB = particle.ptPim * TMath::SinH(particle.etaB);
-	particle.pA = sqrt(particle.pzA*particle.pzA + particle.ptPip*particle.ptPip);
-	particle.pB = sqrt(particle.pzB*particle.pzB + particle.ptPim*particle.ptPim);
-	return particle;
+	Particle p;
+	return p;
 }
