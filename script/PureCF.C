@@ -21,16 +21,14 @@ void PureCF(double Energy)
 	//inital {{{
 	TFile* ifPlots;
 	if(Energy == 3.0) {
-		ifPlots = TFile::Open("~/CF/K0CF_output/20220913StarCollaboration/3p0cutSetAcc2_1.1.0/3p0cutSetAcc2_1.1.0.root", "READ");
-		//ifPlots = TFile::Open("~/CF/K0CF_output/3p0cutSetAcc2_1.1.0/3p0cutSetAcc2_1.1.0.root", "READ");
+		//ifPlots = TFile::Open("~/CF/K0CF_output/20220913StarCollaboration/3p0cutSetAcc2_1.1.0/3p0cutSetAcc2_1.1.0.root", "READ");
+		//ifPlots = TFile::Open("~/CF/data/tmp/newRot.root", "READ");
+		ifPlots = TFile::Open("~/CF/data/tmp/cutSetRotAcc10_1.1.0.root", "READ");
 	} else if(Energy == 3.2) {
-		//ifPlots = TFile::Open("~/CF/K0CF_output/20220913StarCollaboration/3p2cutSetAcc2_3.1.0/3p2cutSetAcc2_3.1.0.root", "READ");
 		ifPlots = TFile::Open("~/CF/K0CF_output/3p2cutSetAcc2_3.1.0/3p2cutSetAcc2_3.1.0.root", "READ");
 	} else if(Energy == 3.5) {
-		//ifPlots = TFile::Open("~/CF/K0CF_output/20220913StarCollaboration/3p5cutSetAcc2_3.1.0/3p5cutSetAcc2_3.1.0.root", "READ");
 		ifPlots = TFile::Open("~/CF/K0CF_output/3p5cutSetAcc2_3.1.0/3p5cutSetAcc2_3.1.0.root", "READ");
 	} else if(Energy == 3.9) {
-		//ifPlots = TFile::Open("~/CF/K0CF_output/20220913StarCollaboration/3p9cutSetAcc2_3.1.0/3p9cutSetAcc2_3.1.0.root", "READ");
 		ifPlots = TFile::Open("/home/zla/CF/rcfWork/3p9cutSetAcc2_3.1.0.root", "READ");
 	}
 	//}}}
@@ -55,7 +53,7 @@ void PureCF(double Energy)
 	fCFGaus->SetLineColor(kBlack);
 	fCFGaus->SetParameter(0, 1);
 	fCFGaus->SetParameter(1, 3);
-	float fitLower = hCFPure[2]->GetBinLowEdge(1);
+	float fitLower = hCFPure[2]->GetBinLowEdge(2);
 	float fitUpper = hCFPure[2]->GetBinLowEdge(hCFPure[2]->GetNbinsX()) + hCFPure[2]->GetBinWidth(hCFPure[2]->GetNbinsX());
 	hCFPure[2]->Fit(fCFGaus, "RN", "", fitLower, fitUpper);
 
@@ -87,6 +85,8 @@ void PureCF(double Energy)
 	TLegend* leg = new TLegend(0.25, 0.8, 0.6, 0.6);
 	leg->SetLineWidth(0);
 	setMarker(hCFPure[2], 20, 2, kBlack);
+	setMarker(hCFRaw[2], 20, 2, kRed);
+	setMarker(hCFMisid[2], 20, 2, kBlue);
 	hCFPure[2]->GetXaxis()->SetRangeUser(0, 0.6);
 	hCFPure[2]->SetLineColor(kBlack);
 	hCFPure[2]->SetLineWidth(2);
@@ -96,12 +96,22 @@ void PureCF(double Energy)
 	hCFPure[2]->SetYTitle("C_{pure}(q_{inv})");
 	hCFPure[2]->SetStats(0);
 	hCFPure[2]->SetTitle("");
-	hCFPure[2]->SetMaximum(2.0);
-	hCFPure[2]->SetMinimum(0.6);
+	hCFPure[2]->SetMaximum(2.2);
+	hCFPure[2]->SetMinimum(0.5);
 	hCFPure[2]->Draw("ep");
+
+        hCFRaw[2]->SetLineWidth(2);
+        hCFRaw[2]->SetLineColor(kRed);
+        hCFMisid[2]->SetLineWidth(2);
+        hCFMisid[2]->SetLineColor(kBlue);
+
+	hCFRaw[2]->Draw("same ep");
+	hCFMisid[2]->Draw("same ep");
+
 	fCFDrawGaus->Draw("same");
 	fCFDrawLL->Draw("same");
 	fCFDrawLLSI->Draw("same");
+	hCFPure[2]->Draw("same ep");
 	leg->AddEntry(fCFDrawGaus, "Gaus", "l");
 	leg->AddEntry(fCFDrawLL, "LL", "l");
 	leg->AddEntry(fCFDrawLLSI, "SI(= LL - Gaus.)", "l");

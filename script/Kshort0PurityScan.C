@@ -216,6 +216,7 @@ void Kshort0PurityScan(std::string inputName, std::string cutSetName, std::strin
 	ofPurity->cd();
 	for(icent = 0; icent < NCent; ++icent) {
 		hKPurity[icent]->Write();
+		hKAcc[icent]->Write();
 	}
 	ofPurity->Close();
 	delete ofPurity;

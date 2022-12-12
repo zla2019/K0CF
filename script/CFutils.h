@@ -21,7 +21,7 @@ TPad* thisPad = 0;
 
 void RawCF(TFile* ifPlots, TH1F* hCFRaw[], float normLower = 0.3, float normUpper = 1.0);
 void MisidCF(TFile* ifPlots, TH1F* hCFMisid[], float normLower = 0.3, float normUpper = 1.0);
-float SBWeight(TFile* ifPlots, float leftL = 0.42, float leftU = 0.48, float rightL = 0.52, float rightU = 0.58);
+void RotCF(TFile* ifPlots, TH1F* hCFMisid[], TH1F* hRotCF[][NCase + 1], float normLower = 0.3, float normUpper = 1.0);
 void PureCF(TH1F* hCFRaw[], TH1F* hCFMisid[], TH1F* hCFPure[], TH1F* hPairPurity[]);
 void PairPurity(TFile* ifPlots, TH1F* hPairPurity[]);
 
@@ -78,53 +78,37 @@ void RawCF(TFile* ifPlots, TH1F* hCFRaw[], float normLower, float normUpper)
 void MisidCF(TFile* ifPlots, TH1F* hCFMisid[], float normLower, float normUpper)
 {
 	//inital {{{
-	weightLeft = SBWeight(ifPlots);
-	weightRight = 1 - weightLeft;
+	const std::string SameHistName[4] = { "hSameKqinv", "hSRQinv", "hRSQinv", "hRRQinv" };
+	const std::string MixHistName[4] = { "hMixKqinv", "hMixSRQinv", "hMixRSQinv", "hMixRRQinv" };
 	//}}}
 
 	//plots list {{{
-	TH1F* hSameLeftSideKqinvCent9[NCent9][NCase + 1] = { 0 };
-	TH1F* hMixLeftSideKqinvCent9[NCent9][NCase + 1] = { 0 };
-	TH1F* hMixKqinvLeftWeightCent9[NCent9][NCase + 1] = { 0 };
-	TH1F* hSameRightSideKqinvCent9[NCent9][NCase + 1] = { 0 };
-	TH1F* hMixRightSideKqinvCent9[NCent9][NCase + 1] = { 0 };
-	TH1F* hMixKqinvRightWeightCent9[NCent9][NCase + 1] = { 0 };
+	TH1F* hRotSameKqinvCent9[NCent9][NCase + 1] = { 0 };
+	TH1F* hRotMixKqinvCent9[NCent9][NCase + 1] = { 0 };
+	TH1F* hRotMixKqinvWeightCent9[NCent9][NCase + 1] = { 0 };
 
-	TH1F* hSameLeftSideKqinv[NCent][NCase + 1] = { 0 };
-	TH1F* hMixLeftSideKqinv[NCent][NCase + 1] = { 0 };
-	TH1F* hMixKqinvLeftWeight[NCent][NCase + 1] = { 0 };
-	TH1F* hSameRightSideKqinv[NCent][NCase + 1] = { 0 };
-	TH1F* hMixRightSideKqinv[NCent][NCase + 1] = { 0 };
-	TH1F* hMixKqinvRightWeight[NCent][NCase + 1] = { 0 };
+	TH1F* hRotSameKqinv[NCent][NCase + 1] = { 0 };
+	TH1F* hRotMixKqinv[NCent][NCase + 1] = { 0 };
+	TH1F* hRotMixKqinvWeight[NCent][NCase + 1] = { 0 };
 
-	TH1F* hLeftWeight[NCent][NCase + 1] = { 0 };
-	TH1F* hRightWeight[NCent][NCase + 1] = { 0 };
-	TH1F* hLeftSideCF[NCent][NCase + 1] = { 0 };
-	TH1F* hRightSideCF[NCent][NCase + 1] = { 0 };
+	TH1F* hRotWeight[NCent][NCase + 1] = { 0 };
+	TH1F* hRotCF[NCent][NCase + 1] = { 0 };
 
-	TH1F* hLeftSideCFTot[NCent] = { 0 };
-	TH1F* hRightSideCFTot[NCent] = { 0 };
+	TH1F* hRotCFTot[NCent] = { 0 };
 
-	TH1F* hLeftSideCFWeight[NCent] = { 0 };
-	TH1F* hRightSideCFWeight[NCent] = { 0 };
+	TH1F* hRotCFWeight[NCent] = { 0 };
 	//}}}
 
 	//get plots {{{
 	for(int icent = 0; icent < NCent9; ++icent) {
 		for(int icase = 0; icase < NCase + 1; ++icase) {
-			hSameLeftSideKqinvCent9[icent][icase] = (TH1F*)getCopy(ifPlots, Form("hSameLeftSideKqinv_cent%d_case%d", icent, icase));
-			hMixLeftSideKqinvCent9[icent][icase] = (TH1F*)getCopy(ifPlots, Form("hMixLeftSideKqinv_cent%d_case%d", icent, icase));
-			hMixKqinvLeftWeightCent9[icent][icase] = (TH1F*)getCopy(ifPlots, Form("hMixKqinvLeftWeight_cent%d_case%d", icent, icase));
-			hSameRightSideKqinvCent9[icent][icase] = (TH1F*)getCopy(ifPlots, Form("hSameRightSideKqinv_cent%d_case%d", icent, icase));
-			hMixRightSideKqinvCent9[icent][icase] = (TH1F*)getCopy(ifPlots, Form("hMixRightSideKqinv_cent%d_case%d", icent, icase));
-			hMixKqinvRightWeightCent9[icent][icase] = (TH1F*)getCopy(ifPlots, Form("hMixKqinvRightWeight_cent%d_case%d", icent, icase));
+			hRotSameKqinvCent9[icent][icase] = (TH1F*)getCopy(ifPlots, Form("%s_cent%d", SameHistName[icase].c_str(), icent));
+			hRotMixKqinvCent9[icent][icase] = (TH1F*)getCopy(ifPlots, Form("%s_cent%d", MixHistName[icase].c_str(), icent));
+			hRotMixKqinvWeightCent9[icent][icase] = (TH1F*)getCopy(ifPlots, Form("hMixKqinvWeight_cent%d_case%d", icent, icase));
 
-			hSameLeftSideKqinvCent9[icent][icase]->Rebin(Rebin);
-			hMixLeftSideKqinvCent9[icent][icase]->Rebin(Rebin);
-			hMixKqinvLeftWeightCent9[icent][icase]->Rebin(Rebin);
-			hSameRightSideKqinvCent9[icent][icase]->Rebin(Rebin);
-			hMixRightSideKqinvCent9[icent][icase]->Rebin(Rebin);
-			hMixKqinvRightWeightCent9[icent][icase]->Rebin(Rebin);
+			hRotSameKqinvCent9[icent][icase]->Rebin(Rebin);
+			hRotMixKqinvCent9[icent][icase]->Rebin(Rebin);
+			hRotMixKqinvWeightCent9[icent][icase]->Rebin(Rebin);
 		}
 	}
 
@@ -133,19 +117,13 @@ void MisidCF(TFile* ifPlots, TH1F* hCFMisid[], float normLower, float normUpper)
 			if(Cent9To3[icent] < 0 || Cent9To1[icent] < 0) {
 				continue;
 			}
-			addHist(hSameLeftSideKqinv[Cent9To3[icent]][icase], hSameLeftSideKqinvCent9[icent][icase], Form("hSameLeftSideKqinv_cent%d_case%d", Cent9To3[icent], icase));
-			addHist(hMixLeftSideKqinv[Cent9To3[icent]][icase], hMixLeftSideKqinvCent9[icent][icase], Form("hMixLeftSideKqinv_cent%d_case%d", Cent9To3[icent], icase));
-			addHist(hMixKqinvLeftWeight[Cent9To3[icent]][icase], hMixKqinvLeftWeightCent9[icent][icase], Form("hMixKqinvLeftWeight_cent%d_case%d", Cent9To3[icent], icase));
-			addHist(hSameRightSideKqinv[Cent9To3[icent]][icase], hSameRightSideKqinvCent9[icent][icase], Form("hSameRightSideKqinv_cent%d_case%d", Cent9To3[icent], icase));
-			addHist(hMixRightSideKqinv[Cent9To3[icent]][icase], hMixRightSideKqinvCent9[icent][icase], Form("hMixRightSideKqinv_cent%d_case%d", Cent9To3[icent], icase));
-			addHist(hMixKqinvRightWeight[Cent9To3[icent]][icase], hMixKqinvRightWeightCent9[icent][icase], Form("hMixKqinvRightWeight_cent%d_case%d", Cent9To3[icent], icase));
+			addHist(hRotSameKqinv[Cent9To3[icent]][icase], hRotSameKqinvCent9[icent][icase], Form("hRotSameKqinv_cent%d_case%d", Cent9To3[icent], icase));
+			addHist(hRotMixKqinv[Cent9To3[icent]][icase], hRotMixKqinvCent9[icent][icase], Form("hRotMixKqinv_cent%d_case%d", Cent9To3[icent], icase));
+			addHist(hRotMixKqinvWeight[Cent9To3[icent]][icase], hRotMixKqinvWeightCent9[icent][icase], Form("hRotMixKqinvWeight_cent%d_case%d", Cent9To3[icent], icase));
 
-			addHist(hSameLeftSideKqinv[Cent9To1[icent]][icase], hSameLeftSideKqinvCent9[icent][icase], Form("hSameLeftSideKqinv_cent%d_case%d", Cent9To1[icent], icase));
-			addHist(hMixLeftSideKqinv[Cent9To1[icent]][icase], hMixLeftSideKqinvCent9[icent][icase], Form("hMixLeftSideKqinv_cent%d_case%d", Cent9To1[icent], icase));
-			addHist(hMixKqinvLeftWeight[Cent9To1[icent]][icase], hMixKqinvLeftWeightCent9[icent][icase], Form("hMixKqinvLeftWeight_cent%d_case%d", Cent9To1[icent], icase));
-			addHist(hSameRightSideKqinv[Cent9To1[icent]][icase], hSameRightSideKqinvCent9[icent][icase], Form("hSameRightSideKqinv_cent%d_case%d", Cent9To1[icent], icase));
-			addHist(hMixRightSideKqinv[Cent9To1[icent]][icase], hMixRightSideKqinvCent9[icent][icase], Form("hMixRightSideKqinv_cent%d_case%d", Cent9To1[icent], icase));
-			addHist(hMixKqinvRightWeight[Cent9To1[icent]][icase], hMixKqinvRightWeightCent9[icent][icase], Form("hMixKqinvRightWeight_cent%d_case%d", Cent9To1[icent], icase));
+			addHist(hRotSameKqinv[Cent9To1[icent]][icase], hRotSameKqinvCent9[icent][icase], Form("hRotSameKqinv_cent%d_case%d", Cent9To1[icent], icase));
+			addHist(hRotMixKqinv[Cent9To1[icent]][icase], hRotMixKqinvCent9[icent][icase], Form("hRotMixKqinv_cent%d_case%d", Cent9To1[icent], icase));
+			addHist(hRotMixKqinvWeight[Cent9To1[icent]][icase], hRotMixKqinvWeightCent9[icent][icase], Form("hRotMixKqinvWeight_cent%d_case%d", Cent9To1[icent], icase));
 		}
 	}
 	//}}}
@@ -153,73 +131,161 @@ void MisidCF(TFile* ifPlots, TH1F* hCFMisid[], float normLower, float normUpper)
 	//get weight vs. qinv{{{
 	for(int icent = 0; icent < NCent; ++icent) {
 		for(int icase = 0; icase < NCase + 1; ++icase) {
-			addHist(hLeftWeight[icent][icase], hMixKqinvLeftWeight[icent][icase], Form("hLeftWeight_cent%d_case%d", icent, icase));
-			addHist(hRightWeight[icent][icase], hMixKqinvRightWeight[icent][icase], Form("hRightWeight_cent%d_case%d", icent, icase));
-			hLeftWeight[icent][icase]->Divide(hLeftWeight[icent][icase], hMixLeftSideKqinv[icent][icase]);
-			hRightWeight[icent][icase]->Divide(hRightWeight[icent][icase], hMixRightSideKqinv[icent][icase]);
+			addHist(hRotWeight[icent][icase], hRotMixKqinvWeight[icent][icase], Form("hWeight_cent%d_case%d", icent, icase));
+			hRotWeight[icent][icase]->Divide(hRotWeight[icent][icase], hRotMixKqinv[icent][0]);
 		}
 	}
 	//}}}
 
 	//calculate Side Band CF{{{
 	for(int icent = 0; icent < NCent; ++icent) {
-		for(int icase = 0; icase < NCase; ++icase) {
-			addHist(hLeftSideCF[icent][icase], hSameLeftSideKqinv[icent][icase], Form("hLeftSideCF_cent%d_case%d", icent, icase));
-			addHist(hRightSideCF[icent][icase], hSameRightSideKqinv[icent][icase], Form("hRightSideCF_cent%d_case%d", icent, icase));
-			hLeftSideCF[icent][icase]->Divide(hSameLeftSideKqinv[icent][icase], hMixLeftSideKqinv[icent][icase], 1 / getIntegral(hSameLeftSideKqinv[icent][icase], normLower, normUpper), 1 / getIntegral(hMixLeftSideKqinv[icent][icase], normLower, normUpper));
-			hRightSideCF[icent][icase]->Divide(hSameRightSideKqinv[icent][icase], hMixRightSideKqinv[icent][icase], 1 / getIntegral(hSameRightSideKqinv[icent][icase], normLower, normUpper), 1 / getIntegral(hMixRightSideKqinv[icent][icase], normLower, normUpper));
+		for(int icase = 0; icase < NCase + 1; ++icase) {
+			addHist(hRotCF[icent][icase], hRotSameKqinv[icent][icase], Form("hRotCF_cent%d_case%d", icent, icase));
+			hRotCF[icent][icase]->Divide(hRotSameKqinv[icent][icase], hRotMixKqinv[icent][icase], 1 / getIntegral(hRotSameKqinv[icent][icase], normLower, normUpper), 1 / getIntegral(hRotMixKqinv[icent][icase], normLower, normUpper));
 		}
 	}
 
 	for(int icent = 0; icent < NCent; ++icent) {
-		for(int icase = 0; icase < 1; ++icase) {
-			addHist(hLeftSideCFTot[icent], hLeftSideCF[icent][icase], Form("hLeftSideCFTot_cent%d", icent), hLeftWeight[icent][icase], 1);
-			addHist(hRightSideCFTot[icent], hRightSideCF[icent][icase], Form("hRightSideCFTot_cent%d", icent), hRightWeight[icent][icase], 1);
+		for(int icase = 1; icase < NCase + 1; ++icase) {
+			addHist(hRotCFTot[icent], hRotCF[icent][icase], Form("hRotCFTot_cent%d", icent), hRotWeight[icent][icase], 1);
 		}
 	}
 
 	for(int icent = 0; icent < NCent; ++icent) {
-		hLeftSideCFWeight[icent] = (TH1F*)hLeftSideCFTot[icent]->Clone();
-		hLeftSideCFWeight[icent]->SetName(Form("hLeftSideCFWeight_cent%d", icent));
-		scale(hLeftSideCFWeight[icent], weightLeft, 1);
-		hRightSideCFWeight[icent] = (TH1F*)hRightSideCFTot[icent]->Clone();
-		hRightSideCFWeight[icent]->SetName(Form("hRightSideCFWeight_cent%d", icent));
-		scale(hRightSideCFWeight[icent], (1 - weightLeft), 1);
+		hRotCFWeight[icent] = (TH1F*)hRotCFTot[icent]->Clone();
+		hRotCFWeight[icent]->SetName(Form("hRotCFWeight_cent%d", icent));
+		scale(hRotCFWeight[icent], 1, 1);
 
-		addHist(hCFMisid[icent], hLeftSideCFWeight[icent], Form("hCFMisid_cent%d", icent), 1, 1);
-		addHist(hCFMisid[icent], hRightSideCFWeight[icent], Form("hCFMisid_cent%d", icent), 1, 1);
+		addHist(hCFMisid[icent], hRotCFWeight[icent], Form("hCFMisid_cent%d", icent), 1, 1);
 	}
 	//}}}
 
 	//delete {{{
 	for(int icent = 0; icent < NCent9; ++icent) {
 		for(int icase = 0; icase < NCase + 1; ++icase) {
-			delete hSameLeftSideKqinvCent9[icent][icase];
-			delete hMixLeftSideKqinvCent9[icent][icase];
-			delete hMixKqinvLeftWeightCent9[icent][icase];
-			delete hSameRightSideKqinvCent9[icent][icase];
-			delete hMixRightSideKqinvCent9[icent][icase];
-			delete hMixKqinvRightWeightCent9[icent][icase];
+			delete hRotSameKqinvCent9[icent][icase];
+			delete hRotMixKqinvCent9[icent][icase];
+			delete hRotMixKqinvWeightCent9[icent][icase];
 		}
 	}
 
 	for(int icent = 0; icent < NCent; ++icent) {
-		delete hLeftSideCFTot[icent];
-		delete hRightSideCFTot[icent];
-		delete hLeftSideCFWeight[icent];
-		delete hRightSideCFWeight[icent];
+		delete hRotCFTot[icent];
+		delete hRotCFWeight[icent];
 		for(int icase = 0; icase < NCase + 1; ++icase) {
-			delete hSameLeftSideKqinv[icent][icase];
-			delete hMixLeftSideKqinv[icent][icase];
-			delete hMixKqinvLeftWeight[icent][icase];
-			delete hSameRightSideKqinv[icent][icase];
-			delete hMixRightSideKqinv[icent][icase];
-			delete hMixKqinvRightWeight[icent][icase];
+			delete hRotSameKqinv[icent][icase];
+			delete hRotMixKqinv[icent][icase];
+			delete hRotMixKqinvWeight[icent][icase];
 
-			delete hLeftWeight[icent][icase];
-			delete hRightWeight[icent][icase];
-			delete hLeftSideCF[icent][icase];
-			delete hRightSideCF[icent][icase];
+			delete hRotWeight[icent][icase];
+			delete hRotCF[icent][icase];
+		}
+	}
+	//}}}
+}
+
+void RotCF(TFile* ifPlots, TH1F* hCFMisid[], TH1F* hRotCF[][NCase + 1], float normLower, float normUpper)
+{
+	//inital {{{
+	const std::string SameHistName[4] = { "hSameKqinv", "hSRQinv", "hRSQinv", "hRRQinv" };
+	const std::string MixHistName[4] = { "hMixKqinv", "hMixSRQinv", "hMixRSQinv", "hMixRRQinv" };
+	//}}}
+
+	//plots list {{{
+	TH1F* hRotSameKqinvCent9[NCent9][NCase + 1] = { 0 };
+	TH1F* hRotMixKqinvCent9[NCent9][NCase + 1] = { 0 };
+	TH1F* hRotMixKqinvWeightCent9[NCent9][NCase + 1] = { 0 };
+
+	TH1F* hRotSameKqinv[NCent][NCase + 1] = { 0 };
+	TH1F* hRotMixKqinv[NCent][NCase + 1] = { 0 };
+	TH1F* hRotMixKqinvWeight[NCent][NCase + 1] = { 0 };
+
+	TH1F* hRotWeight[NCent][NCase + 1] = { 0 };
+
+	TH1F* hRotCFTot[NCent] = { 0 };
+
+	TH1F* hRotCFWeight[NCent] = { 0 };
+	//}}}
+
+	//get plots {{{
+	for(int icent = 0; icent < NCent9; ++icent) {
+		for(int icase = 0; icase < NCase + 1; ++icase) {
+			hRotSameKqinvCent9[icent][icase] = (TH1F*)getCopy(ifPlots, Form("%s_cent%d", SameHistName[icase].c_str(), icent));
+			hRotMixKqinvCent9[icent][icase] = (TH1F*)getCopy(ifPlots, Form("%s_cent%d", MixHistName[icase].c_str(), icent));
+			hRotMixKqinvWeightCent9[icent][icase] = (TH1F*)getCopy(ifPlots, Form("hMixKqinvWeight_cent%d_case%d", icent, icase));
+
+			hRotSameKqinvCent9[icent][icase]->Rebin(Rebin);
+			hRotMixKqinvCent9[icent][icase]->Rebin(Rebin);
+			hRotMixKqinvWeightCent9[icent][icase]->Rebin(Rebin);
+		}
+	}
+
+	for(int icase = 0; icase < NCase + 1; ++icase) {
+		for(int icent = 2; icent < NCent9; ++icent) {
+			if(Cent9To3[icent] < 0 || Cent9To1[icent] < 0) {
+				continue;
+			}
+			addHist(hRotSameKqinv[Cent9To3[icent]][icase], hRotSameKqinvCent9[icent][icase], Form("hRotSameKqinv_cent%d_case%d", Cent9To3[icent], icase));
+			addHist(hRotMixKqinv[Cent9To3[icent]][icase], hRotMixKqinvCent9[icent][icase], Form("hRotMixKqinv_cent%d_case%d", Cent9To3[icent], icase));
+			addHist(hRotMixKqinvWeight[Cent9To3[icent]][icase], hRotMixKqinvWeightCent9[icent][icase], Form("hRotMixKqinvWeight_cent%d_case%d", Cent9To3[icent], icase));
+
+			addHist(hRotSameKqinv[Cent9To1[icent]][icase], hRotSameKqinvCent9[icent][icase], Form("hRotSameKqinv_cent%d_case%d", Cent9To1[icent], icase));
+			addHist(hRotMixKqinv[Cent9To1[icent]][icase], hRotMixKqinvCent9[icent][icase], Form("hRotMixKqinv_cent%d_case%d", Cent9To1[icent], icase));
+			addHist(hRotMixKqinvWeight[Cent9To1[icent]][icase], hRotMixKqinvWeightCent9[icent][icase], Form("hRotMixKqinvWeight_cent%d_case%d", Cent9To1[icent], icase));
+		}
+	}
+	//}}}
+
+	//get weight vs. qinv{{{
+	for(int icent = 0; icent < NCent; ++icent) {
+		for(int icase = 0; icase < NCase + 1; ++icase) {
+			addHist(hRotWeight[icent][icase], hRotMixKqinvWeight[icent][icase], Form("hWeight_cent%d_case%d", icent, icase));
+			hRotWeight[icent][icase]->Divide(hRotWeight[icent][icase], hRotMixKqinv[icent][0]);
+		}
+	}
+	//}}}
+
+	//calculate Side Band CF{{{
+	for(int icent = 0; icent < NCent; ++icent) {
+		for(int icase = 0; icase < NCase + 1; ++icase) {
+			addHist(hRotCF[icent][icase], hRotSameKqinv[icent][icase], Form("hRotCF_cent%d_case%d", icent, icase));
+			hRotCF[icent][icase]->Divide(hRotSameKqinv[icent][icase], hRotMixKqinv[icent][icase], 1 / getIntegral(hRotSameKqinv[icent][icase], normLower, normUpper), 1 / getIntegral(hRotMixKqinv[icent][icase], normLower, normUpper));
+		}
+	}
+
+	for(int icent = 0; icent < NCent; ++icent) {
+		for(int icase = 1; icase < NCase + 1; ++icase) {
+			addHist(hRotCFTot[icent], hRotCF[icent][icase], Form("hRotCFTot_cent%d", icent), hRotWeight[icent][icase], 1);
+		}
+	}
+
+	for(int icent = 0; icent < NCent; ++icent) {
+		hRotCFWeight[icent] = (TH1F*)hRotCFTot[icent]->Clone();
+		hRotCFWeight[icent]->SetName(Form("hRotCFWeight_cent%d", icent));
+		scale(hRotCFWeight[icent], 1, 1);
+
+		addHist(hCFMisid[icent], hRotCFWeight[icent], Form("hCFMisid_cent%d", icent), 1, 1);
+	}
+	//}}}
+
+	//delete {{{
+	for(int icent = 0; icent < NCent9; ++icent) {
+		for(int icase = 0; icase < NCase + 1; ++icase) {
+			delete hRotSameKqinvCent9[icent][icase];
+			delete hRotMixKqinvCent9[icent][icase];
+			delete hRotMixKqinvWeightCent9[icent][icase];
+		}
+	}
+
+	for(int icent = 0; icent < NCent; ++icent) {
+		delete hRotCFTot[icent];
+		delete hRotCFWeight[icent];
+		for(int icase = 0; icase < NCase + 1; ++icase) {
+			delete hRotSameKqinv[icent][icase];
+			delete hRotMixKqinv[icent][icase];
+			delete hRotMixKqinvWeight[icent][icase];
+
+			delete hRotWeight[icent][icase];
 		}
 	}
 	//}}}
@@ -236,50 +302,6 @@ void PureCF(TH1F* hCFRaw[], TH1F* hCFMisid[], TH1F* hCFPure[], TH1F* hPairPurity
 	//}}}
 }
 
-float SBWeight(TFile* ifPlots, float leftL, float leftU, float rightL, float rightU)
-{
-	//plots list {{{
-	TH3F* hMassRapPtCent9[NCent9] = { 0 };
-	TH3F* hMassRapPt[NCent] = { 0 };
-	TH1F* hMass[NCent] = { 0 };
-	//}}}
-
-	//get plots{{{
-	for(int icent = 0; icent < NCent9; ++icent) {
-		hMassRapPtCent9[icent] = (TH3F*)getCopy(ifPlots, Form("hMassCascadeRapidityvsPt_cent%d", icent));
-		if(Cent9To3[icent] == -1 || Cent9To1[icent] == -1) {
-			continue;
-		}
-		addHist(hMassRapPt[Cent9To3[icent]], hMassRapPtCent9[icent], Form("hMassRapPt_cent%d", Cent9To3[icent]));
-		addHist(hMassRapPt[Cent9To1[icent]], hMassRapPtCent9[icent], Form("hMassRapPt_cent%d", Cent9To1[icent]));
-	}
-	for(int icent = 0; icent < NCent; ++icent) {
-		hMass[icent] = projectionX(hMassRapPt[icent], RapEdge[0], RapEdge[1], PtEdge[0], PtEdge[1], Form("hMass_cent%d", icent));
-	}
-	//}}}
-
-	//calculate weight {{{
-	for(int icent = 0; icent < NCent; ++icent) {
-		weightLeft = getIntegral(hMass[icent], leftL, leftU);
-		weightRight = getIntegral(hMass[icent], rightL, rightU);
-		float tot = weightLeft + weightRight;
-		weightLeft = weightLeft / tot;
-		weightRight = 1 - weightLeft;
-	}
-	//}}}
-
-	//delete {{{
-	for(int icent = 0; icent < NCent9; ++icent) {
-		delete hMassRapPtCent9[icent];
-	}
-	for(int icent = 0; icent < NCent; ++icent) {
-		delete hMassRapPt[icent];
-		delete hMass[icent];
-	}
-	//}}}
-	return weightLeft;
-}
-
 void PairPurity(TFile* ifPlots, TH1F* hPairPurity[])
 {
 	//plots list {{{
@@ -291,8 +313,8 @@ void PairPurity(TFile* ifPlots, TH1F* hPairPurity[])
 
 	//get plots {{{
 	for(int icent = 0; icent < NCent9; ++icent) {
-		hMixKqinvWeightCent9[icent] = (TH1F*)getCopy(ifPlots, Form("hMixKqinvLeftWeight_cent%d_case%d", icent, 3));
-		hMixKqinvCent9[icent] = (TH1F*)getCopy(ifPlots, Form("hMixLeftSideKqinv_cent%d_case%d", icent, 3));
+		hMixKqinvWeightCent9[icent] = (TH1F*)getCopy(ifPlots, Form("hMixKqinvWeight_cent%d_case%d", icent, 0));
+		hMixKqinvCent9[icent] = (TH1F*)getCopy(ifPlots, Form("hMixKqinv_cent%d", icent));
 		hMixKqinvWeightCent9[icent]->Rebin(Rebin);
 		hMixKqinvCent9[icent]->Rebin(Rebin);
 		if(Cent9To3[icent] < 0 || Cent9To1[icent] < 0) {

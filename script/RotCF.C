@@ -10,13 +10,13 @@ const float RapEdge[2] = { 1.0, 0.0 };
 const int Cent9To3[NCent9] = { -1, -1, 1, 1, 1, 1, 0, 0, 0 };
 const int Cent9To1[NCent9] = { -1, -1, 2, 2, 2, 2, 2, 2, 2 };
 const std::string CentName[NCent] = { "0-20%", "20-60%", "0-60%" };
-const std::string CaseName[NCase] = { "K_{s}^{0}#tilde{K_{s}^{0}}", "#tilde{K_{s}^{0}}K_{s}^{0}", "#tilde{K_{s}^{0}}#tilde{K_{s}^{0}}" };
+const std::string CaseName[NCase] = { "K_{s}^{0}(#tilde{K_{s}^{0}}+K_{s}^{0})", "(#tilde{K_{s}^{0}}+K_{s}^{0})K_{s}^{0}", "#tilde{K_{s}^{0}}#tilde{K_{s}^{0}}" };
 float weightLeft, weightRight;
 TPad* thisPad = 0;
 
 #include "CFutils.h"
 
-void MisidCF(float Energy)
+void RotCF(float Energy)
 {
 	//inital {{{
 	TFile* ifPlots;
@@ -36,30 +36,35 @@ void MisidCF(float Energy)
 
 	//plots list {{{
 	TH1F* hCFMisid[NCent] = { 0 };
+	TH1F* hRotCF[NCent][NCase + 1] = { 0 };
 	//}}}
 
 	//calculate misid CF {{{
-	MisidCF(ifPlots, hCFMisid);
+	RotCF(ifPlots, hCFMisid, hRotCF);
 	//}}}
 
 	//plotting {{{
+	int col[NCase + 1] = { kBlack, kRed, kBlue, kGreen + 3 };
+
 	TCanvas* caCFMisid = new TCanvas("caCFMisid", "caCFMisid", 1080, 1080);
 	thisPad = (TPad*)caCFMisid->cd();
 	thisPad->SetGrid();
 	thisPad->SetMargin(0.15, 0.05, 0.15, 0.05);
-	hCFMisid[2]->SetMaximum(2.2);
-	hCFMisid[2]->SetMinimum(0.6);
-	setMarker(hCFMisid[2], 20, 1.4, kBlue);
-	hCFMisid[2]->SetLineColor(kBlue);
-	hCFMisid[2]->SetLineWidth(3);
-	hCFMisid[2]->GetXaxis()->SetRangeUser(0, 0.6);
-	hCFMisid[2]->SetStats(0);
-	hCFMisid[2]->SetTitle(";q_{inv} (GeV/c);C_{misid}(q_{inv})");
-	hCFMisid[2]->Draw("ep");
-	hCFMisid[2]->SetTitleSize(0.05, "XY");
-	hCFMisid[2]->SetLabelSize(0.05, "XY");
-	drawYBaseLine(1, thisPad, kBlue, 2, 2);
-	drawText(0.25, 0.9, 0.04, Form("Au+Au collision @#sqrt{s_{NN}} = %.1f GeV", Energy), "Centrality: 0-60%", "y: -1.0~0.0", "p_{T}: 0.2~1.8");
-	hCFMisid[2]->Draw("ep same");
+	TLegend* leg = new TLegend(0.4, 0.6, 0.7, 0.8);
+	leg->SetLineWidth(0);
+	for(int icase = 1; icase < NCase + 1; ++icase) {
+		hRotCF[2][icase]->SetMarkerStyle(24);
+		hRotCF[2][icase]->SetMarkerColor(col[icase]);
+		hRotCF[2][icase]->SetLineColor(col[icase]);
+		hRotCF[2][icase]->SetLineWidth(2);
+
+		hRotCF[2][icase]->SetMaximum(2.5);
+		hRotCF[2][icase]->SetMinimum(0.7);
+		hRotCF[2][icase]->SetStats(0);
+		hRotCF[2][icase]->SetTitle(";q_{inv}(GeV/c);CF(q_{inv})");
+		hRotCF[2][icase]->Draw("same");
+		leg->AddEntry(hRotCF[2][icase], CaseName[icase - 1].c_str(), "lep");
+	}
+	leg->Draw("same");
 	//}}}
 }
