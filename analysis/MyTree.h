@@ -1,6 +1,7 @@
 #ifndef MYTREE_H
 #define MYTREE_H
 #include <TTree.h>
+#include <list>
 
 class MyTree
 {
@@ -109,15 +110,10 @@ public:
 		float nHitsDedxB;
 	};
         Particle getParticle(int iparticle, float beamRapidity);
-        Particle getMixParticle(int cent, int ievt, int iparticle, float beamRapidity);
 
-	struct MixBuffer {
-		unsigned int mBufferNTrack;
-		unsigned int mBufferEventId;
-		Particle particle[nTrackMax];
-	};
-	MixBuffer mMixBuffer[9][25];
-	void copyToBuffer();
-	void copyToBuffer(std::vector<int>& idx);
+	std::list<std::vector<Particle>> mMixBuffer[9];
+	std::list<std::vector<Particle>> mMixLBuffer[9];
+	std::list<std::vector<Particle>> mMixRBuffer[9];
+	void copyToBuffer(std::vector<Particle>& vect, std::vector<Particle>& vectL, std::vector<Particle>& vectR);
 };
 #endif

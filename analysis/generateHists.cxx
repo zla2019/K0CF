@@ -30,6 +30,8 @@ bool loadBadRun(std::unordered_map<int, bool>& badRunList, std::ifstream& ifBadR
 bool passCut(double a, Config& config, std::string cutName);
 bool passCut(double a, double b, Config& config, std::string cutName);
 inline bool passAllCuts(MyTree::Particle& p, Config& config);
+void loopVect(std::vector<MyTree::Particle>& v1, std::vector<MyTree::Particle>& v2, TH1F* h);
+void loopVect(std::vector<MyTree::Particle>& v1, std::vector<MyTree::Particle>& v2, TH1F* h[], TH2F* hPurity);
 
 int main(int argc, char **argv)
 {
@@ -85,14 +87,14 @@ int main(int argc, char **argv)
 	Hist hist;
 	hist.init();
 	TFile* ifPurity;
-	TH2F* hPurity[3];
+	TH2F* hPurity[9];
 	if(config.mSwitchList["OpenPairPurity"]) {
 		ifPurity = TFile::Open(config.mSetList["PurityPath"].c_str());
 		if(!ifPurity->IsOpen()) {
 			std::cout << "ERROR: Purity file is not open" << std::endl;
 		}
-		for(int icent = 0; icent < 3; ++icent) {
-			hPurity[icent] = (TH2F*)ifPurity->Get(Form("hKPurity_cent%i", icent));
+		for(int icent = 0; icent < 9; ++icent) {
+			hPurity[icent] = (TH2F*)ifPurity->Get(Form("hPurity_cent%i", icent));
 		}
 	}
 	//}}}
@@ -129,15 +131,7 @@ int main(int argc, char **argv)
 			float vy = myTree->mBufferVy;
 			float vz = myTree->mBufferVz;
 			float vr = sqrt(vx*vx + vy*vy);
-			float cent9 = myTree->mBufferCent9;
-			int centForPurity;
-			if(cent9 >= 7) {
-				centForPurity = 0;
-			} else if(cent9 >= 2) {
-				centForPurity = 1;
-			} else {
-				centForPurity = 2;
-			}
+			int cent9 = (int)myTree->mBufferCent9;
 			unsigned int nK = myTree->mBufferNTrack;
 			hist.hRefMult->Fill(myTree->mBufferRefMult);
 			if(cent9 < 0 || cent9 > 8) {
@@ -145,154 +139,56 @@ int main(int argc, char **argv)
 			}
 			hist.hVz->Fill(vz);
 			hist.hVr->Fill(vx, vy);
-			hist.hCent9->Fill((int)cent9);
+			hist.hCent9->Fill(cent9);
 			//pre select
-			std::vector<int> idxK;
+			std::vector<MyTree::Particle> vK;	//vector for mass window K0s
+			std::vector<MyTree::Particle> vKL;	//vector for left side K0s
+			std::vector<MyTree::Particle> vKR;	//vector for right side K0s
 			for(int icurK = 0; icurK < nK; ++icurK) {
-				MyTree::Particle curKTmp = myTree->getParticle(icurK, beamRapidity);
-				if(!passAllCuts(curKTmp, config)) continue;
-				idxK.push_back(icurK);
+				MyTree::Particle kaon = myTree->getParticle(icurK, beamRapidity);
+				if(!passAllCuts(kaon, config)) continue;
+				if(passCut(kaon.mass, config, "Mass")) vK.push_back(kaon);
+				if(passCut(kaon.mass, config, "SideBand")) vKR.push_back(kaon);
+				if(passCut(kaon.mass, config, "SideBand2")) vKL.push_back(kaon);
 			}
-			int nPassCutK = idxK.size();
-			for(int iK1 = 0; iK1 < nPassCutK; ++iK1) {
-				int icurK = idxK[iK1];
-				MyTree::Particle curK = myTree->getParticle(icurK, beamRapidity);
-				TVector3 p(curK.px, curK.py, curK.pz);
-				TVector3 pos(curK.bx, curK.by, curK.bz);
-				TVector3 vectPmPos = pos - p;
-				float cosTheta = vectPmPos.CosTheta();
-				int momBinA = getMomBin(curK.pA, p_low, p_high, nPBins);
-				int momBinB = getMomBin(curK.pB, p_low, p_high, nPBins);
 
-				float nsigmaA = curK.nSigmaA;
-				float nsigmaB = curK.nSigmaB;
-				if(config.mSwitchList["OpenNSigmaShift"]) {
-					nsigmaA -= pidCalib_pion[momBinA];
-					nsigmaB -= pidCalib_pion[momBinB];
-				}
-
-				float purity = 1;
-				if(config.mSwitchList["OpenPairPurity"]) {
-					purity = hPurity[centForPurity]->GetBinContent(hPurity[centForPurity]->GetXaxis()->FindBin(curK.rap), hPurity[centForPurity]->GetYaxis()->FindBin(curK.pt)) / 100.;
-				}
-				int isSideBand = -1;	//defualt: -1; peak region: 0; left side: 1; right side: 2;
-				hist.FillAll(curK, (int)cent9);
-
-				int rapBin = 1;
-				if(passCut(curK.mass, Mean[2][rapBin] - (NMassSigma * Sigma[2][rapBin]), Mean[2][rapBin] + (NMassSigma * Sigma[2][rapBin]))) {
-					isSideBand = 0;
-				} else if(passCut(curK.mass, config, "SideBand2")) {
-					isSideBand = 1;
-				} else if(passCut(curK.mass, config, "SideBand")) {
-					isSideBand = 2;
-				} else {
-					continue;
-				}
-
-				//if(curK.rap < -0.8 || curK.rap > 0.4) continue;
-				if(isSideBand == 0) {
-					hist.hPipNSigma->Fill(nsigmaA);
-					hist.hPimNSigma->Fill(nsigmaB);
-					hist.Fill(curK);
-					hist.FillCut(curK);
-				} else if(isSideBand == 1) {
-					hist.FillLeft(curK);
-				} else if(isSideBand == 2) {
-					hist.FillRight(curK);
-				}
-				if(!config.mSwitchList["OpenCF"]) continue;
-				//same pair{{{
-				for(int iK2 = iK1 + 1; iK2 < nPassCutK; ++iK2) {
-					int icurK2 = idxK[iK2];
-					MyTree::Particle curK2 = myTree->getParticle(icurK2, beamRapidity);
-					TVector3 p(curK2.px, curK2.py, curK2.pz);
-					TVector3 pos(curK2.bx, curK2.by, curK2.bz);
-					TVector3 vectPmPos = pos - p;
-					float cosTheta2 = vectPmPos.CosTheta();
-					int momBinA = getMomBin(curK2.pA, p_low, p_high, nPBins);
-					int momBinB = getMomBin(curK2.pB, p_low, p_high, nPBins);
-					float purity2 = 1;
-					if(config.mSwitchList["OpenPairPurity"]) {
-						purity2 = hPurity[centForPurity]->GetBinContent(hPurity[centForPurity]->GetXaxis()->FindBin(curK2.rap), hPurity[centForPurity]->GetYaxis()->FindBin(curK2.pt)) / 100.;
-					}
-
-					int isSideBand2 = -1;
-					int rapBin2 = 1;
-					//if(curK2.rap < -0.8 || curK2.rap > 0.4) continue;
-
-					if(passCut(curK2.mass, Mean[2][rapBin2] - (NMassSigma * Sigma[2][rapBin2]), Mean[2][rapBin2] + (NMassSigma * Sigma[2][rapBin2]))) {
-						//if(passCut(curK2.mass, 0.48, 0.51)) {
-						isSideBand2 = 0;
-					} else if(passCut(curK2.mass, config, "SideBand")) {
-						isSideBand2 = 2;
-					} else if(passCut(curK2.mass, config, "SideBand2")) {
-						isSideBand2 = 1;
-					} else {
-						continue;
-					}
-
-					if(icurK == icurK2) {
-						continue;
-					}
-					if(curK.ptPip == curK2.ptPip && curK.rapPip == curK2.rapPip/* && curK.trkIdA == curK2.trkIdA*/) {
-						continue;
-					}
-					if(curK.ptPim == curK2.ptPim && curK.rapPim == curK2.rapPim/* && curK.trkIdB == curK2.trkIdB*/) {
-						continue;
-					}
-
-					TLorentzVector k1_v4, k2_v4;
-					//k1_v4.SetXYZT(curK.px, curK.py, curK.pz, sqrt(curK.px*curK.px + curK.py*curK.py + curK.pz*curK.pz + 0.497611*0.497611));
-					//k2_v4.SetXYZT(curK2.px, curK2.py, curK2.pz, sqrt(curK2.px*curK2.px + curK2.py*curK2.py + curK2.pz*curK2.pz + 0.497611*0.497611));
-					k1_v4.SetXYZT(curK.px, curK.py, curK.pz, curK.energy);
-					k2_v4.SetXYZT(curK2.px, curK2.py, curK2.pz, curK2.energy);
-					TLorentzVector kDiff_v4 = (k1_v4 - k2_v4);
-					hist.Fill(fabs(kDiff_v4.Mag()), (int)cent9, isSideBand, isSideBand2);
-				}
-				//}}}
-				//mix pair{{{
-				for(int imixevt = 0; imixevt < myTree->mMaxMixEvent[(int)cent9] + 1; ++imixevt) {
-					unsigned int nK = myTree->mMixBuffer[(int)cent9][imixevt].mBufferNTrack;
-					for(int imixK = 0; imixK < nK; ++imixK) {
-						MyTree::Particle mixK = myTree->getMixParticle((int)cent9, imixevt, imixK, beamRapidity);
-						int momBinA = getMomBin(mixK.pA, p_low, p_high, nPBins);
-						int momBinB = getMomBin(mixK.pB, p_low, p_high, nPBins);
-						float purity2 = 1;
-						if(config.mSwitchList["OpenPairPurity"]) {
-							purity2 = hPurity[centForPurity]->GetBinContent(hPurity[centForPurity]->GetXaxis()->FindBin(mixK.rap), hPurity[centForPurity]->GetYaxis()->FindBin(mixK.pt)) / 100.;
-						}
-						int isSideBand2 = -1;
-						int rapBin2 = 1;
-						//if(mixK.rap < -0.8 || mixK.rap > 0.4) continue;
-
-						if(passCut(mixK.mass, Mean[2][rapBin2] - (NMassSigma * Sigma[2][rapBin2]), Mean[2][rapBin2] + (NMassSigma * Sigma[2][rapBin2]))) {
-							//if(passCut(mixK.mass, 0.48, 0.51)) {
-							isSideBand2 = 0;
-						} else if(passCut(mixK.mass, config, "SideBand")){
-							isSideBand2 = 2;
-						} else if(passCut(mixK.mass, config, "SideBand2")) {
-							isSideBand2 = 1;
-						} else {
-							continue;
-						}
-
-						float sideBandWeight[4] = { 0 };
-						if(config.mSwitchList["OpenPairPurity"]) {
-							sideBandWeight[0] = 1 - purity2;
-							sideBandWeight[1] = 1 - purity;
-							sideBandWeight[2] = -1 * (1 - purity) * (1 - purity2);
-							sideBandWeight[3] = purity * purity2;
-						}
-						TLorentzVector k1_v4, k2_v4;
-						k1_v4.SetXYZT(curK.px, curK.py, curK.pz, curK.energy);
-						k2_v4.SetXYZT(mixK.px, mixK.py, mixK.pz, mixK.energy);
-						TLorentzVector kDiff_v4 = (k1_v4 - k2_v4);
-						hist.FillMix(fabs(kDiff_v4.Mag()), (int)cent9, isSideBand, isSideBand2, sideBandWeight);
-					}
-				}
-				//}}}
+			for(int iK = 0; iK < vK.size(); ++iK) {
+				hist.FillAll(vK[iK], cent9);
+				hist.Fill(vK[iK]);
+				hist.FillCut(vK[iK]);
 			}
-			myTree->copyToBuffer(idxK);
+			for(int iKL = 0; iKL < vKL.size(); ++iKL) {
+				hist.FillLeft(vKL[iKL]);
+			}
+			for(int iKR = 0; iKR < vKR.size(); ++iKR) {
+				hist.FillRight(vKR[iKR]);
+			}
+
+			loopVect(vK, vK, hist.hSameKqinv[cent9]);
+			loopVect(vK, vKL, hist.hSLQinv[cent9]);
+			loopVect(vK, vKR, hist.hSRQinv[cent9]);
+			loopVect(vKL, vK, hist.hLSQinv[cent9]);
+			loopVect(vKR, vK, hist.hRSQinv[cent9]);
+			loopVect(vKL, vKL, hist.hLLQinv[cent9]);
+			loopVect(vKR, vKR, hist.hRRQinv[cent9]);
+
+			std::list<std::vector<MyTree::Particle>>::iterator iter;
+			for(iter = myTree->mMixBuffer[cent9].begin(); iter != myTree->mMixBuffer[cent9].end(); ++iter) {
+				loopVect(vK, *iter, hist.hMixKqinv[cent9]);
+				loopVect(vK, *iter, hist.hMixKqinvWeight[cent9], hPurity[cent9]);
+
+				loopVect(vKL, *iter, hist.hMixLSQinv[cent9]);
+				loopVect(vKR, *iter, hist.hMixRSQinv[cent9]);
+			}
+			for(iter = myTree->mMixLBuffer[cent9].begin(); iter != myTree->mMixLBuffer[cent9].end(); ++iter) {
+				loopVect(vK, *iter, hist.hMixSLQinv[cent9]);
+				loopVect(vKL, *iter, hist.hMixLLQinv[cent9]);
+			}
+			for(iter = myTree->mMixRBuffer[cent9].begin(); iter != myTree->mMixRBuffer[cent9].end(); ++iter) {
+				loopVect(vK, *iter, hist.hMixSRQinv[cent9]);
+				loopVect(vKR, *iter, hist.hMixRRQinv[cent9]);
+			}
+			myTree->copyToBuffer(vK, vKL, vKR);
 		}
 		delete myTree;
 		ifTree->Close();
@@ -420,12 +316,60 @@ inline bool passAllCuts(MyTree::Particle& p, Config& config)
 	if(!passCut(p.m2A, p.pA, config, "Mass2Pip")) return false;
 	if(!passCut(p.m2B, p.pB, config, "Mass2Pim")) return false;
 	if(!passCut(p.dca, config, "KS0DCA")) return false;
-	if(!passCut(p.decayLength, config, "DecayLength")) return false;
+	//if(!passCut(p.decayLength, config, "DecayLength")) return false;
 	if(!passCut(nsigmaA, config, "NSigmaPi")) return false;
 	if(!passCut(nsigmaB, config, "NSigmaPi")) return false;
 	if(p.rap > 0 && p.pt < 0.3) return false;
 	if(p.etaA < -2.0 || p.etaA > 0) return false;
 	if(p.etaB < -2.0 || p.etaB > 0) return false;
 	return true;
+}
+
+void loopVect(std::vector<MyTree::Particle>& v1, std::vector<MyTree::Particle>& v2, TH1F* h)
+{
+	for(int iK1 = 0; iK1 < v1.size(); ++iK1) {
+		int startIdx = (&v1 == &v2) ? iK1 + 1 : 0;
+		for(int iK2 = startIdx; iK2 < v2.size(); ++iK2) {
+			if(v1[iK1].ptPip == v2[iK2].ptPip && v1[iK1].rapPip == v2[iK2].rapPip && v1[iK1].phiA == v2[iK2].phiA) continue;
+			if(v1[iK1].ptPim == v2[iK2].ptPim && v1[iK1].rapPim == v2[iK2].rapPim && v1[iK1].phiB == v2[iK2].phiB) continue;
+			TLorentzVector k1_v4, k2_v4;
+			k1_v4.SetXYZT(v1[iK1].px, v1[iK1].py, v1[iK1].pz, v1[iK1].energy);
+			k2_v4.SetXYZT(v2[iK2].px, v2[iK2].py, v2[iK2].pz, v2[iK2].energy);
+			TLorentzVector kDiff_v4 = (k1_v4 - k2_v4);
+			float qinv = fabs(kDiff_v4.Mag());
+			h->Fill(qinv);
+		}
+	}
+}
+
+void loopVect(std::vector<MyTree::Particle>& v1, std::vector<MyTree::Particle>& v2, TH1F* h[], TH2F* hPurity)
+{
+	for(int iK1 = 0; iK1 < v1.size(); ++iK1) {
+		int startIdx = (&v1 == &v2) ? iK1 + 1 : 0;
+		for(int iK2 = startIdx; iK2 < v2.size(); ++iK2) {
+			if(v1[iK1].ptPip == v2[iK2].ptPip && v1[iK1].rapPip == v2[iK2].rapPip && v1[iK1].phiA == v2[iK2].phiA) continue;
+			if(v1[iK1].ptPim == v2[iK2].ptPim && v1[iK1].rapPim == v2[iK2].rapPim && v1[iK1].phiB == v2[iK2].phiB) continue;
+			TLorentzVector k1_v4, k2_v4;
+			k1_v4.SetXYZT(v1[iK1].px, v1[iK1].py, v1[iK1].pz, v1[iK1].energy);
+			k2_v4.SetXYZT(v2[iK2].px, v2[iK2].py, v2[iK2].pz, v2[iK2].energy);
+			TLorentzVector kDiff_v4 = (k1_v4 - k2_v4);
+			float qinv = fabs(kDiff_v4.Mag());
+			int binX1 = hPurity->GetXaxis()->FindBin(v1[iK1].rap);
+			int binY1 = hPurity->GetYaxis()->FindBin(v1[iK1].pt);
+			int binX2 = hPurity->GetXaxis()->FindBin(v2[iK2].rap);
+			int binY2 = hPurity->GetYaxis()->FindBin(v2[iK2].pt);
+			float purity1 = hPurity->GetBinContent(binX1, binY1);
+			float purity2 = hPurity->GetBinContent(binX2, binY2);
+			float ppSS = purity1 * purity2;
+			float ppSR = (1 - purity2);
+			float ppRS = (1 - purity1);
+			float ppRR = -1 * (1 - purity1) * (1 - purity2);
+
+			h[0]->Fill(qinv, ppSS);		//pair purity for sig-sig
+			h[1]->Fill(qinv, ppSR);		//		  sig-ref
+			h[2]->Fill(qinv, ppRS);		//		  ref-sig
+			h[3]->Fill(qinv, ppRR);		//		  ref-ref
+		}
+	}
 }
 //}}}

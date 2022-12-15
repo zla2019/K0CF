@@ -53,20 +53,22 @@ void Hist::init()
 		hSameKPtRapMass[icent] = new TH3F(Form("hMassCascadeRapidityvsPt_cent%d", icent),Form("hMassCascadeRapidityvsPt_cent%d", icent),160, 0.42, 0.58, 20, -1, 1, 30, 0, 3);
 		hSameKqinv[icent] = new TH1F(Form("hSameKqinv_cent%i", icent), Form("K_{s}^{0} q_{inv}(k^{*}) @cent%i", icent), 500, 0, 1);
 		hMixKqinv[icent] = new TH1F(Form("hMixKqinv_cent%i", icent), Form("Mix K_{s}^{0} q_{inv}(k^{*}) @cent%i", icent), 500, 0, 1);
-		hSameKqlong[icent] = new TH1F(Form("hSameKqlong_cent%i", icent), Form("K_{s}^{0} q_{inv}(k^{*}) @cent%i", icent), 2000, -2, 2);
-		hMixKqlong[icent] = new TH1F(Form("hMixKqlong_cent%i", icent), Form("Mix K_{s}^{0} q_{inv}(k^{*}) @cent%i", icent), 2000, -2, 2);
-		hSameKqout[icent] = new TH1F(Form("hSameKqout_cent%i", icent), Form("K_{s}^{0} q_{inv}(k^{*}) @cent%i", icent), 2000, -2, 2);
-		hMixKqout[icent] = new TH1F(Form("hMixKqout_cent%i", icent), Form("Mix K_{s}^{0} q_{inv}(k^{*}) @cent%i", icent), 2000, -2, 2);
-		hSameKqside[icent] = new TH1F(Form("hSameKqside_cent%i", icent), Form("K_{s}^{0} q_{inv}(k^{*}) @cent%i", icent), 2000, -2, 2);
-		hMixKqside[icent] = new TH1F(Form("hMixKqside_cent%i", icent), Form("Mix K_{s}^{0} q_{inv}(k^{*}) @cent%i", icent), 2000, -2, 2);
+
+		hSLQinv[icent] = new TH1F(Form("hSLQinv_cent%d", icent), "", 500, 0, 1);
+		hMixSLQinv[icent] = new TH1F(Form("hMixSLQinv_cent%d", icent), "", 500, 0, 1);
+		hLSQinv[icent] = new TH1F(Form("hLSQinv_cent%d", icent), "", 500, 0, 1);
+		hMixLSQinv[icent] = new TH1F(Form("hMixLSQinv_cent%d", icent), "", 500, 0, 1);
+		hLLQinv[icent] = new TH1F(Form("hLLQinv_cent%d", icent), "", 500, 0, 1);
+		hMixLLQinv[icent] = new TH1F(Form("hMixLLQinv_cent%d", icent), "", 500, 0, 1);
+
+		hSRQinv[icent] = new TH1F(Form("hSRQinv_cent%d", icent), "", 500, 0, 1);
+		hMixSRQinv[icent] = new TH1F(Form("hMixSRQinv_cent%d", icent), "", 500, 0, 1);
+		hRSQinv[icent] = new TH1F(Form("hRSQinv_cent%d", icent), "", 500, 0, 1);
+		hMixRSQinv[icent] = new TH1F(Form("hMixRSQinv_cent%d", icent), "", 500, 0, 1);
+		hRRQinv[icent] = new TH1F(Form("hRRQinv_cent%d", icent), "", 500, 0, 1);
+		hMixRRQinv[icent] = new TH1F(Form("hMixRRQinv_cent%d", icent), "", 500, 0, 1);
 		for(int icase = 0; icase < 4; ++icase) {
-			hSameLeftSideKqinv[icent][icase] = new TH1F(Form("hSameLeftSideKqinv_cent%i_case%i", icent, icase), Form("LeftSide Band K_{s}^{0} q_{inv}(k^{*}) @cent%i, case%i", icent, icase), 500, 0, 1);
-			hMixLeftSideKqinv[icent][icase] = new TH1F(Form("hMixLeftSideKqinv_cent%i_case%i", icent, icase), Form("LeftSide Band Mix K_{s}^{0} q_{inv}(k^{*}) @cent%i, case%i", icent, icase), 500, 0, 1);
-			hSameRightSideKqinv[icent][icase] = new TH1F(Form("hSameRightSideKqinv_cent%i_case%i", icent, icase), Form("RightSide Band K_{s}^{0} q_{inv}(k^{*}) @cent%i, case%i", icent, icase), 500, 0, 1);
-			hMixRightSideKqinv[icent][icase] = new TH1F(Form("hMixRightSideKqinv_cent%i_case%i", icent, icase), Form("RightSide Band Mix K_{s}^{0} q_{inv}(k^{*}) @cent%i, case%i", icent, icase), 500, 0, 1);
-			hMixKqinvWeight[icent][icase] = new TH1F(Form("hMixKqinvWeight_cent%i_case%i", icent, icase), Form("Weighted Mix K_{s}^{0} q_{inv} for SideBand @cent%i, case%i", icent, icase), 500, 0, 1);
-			hMixKqinvLeftWeight[icent][icase] = new TH1F(Form("hMixKqinvLeftWeight_cent%i_case%i", icent, icase), Form("LeftWeighted Mix K_{s}^{0} q_{inv} for SideBand @cent%i, case%i", icent, icase), 500, 0, 1);
-			hMixKqinvRightWeight[icent][icase] = new TH1F(Form("hMixKqinvRightWeight_cent%i_case%i", icent, icase), Form("RightWeighted Mix K_{s}^{0} q_{inv} for SideBand @cent%i, case%i", icent, icase), 500, 0, 1);
+			hMixKqinvWeight[icent][icase] = new TH1F(Form("hMixKqinvWeight_cent%d_case%d", icent, icase), "", 500, 0, 1);
 		}
 	}
 
@@ -123,60 +125,6 @@ void Hist::FillRight(MyTree::Particle& p)
 	hRightSideSameKPimRapPt->Fill(p.rapPim, p.ptPim);
 	hRightSideSameKRapPt->Fill(p.rap, p.pt);
 	hRightSideSameKPhi->Fill(p.phi);
-}
-
-void Hist::Fill(float qinv, int cent9, int isSideBand1, int isSideBand2)
-{
-	if(isSideBand1 == 0 && isSideBand2 == 0) {
-		hSameKqinv[cent9]->Fill(qinv);
-		hSameLeftSideKqinv[cent9][3]->Fill(qinv);
-		hSameRightSideKqinv[cent9][3]->Fill(qinv);
-	} else if(isSideBand1 == 0 && isSideBand2 == 1) {
-		hSameLeftSideKqinv[cent9][0]->Fill(qinv);
-	} else if(isSideBand1 == 0 && isSideBand2 == 2) {
-		hSameRightSideKqinv[cent9][0]->Fill(qinv);
-	} else if(isSideBand1 == 1 && isSideBand2 == 0) {
-		hSameLeftSideKqinv[cent9][1]->Fill(qinv);
-	} else if(isSideBand1 == 2 && isSideBand2 == 0) {
-		hSameRightSideKqinv[cent9][1]->Fill(qinv);
-	} else if(isSideBand1 == 1 && isSideBand2 == 1) {
-		hSameLeftSideKqinv[cent9][2]->Fill(qinv);
-	} else if(isSideBand1 == 2 && isSideBand2 == 2) {
-		hSameRightSideKqinv[cent9][2]->Fill(qinv);
-	}
-}
-
-void Hist::FillMix(float qinv, int cent9, int isSideBand1, int isSideBand2, float sideBandWeight[])
-{
-	if(isSideBand1 == 0 && isSideBand2 == 0) {
-		hMixKqinv[cent9]->Fill(qinv);
-		hMixLeftSideKqinv[cent9][3]->Fill(qinv);
-		hMixRightSideKqinv[cent9][3]->Fill(qinv);
-		hMixKqinvWeight[cent9][0]->Fill(qinv, sideBandWeight[0]);
-		hMixKqinvWeight[cent9][1]->Fill(qinv, sideBandWeight[1]);
-		hMixKqinvWeight[cent9][2]->Fill(qinv, sideBandWeight[2]);
-		hMixKqinvWeight[cent9][3]->Fill(qinv, sideBandWeight[3]);
-		hMixKqinvLeftWeight[cent9][3]->Fill(qinv, sideBandWeight[3]);
-		hMixKqinvRightWeight[cent9][3]->Fill(qinv, sideBandWeight[3]);
-	} else if(isSideBand1 == 0 && isSideBand2 == 1) {
-		hMixLeftSideKqinv[cent9][0]->Fill(qinv);
-		hMixKqinvLeftWeight[cent9][0]->Fill(qinv, sideBandWeight[0]);
-	} else if(isSideBand1 == 0 && isSideBand2 == 2) {
-		hMixRightSideKqinv[cent9][0]->Fill(qinv);
-		hMixKqinvRightWeight[cent9][0]->Fill(qinv, sideBandWeight[0]);
-	} else if(isSideBand1 == 1 && isSideBand2 == 0) {
-		hMixLeftSideKqinv[cent9][1]->Fill(qinv);
-		hMixKqinvLeftWeight[cent9][1]->Fill(qinv, sideBandWeight[1]);
-	} else if(isSideBand1 == 2 && isSideBand2 == 0) {
-		hMixRightSideKqinv[cent9][1]->Fill(qinv);
-		hMixKqinvRightWeight[cent9][1]->Fill(qinv, sideBandWeight[1]);
-	} else if(isSideBand1 == 1 && isSideBand2 == 1) {
-		hMixLeftSideKqinv[cent9][2]->Fill(qinv);
-		hMixKqinvLeftWeight[cent9][2]->Fill(qinv, sideBandWeight[2]);
-	} else if(isSideBand1 == 2 && isSideBand2 == 2) {
-		hMixRightSideKqinv[cent9][2]->Fill(qinv);
-		hMixKqinvRightWeight[cent9][2]->Fill(qinv, sideBandWeight[2]);
-	}
 }
 
 void Hist::FillCut(MyTree::Particle& p)
@@ -253,14 +201,23 @@ void Hist::Write(TFile* of)
                 hSameKPtRapMass[icent]->Write();
                 hSameKqinv[icent]->Write();
                 hMixKqinv[icent]->Write();
-                for(int icase = 0; icase < 4; ++icase) {
-                        hSameLeftSideKqinv[icent][icase]->Write();
-                        hMixLeftSideKqinv[icent][icase]->Write();
-                        hSameRightSideKqinv[icent][icase]->Write();
-                        hMixRightSideKqinv[icent][icase]->Write();
-                        hMixKqinvWeight[icent][icase]->Write();
-                        hMixKqinvLeftWeight[icent][icase]->Write();
-                        hMixKqinvRightWeight[icent][icase]->Write();
-                }
+
+		hSLQinv[icent]->Write();
+		hMixSLQinv[icent]->Write();
+		hLSQinv[icent]->Write();
+		hMixLSQinv[icent]->Write();
+		hLLQinv[icent]->Write();
+		hMixLLQinv[icent]->Write();
+
+		hSRQinv[icent]->Write();
+		hMixSRQinv[icent]->Write();
+		hRSQinv[icent]->Write();
+		hMixRSQinv[icent]->Write();
+		hRRQinv[icent]->Write();
+		hMixRRQinv[icent]->Write();
+
+		for(int icase = 0; icase < 4; ++icase) {
+			hMixKqinvWeight[icent][icase]->Write();
+		}
         }
 }
