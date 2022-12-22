@@ -54,23 +54,20 @@ void Hist::init()
 		hSameKqinv[icent] = new TH1F(Form("hSameKqinv_cent%i", icent), Form("K_{s}^{0} q_{inv}(k^{*}) @cent%i", icent), 500, 0, 1);
 		hMixKqinv[icent] = new TH1F(Form("hMixKqinv_cent%i", icent), Form("Mix K_{s}^{0} q_{inv}(k^{*}) @cent%i", icent), 500, 0, 1);
 
-		hSLQinv[icent] = new TH1F(Form("hSLQinv_cent%d", icent), "", 500, 0, 1);
-		hMixSLQinv[icent] = new TH1F(Form("hMixSLQinv_cent%d", icent), "", 500, 0, 1);
-		hLSQinv[icent] = new TH1F(Form("hLSQinv_cent%d", icent), "", 500, 0, 1);
-		hMixLSQinv[icent] = new TH1F(Form("hMixLSQinv_cent%d", icent), "", 500, 0, 1);
-		hLLQinv[icent] = new TH1F(Form("hLLQinv_cent%d", icent), "", 500, 0, 1);
-		hMixLLQinv[icent] = new TH1F(Form("hMixLLQinv_cent%d", icent), "", 500, 0, 1);
+		hMix0000Qinv[icent] = new TH1F(Form("hMix0000Qinv_cent%d", icent), "", 500, 0, 1);
+		hMix0001Qinv[icent] = new TH1F(Form("hMix0001Qinv_cent%d", icent), "", 500, 0, 1);
+		hMix0011Qinv[icent] = new TH1F(Form("hMix0011Qinv_cent%d", icent), "", 500, 0, 1);
+		hMix0023Qinv[icent] = new TH1F(Form("hMix0023Qinv_cent%d", icent), "", 500, 0, 1);
+		hMix0101Qinv[icent] = new TH1F(Form("hMix0101Qinv_cent%d", icent), "", 500, 0, 1);
+		hMix0102Qinv[icent] = new TH1F(Form("hMix0102Qinv_cent%d", icent), "", 500, 0, 1);
+		hMix0123Qinv[icent] = new TH1F(Form("hMix0123Qinv_cent%d", icent), "", 500, 0, 1);
 
-		hSRQinv[icent] = new TH1F(Form("hSRQinv_cent%d", icent), "", 500, 0, 1);
-		hMixSRQinv[icent] = new TH1F(Form("hMixSRQinv_cent%d", icent), "", 500, 0, 1);
-		hRSQinv[icent] = new TH1F(Form("hRSQinv_cent%d", icent), "", 500, 0, 1);
-		hMixRSQinv[icent] = new TH1F(Form("hMixRSQinv_cent%d", icent), "", 500, 0, 1);
-		hRRQinv[icent] = new TH1F(Form("hRRQinv_cent%d", icent), "", 500, 0, 1);
-		hMixRRQinv[icent] = new TH1F(Form("hMixRRQinv_cent%d", icent), "", 500, 0, 1);
 		for(int icase = 0; icase < 4; ++icase) {
 			hMixKqinvWeight[icent][icase] = new TH1F(Form("hMixKqinvWeight_cent%d_case%d", icent, icase), "", 500, 0, 1);
 		}
 	}
+
+	hMixBkgMass = new TH1F("hMixBkgMass", "", 160, 0.48, 0.52);
 
 	//cut plots
 	hCutChi2Topo = new TH1F("hCutChi2Topo", "#chi^{2}_{topo} after cut", 50, 0, 10);
@@ -180,9 +177,7 @@ void Hist::Write(TFile* of)
         hPipNSigma2->Write();
         hPimNSigma2->Write();
 
-        //hDTheta->Write();
-        //hDPhi->Write();
-        //hDThetaDPhi->Write();
+	hMixBkgMass->Write();
 
 	//cut plots
 	hCutChi2Topo->Write();
@@ -202,19 +197,13 @@ void Hist::Write(TFile* of)
                 hSameKqinv[icent]->Write();
                 hMixKqinv[icent]->Write();
 
-		hSLQinv[icent]->Write();
-		hMixSLQinv[icent]->Write();
-		hLSQinv[icent]->Write();
-		hMixLSQinv[icent]->Write();
-		hLLQinv[icent]->Write();
-		hMixLLQinv[icent]->Write();
-
-		hSRQinv[icent]->Write();
-		hMixSRQinv[icent]->Write();
-		hRSQinv[icent]->Write();
-		hMixRSQinv[icent]->Write();
-		hRRQinv[icent]->Write();
-		hMixRRQinv[icent]->Write();
+		hMix0000Qinv[icent]->Write();
+		hMix0001Qinv[icent]->Write();
+		hMix0011Qinv[icent]->Write();
+		hMix0023Qinv[icent]->Write();
+		hMix0101Qinv[icent]->Write();
+		hMix0102Qinv[icent]->Write();
+		hMix0123Qinv[icent]->Write();
 
 		for(int icase = 0; icase < 4; ++icase) {
 			hMixKqinvWeight[icent][icase]->Write();

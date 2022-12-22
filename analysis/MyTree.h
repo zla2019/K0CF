@@ -2,6 +2,7 @@
 #define MYTREE_H
 #include <TTree.h>
 #include <list>
+#include <TLorentzVector.h>
 
 class MyTree
 {
@@ -52,6 +53,8 @@ public:
 	float mBufferM2B[nTrackMax];
 	float mBufferEtaA[nTrackMax];
 	short mBufferEtaB[nTrackMax];
+	float mBufferPhiA[nTrackMax];
+	short mBufferPhiB[nTrackMax];
 	float mBufferDCAA[nTrackMax];
 	float mBufferDCAB[nTrackMax];
 	float mBufferTrkIdA[nTrackMax];
@@ -109,11 +112,19 @@ public:
 		float nHitsDedxA;
 		float nHitsDedxB;
 	};
+
+	struct Candi {
+		TLorentzVector candi;
+		TLorentzVector daugA, daugB;
+	};
+
         Particle getParticle(int iparticle, float beamRapidity);
 
+	std::list<std::vector<TLorentzVector>> mMixBufferPionp[9];
+	std::list<std::vector<TLorentzVector>> mMixBufferPionm[9];
 	std::list<std::vector<Particle>> mMixBuffer[9];
 	std::list<std::vector<Particle>> mMixLBuffer[9];
 	std::list<std::vector<Particle>> mMixRBuffer[9];
-	void copyToBuffer(std::vector<Particle>& vect, std::vector<Particle>& vectL, std::vector<Particle>& vectR);
+	void copyToBuffer(std::vector<Particle>& vect, std::vector<Particle>& vectL, std::vector<Particle>& vectR, std::vector<TLorentzVector> vPip, std::vector<TLorentzVector> vPim);
 };
 #endif

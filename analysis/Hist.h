@@ -67,19 +67,15 @@ public:
 	TH1F* hMixKqinv[9];
 	TH1F* hMixKqinvWeight[9][4];
 
-	TH1F* hSLQinv[9];	//sig-left
-	TH1F* hMixSLQinv[9];
-	TH1F* hLSQinv[9];	//left-sig
-	TH1F* hMixLSQinv[9];
-	TH1F* hLLQinv[9];	//left-left
-	TH1F* hMixLLQinv[9];
+	TH1F* hMix0000Qinv[9];
+	TH1F* hMix0001Qinv[9];
+	TH1F* hMix0011Qinv[9];
+	TH1F* hMix0023Qinv[9];
+	TH1F* hMix0101Qinv[9];
+	TH1F* hMix0102Qinv[9];
+	TH1F* hMix0123Qinv[9];
 
-	TH1F* hSRQinv[9];	//sig-right
-	TH1F* hMixSRQinv[9];
-	TH1F* hRSQinv[9];	//right-sig
-	TH1F* hMixRSQinv[9];
-	TH1F* hRRQinv[9];	//right-right
-	TH1F* hMixRRQinv[9];
+	TH1F* hMixBkgMass;
 
 	//cut plots
 	TH1F* hCutChi2Topo;

@@ -31,7 +31,9 @@ bool passCut(double a, Config& config, std::string cutName);
 bool passCut(double a, double b, Config& config, std::string cutName);
 inline bool passAllCuts(MyTree::Particle& p, Config& config);
 void loopVect(std::vector<MyTree::Particle>& v1, std::vector<MyTree::Particle>& v2, TH1F* h);
+void loopVect(std::vector<MyTree::Candi>& v1, std::vector<MyTree::Candi>& v2, TH1F* h);
 void loopVect(std::vector<MyTree::Particle>& v1, std::vector<MyTree::Particle>& v2, TH1F* h[], TH2F* hPurity);
+void MakePair(std::vector<TLorentzVector>& v1, std::vector<TLorentzVector>& v2, std::vector<MyTree::Candi>& v3);
 
 int main(int argc, char **argv)
 {
@@ -144,10 +146,51 @@ int main(int argc, char **argv)
 			std::vector<MyTree::Particle> vK;	//vector for mass window K0s
 			std::vector<MyTree::Particle> vKL;	//vector for left side K0s
 			std::vector<MyTree::Particle> vKR;	//vector for right side K0s
+			std::vector<TLorentzVector> vPip;
+			std::vector<TLorentzVector> vPim;
+			std::vector<MyTree::Candi> v00;
 			for(int icurK = 0; icurK < nK; ++icurK) {
 				MyTree::Particle kaon = myTree->getParticle(icurK, beamRapidity);
 				if(!passAllCuts(kaon, config)) continue;
-				if(passCut(kaon.mass, config, "Mass")) vK.push_back(kaon);
+				TLorentzVector pip, pim;
+				pip.SetPtEtaPhiM(kaon.ptPip, kaon.etaA, kaon.phiB, 0.13957039);
+				pim.SetPtEtaPhiM(kaon.ptPim, kaon.etaB, kaon.phiB, 0.13957039);
+
+				if(vPip.size() == 0) {
+					vPip.push_back(std::move(pip));
+				}
+				if(vPim.size() == 0) {
+					vPim.push_back(std::move(pim));
+				}
+
+				for(int ipip = 0; ipip < vPip.size(); ++ipip) {
+					if(pip.Pt() == vPip[ipip].Pt() && pip.Eta() == vPip[ipip].Eta() && pip.Phi() == vPip[ipip].Phi()) break;
+					if(ipip == (vPip.size() - 1)) {
+						vPip.push_back(std::move(pip));
+						break;
+					}
+				}
+
+				for(int ipim = 0; ipim < vPim.size(); ++ipim) {
+					if(pim.Pt() == vPim[ipim].Pt() && pim.Eta() == vPim[ipim].Eta() && pim.Phi() == vPim[ipim].Phi()) break;
+					if(ipim == (vPim.size() - 1)) {
+						vPim.push_back(std::move(pim));
+						break;
+					}
+				}
+
+				if(!passCut(kaon.rap, config, "Rap")) continue;
+ 				if(!passCut(kaon.pt, config, "Pt")) continue;
+				if(passCut(kaon.mass, config, "Mass")) {
+					vK.push_back(kaon);
+					TLorentzVector k00;
+					k00.SetPtEtaPhiM(kaon.pt, kaon.eta, kaon.phi, kaon.mass);
+					MyTree::Candi candi;
+					candi.candi = k00;
+					candi.daugA = pip;
+					candi.daugB = pim;
+					v00.push_back(std::move(candi));
+				}
 				if(passCut(kaon.mass, config, "SideBand")) vKR.push_back(kaon);
 				if(passCut(kaon.mass, config, "SideBand2")) vKL.push_back(kaon);
 			}
@@ -164,31 +207,47 @@ int main(int argc, char **argv)
 				hist.FillRight(vKR[iKR]);
 			}
 
-			loopVect(vK, vK, hist.hSameKqinv[cent9]);
-			loopVect(vK, vKL, hist.hSLQinv[cent9]);
-			loopVect(vK, vKR, hist.hSRQinv[cent9]);
-			loopVect(vKL, vK, hist.hLSQinv[cent9]);
-			loopVect(vKR, vK, hist.hRSQinv[cent9]);
-			loopVect(vKL, vKL, hist.hLLQinv[cent9]);
-			loopVect(vKR, vKR, hist.hRRQinv[cent9]);
+			std::list<std::vector<TLorentzVector>>::iterator iter;
+			std::list<std::vector<TLorentzVector>>::iterator iter2;
+			std::list<std::vector<TLorentzVector>>::iterator iter3;
+			std::list<std::vector<MyTree::Particle>>::iterator iter4;
+			std::vector<MyTree::Candi> v01;
+			std::vector<MyTree::Candi> v02;
+			std::vector<MyTree::Candi> v23;
+			for(iter = myTree->mMixBufferPionm[cent9].begin(); iter != myTree->mMixBufferPionm[cent9].end(); ++iter) {
+				MakePair(vPip, *iter, v01);
+				for(iter2 = iter; iter2 != myTree->mMixBufferPionm[cent9].end(); ++iter2) {
+					if(iter2 == iter) continue;
+					MakePair(vPip, *iter2, v02);
+					for(iter3 = iter2; iter3 != myTree->mMixBufferPionm[cent9].end(); ++iter3) {
+						if(iter3 == iter2) continue;
+						MakePair(*iter2, *iter3, v23);
+					}
+				}
+			}
+			for(iter = myTree->mMixBufferPionp[cent9].begin(); iter != myTree->mMixBufferPionp[cent9].end(); ++iter) {
+				MakePair(vPim, *iter, v01);
+				for(iter2 = iter; iter2 != myTree->mMixBufferPionp[cent9].end(); ++iter2) {
+					if(iter2 == iter) continue;
+					MakePair(vPim, *iter2, v02);
+					for(iter3 = iter2; iter3 != myTree->mMixBufferPionp[cent9].end(); ++iter3) {
+						if(iter3 == iter2) continue;
+						MakePair(*iter2, *iter3, v23);
+					}
+				}
+			}
+			
+			loopVect(v01, v01, hist.hMix0101Qinv[cent9]);
+			loopVect(v01, v02, hist.hMix0102Qinv[cent9]);
+			loopVect(v01, v23, hist.hMix0123Qinv[cent9]);
+			loopVect(v00, v01, hist.hMix0001Qinv[cent9]);
+			loopVect(v00, v23, hist.hMix0023Qinv[cent9]);
+			loopVect(v00, v00, hist.hMix0000Qinv[cent9]);
 
-			std::list<std::vector<MyTree::Particle>>::iterator iter;
-			for(iter = myTree->mMixBuffer[cent9].begin(); iter != myTree->mMixBuffer[cent9].end(); ++iter) {
-				loopVect(vK, *iter, hist.hMixKqinv[cent9]);
-				loopVect(vK, *iter, hist.hMixKqinvWeight[cent9], hPurity[cent9]);
-
-				loopVect(vKL, *iter, hist.hMixLSQinv[cent9]);
-				loopVect(vKR, *iter, hist.hMixRSQinv[cent9]);
+			for(iter4 = myTree->mMixBuffer[cent9].begin(); iter4 != myTree->mMixBuffer[cent9].end(); ++iter4) {
+				loopVect(vK, *iter4, hist.hMix0011Qinv[cent9]);
 			}
-			for(iter = myTree->mMixLBuffer[cent9].begin(); iter != myTree->mMixLBuffer[cent9].end(); ++iter) {
-				loopVect(vK, *iter, hist.hMixSLQinv[cent9]);
-				loopVect(vKL, *iter, hist.hMixLLQinv[cent9]);
-			}
-			for(iter = myTree->mMixRBuffer[cent9].begin(); iter != myTree->mMixRBuffer[cent9].end(); ++iter) {
-				loopVect(vK, *iter, hist.hMixSRQinv[cent9]);
-				loopVect(vKR, *iter, hist.hMixRRQinv[cent9]);
-			}
-			myTree->copyToBuffer(vK, vKL, vKR);
+			myTree->copyToBuffer(vK, vKL, vKR, vPip, vPim);
 		}
 		delete myTree;
 		ifTree->Close();
@@ -307,8 +366,8 @@ inline bool passAllCuts(MyTree::Particle& p, Config& config)
 	if(!passCut(p.chi2NDF, config, "Chi2NDF")) return false;
 	if(!passCut(p.chi2PrimPip, config, "Chi2PrimPip")) return false;
 	if(!passCut(p.chi2PrimPim, config, "Chi2PrimPim")) return false;
-	if(!passCut(p.rap, config, "Rap")) return false;
-	if(!passCut(p.pt, config, "Pt")) return false;
+	//if(!passCut(p.rap, config, "Rap")) return false;
+	//if(!passCut(p.pt, config, "Pt")) return false;
 	if(!passCut(p.nHitsA, config, "NHitsA")) return false;
 	if(!passCut(p.nHitsB, config, "NHitsB")) return false;
 	if(!passCut(p.dcaA, config, "DCAA")) return false;
@@ -335,6 +394,22 @@ void loopVect(std::vector<MyTree::Particle>& v1, std::vector<MyTree::Particle>& 
 			TLorentzVector k1_v4, k2_v4;
 			k1_v4.SetXYZT(v1[iK1].px, v1[iK1].py, v1[iK1].pz, v1[iK1].energy);
 			k2_v4.SetXYZT(v2[iK2].px, v2[iK2].py, v2[iK2].pz, v2[iK2].energy);
+			TLorentzVector kDiff_v4 = (k1_v4 - k2_v4);
+			float qinv = fabs(kDiff_v4.Mag());
+			h->Fill(qinv);
+		}
+	}
+}
+
+void loopVect(std::vector<MyTree::Candi>& v1, std::vector<MyTree::Candi>& v2, TH1F* h)
+{
+	for(int iK1 = 0; iK1 < v1.size(); ++iK1) {
+		int startIdx = (&v1 == &v2) ? iK1 + 1 : 0;
+		for(int iK2 = startIdx; iK2 < v2.size(); ++iK2) {
+			if(v1[iK1].daugA.Pt() == v2[iK2].daugA.Pt() && v1[iK1].daugA.Rapidity() == v2[iK2].daugA.Rapidity() && v1[iK1].daugA.Phi() == v2[iK2].daugA.Phi()) continue;
+			if(v1[iK1].daugB.Pt() == v2[iK2].daugB.Pt() && v1[iK1].daugB.Rapidity() == v2[iK2].daugB.Rapidity() && v1[iK1].daugB.Phi() == v2[iK2].daugB.Phi()) continue;
+			TLorentzVector k1_v4 = v1[iK1].candi;
+			TLorentzVector k2_v4 = v2[iK2].candi;
 			TLorentzVector kDiff_v4 = (k1_v4 - k2_v4);
 			float qinv = fabs(kDiff_v4.Mag());
 			h->Fill(qinv);
@@ -369,6 +444,20 @@ void loopVect(std::vector<MyTree::Particle>& v1, std::vector<MyTree::Particle>& 
 			h[1]->Fill(qinv, ppSR);		//		  sig-ref
 			h[2]->Fill(qinv, ppRS);		//		  ref-sig
 			h[3]->Fill(qinv, ppRR);		//		  ref-ref
+		}
+	}
+}
+
+void MakePair(std::vector<TLorentzVector>& v1, std::vector<TLorentzVector>& v2, std::vector<MyTree::Candi>& v3)
+{
+	for(int ip1 = 0; ip1 < v1.size(); ++ip1) {
+		for(int ip2 = 0; ip2 < v2.size(); ++ip2) {
+			TLorentzVector kaon = v1[ip1] + v2[ip2];
+			MyTree::Candi candi;
+			candi.candi = kaon;
+			candi.daugA = v1[ip1];
+			candi.daugB = v2[ip2];
+			v3.push_back(std::move(candi));
 		}
 	}
 }

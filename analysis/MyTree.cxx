@@ -67,6 +67,8 @@ bool MyTree::setBranchAddress()
 		mTree->SetBranchAddress("m2B", mBufferM2B);
 		mTree->SetBranchAddress("eta_db", mBufferEtaA);
 		mTree->SetBranchAddress("etaB", mBufferEtaB);
+		mTree->SetBranchAddress("phi_db", mBufferPhiA);
+		mTree->SetBranchAddress("phiB", mBufferPhiB);
 		mTree->SetBranchAddress("dca_db", mBufferDCAA);
 		mTree->SetBranchAddress("dcaB", mBufferDCAB);
 		//mTree->SetBranchAddress("phDBRF", mBufferTrkIdA);
@@ -103,18 +105,22 @@ int MyTree::getEntry(Long64_t entry)
 	return mTree->GetEntry(entry);
 }
 
-void MyTree::copyToBuffer(std::vector<Particle>& vect, std::vector<Particle>& vectL, std::vector<Particle>& vectR)
+void MyTree::copyToBuffer(std::vector<Particle>& vect, std::vector<Particle>& vectL, std::vector<Particle>& vectR, std::vector<TLorentzVector> vPip, std::vector<TLorentzVector> vPim)
 {
 	int cent9 = (int)mBufferCent9;
 	if(cent9 >= 0 && cent9 <= 8) {
 		mMixBuffer[cent9].push_front(std::move(vect));
 		mMixLBuffer[cent9].push_front(std::move(vectL));
 		mMixRBuffer[cent9].push_front(std::move(vectR));
+		mMixBufferPionp[cent9].push_front(std::move(vPip));
+		mMixBufferPionm[cent9].push_front(std::move(vPim));
 
 		if(mMixBuffer[cent9].size() > 25) {
 			mMixBuffer[cent9].pop_back();
 			mMixLBuffer[cent9].pop_back();
 			mMixRBuffer[cent9].pop_back();
+			mMixBufferPionp[cent9].pop_back();
+			mMixBufferPionm[cent9].pop_back();
 		}
 	}
 }
@@ -145,6 +151,8 @@ MyTree::Particle MyTree::getParticle(int iparticle, float beamRapidity)
 	particle.m2B = mBufferM2B[iparticle];
 	particle.etaA = mBufferEtaA[iparticle];
 	particle.etaB = mBufferEtaB[iparticle] / 1000.;
+	particle.phiA = mBufferPhiA[iparticle];
+	particle.phiB = mBufferPhiB[iparticle] / 1000.;
 	particle.dcaA = mBufferDCAA[iparticle];
 	particle.dcaB = mBufferDCAB[iparticle];
 	particle.trkIdA = mBufferTrkIdA[iparticle];
