@@ -153,7 +153,7 @@ int main(int argc, char **argv)
 				MyTree::Particle kaon = myTree->getParticle(icurK, beamRapidity);
 				if(!passAllCuts(kaon, config)) continue;
 				TLorentzVector pip, pim;
-				pip.SetPtEtaPhiM(kaon.ptPip, kaon.etaA, kaon.phiB, 0.13957039);
+				pip.SetPtEtaPhiM(kaon.ptPip, kaon.etaA, kaon.phiA, 0.13957039);
 				pim.SetPtEtaPhiM(kaon.ptPim, kaon.etaB, kaon.phiB, 0.13957039);
 
 				if(vPip.size() == 0) {
@@ -406,8 +406,8 @@ void loopVect(std::vector<MyTree::Candi>& v1, std::vector<MyTree::Candi>& v2, TH
 	for(int iK1 = 0; iK1 < v1.size(); ++iK1) {
 		int startIdx = (&v1 == &v2) ? iK1 + 1 : 0;
 		for(int iK2 = startIdx; iK2 < v2.size(); ++iK2) {
-			if(v1[iK1].daugA.Pt() == v2[iK2].daugA.Pt() && v1[iK1].daugA.Rapidity() == v2[iK2].daugA.Rapidity() && v1[iK1].daugA.Phi() == v2[iK2].daugA.Phi()) continue;
-			if(v1[iK1].daugB.Pt() == v2[iK2].daugB.Pt() && v1[iK1].daugB.Rapidity() == v2[iK2].daugB.Rapidity() && v1[iK1].daugB.Phi() == v2[iK2].daugB.Phi()) continue;
+			if(v1[iK1].daugA.Pt() == v2[iK2].daugA.Pt() && v1[iK1].daugA.Eta() == v2[iK2].daugA.Eta() && v1[iK1].daugA.Phi() == v2[iK2].daugA.Phi()) continue;
+			if(v1[iK1].daugB.Pt() == v2[iK2].daugB.Pt() && v1[iK1].daugB.Eta() == v2[iK2].daugB.Eta() && v1[iK1].daugB.Phi() == v2[iK2].daugB.Phi()) continue;
 			TLorentzVector k1_v4 = v1[iK1].candi;
 			TLorentzVector k2_v4 = v2[iK2].candi;
 			TLorentzVector kDiff_v4 = (k1_v4 - k2_v4);
