@@ -134,6 +134,9 @@ int main(int argc, char **argv)
 			float vz = myTree->mBufferVz;
 			float vr = sqrt(vx*vx + vy*vy);
 			int cent9 = (int)myTree->mBufferCent9;
+			int psiBin = (myTree->mBufferPsi + TMath::Pi()) / (TMath::Pi() / 6.);
+			if(psiBin < 0) psiBin = 0;
+			if(psiBin > 11) psiBin = 11;
 			unsigned int nK = myTree->mBufferNTrack;
 			hist.hRefMult->Fill(myTree->mBufferRefMult);
 			if(cent9 < 0 || cent9 > 8) {
@@ -142,6 +145,7 @@ int main(int argc, char **argv)
 			hist.hVz->Fill(vz);
 			hist.hVr->Fill(vx, vy);
 			hist.hCent9->Fill(cent9);
+			hist.hPsi->Fill(myTree->mBufferPsi + TMath::Pi());
 			//pre select
 			std::vector<MyTree::Particle> vK;	//vector for mass window K0s
 			std::vector<MyTree::Particle> vKL;	//vector for left side K0s
@@ -214,23 +218,23 @@ int main(int argc, char **argv)
 			std::vector<MyTree::Candi> v01;
 			std::vector<MyTree::Candi> v02;
 			std::vector<MyTree::Candi> v23;
-			for(iter = myTree->mMixBufferPionm[cent9].begin(); iter != myTree->mMixBufferPionm[cent9].end(); ++iter) {
+			for(iter = myTree->mMixBufferPionm[cent9][psiBin].begin(); iter != myTree->mMixBufferPionm[cent9][psiBin].end(); ++iter) {
 				MakePair(vPip, *iter, v01);
-				for(iter2 = iter; iter2 != myTree->mMixBufferPionm[cent9].end(); ++iter2) {
+				for(iter2 = iter; iter2 != myTree->mMixBufferPionm[cent9][psiBin].end(); ++iter2) {
 					if(iter2 == iter) continue;
 					MakePair(vPip, *iter2, v02);
-					for(iter3 = iter2; iter3 != myTree->mMixBufferPionm[cent9].end(); ++iter3) {
+					for(iter3 = iter2; iter3 != myTree->mMixBufferPionm[cent9][psiBin].end(); ++iter3) {
 						if(iter3 == iter2) continue;
 						MakePair(*iter2, *iter3, v23);
 					}
 				}
 			}
-			for(iter = myTree->mMixBufferPionp[cent9].begin(); iter != myTree->mMixBufferPionp[cent9].end(); ++iter) {
+			for(iter = myTree->mMixBufferPionp[cent9][psiBin].begin(); iter != myTree->mMixBufferPionp[cent9][psiBin].end(); ++iter) {
 				MakePair(vPim, *iter, v01);
-				for(iter2 = iter; iter2 != myTree->mMixBufferPionp[cent9].end(); ++iter2) {
+				for(iter2 = iter; iter2 != myTree->mMixBufferPionp[cent9][psiBin].end(); ++iter2) {
 					if(iter2 == iter) continue;
 					MakePair(vPim, *iter2, v02);
-					for(iter3 = iter2; iter3 != myTree->mMixBufferPionp[cent9].end(); ++iter3) {
+					for(iter3 = iter2; iter3 != myTree->mMixBufferPionp[cent9][psiBin].end(); ++iter3) {
 						if(iter3 == iter2) continue;
 						MakePair(*iter2, *iter3, v23);
 					}
@@ -244,7 +248,7 @@ int main(int argc, char **argv)
 			loopVect(v00, v23, hist.hMix0023Qinv[cent9]);
 			loopVect(v00, v00, hist.hMix0000Qinv[cent9]);
 
-			for(iter4 = myTree->mMixBuffer[cent9].begin(); iter4 != myTree->mMixBuffer[cent9].end(); ++iter4) {
+			for(iter4 = myTree->mMixBuffer[cent9][psiBin].begin(); iter4 != myTree->mMixBuffer[cent9][psiBin].end(); ++iter4) {
 				loopVect(vK, *iter4, hist.hMix0011Qinv[cent9]);
 			}
 			myTree->copyToBuffer(vK, vKL, vKR, vPip, vPim);

@@ -26,6 +26,7 @@ public:
 	TH1F* hVz;
 	TH2F* hVr;
 	TH1F* hCent9;
+	TH1F* hPsi;
 	TH1F* hRefMult;
 
 	TH1F* hCosTheta;

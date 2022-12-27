@@ -37,6 +37,7 @@ bool MyTree::setBranchAddress()
 		//mTree->SetBranchAddress("centid", &mBufferCentId);
 		mTree->SetBranchAddress("ntrk", &mBufferNTrack);
 		mTree->SetBranchAddress("fCentrality", &mBufferCent9);
+		mTree->SetBranchAddress("psi_1_EPD_6", &mBufferPsi);
 
 		//mTree->SetBranchAddress("pdg", mBufferPDG);
 		//mTree->SetBranchAddress("pt", mBufferPt);
@@ -108,19 +109,22 @@ int MyTree::getEntry(Long64_t entry)
 void MyTree::copyToBuffer(std::vector<Particle>& vect, std::vector<Particle>& vectL, std::vector<Particle>& vectR, std::vector<TLorentzVector> vPip, std::vector<TLorentzVector> vPim)
 {
 	int cent9 = (int)mBufferCent9;
+	int psiBin = (mBufferPsi + TMath::Pi()) / (TMath::Pi() / 6.);
+	if(psiBin < 0) psiBin = 0;
+	if(psiBin > 11) psiBin = 11;
 	if(cent9 >= 0 && cent9 <= 8) {
-		mMixBuffer[cent9].push_front(std::move(vect));
-		mMixLBuffer[cent9].push_front(std::move(vectL));
-		mMixRBuffer[cent9].push_front(std::move(vectR));
-		mMixBufferPionp[cent9].push_front(std::move(vPip));
-		mMixBufferPionm[cent9].push_front(std::move(vPim));
+		mMixBuffer[cent9][psiBin].push_front(std::move(vect));
+		mMixLBuffer[cent9][psiBin].push_front(std::move(vectL));
+		mMixRBuffer[cent9][psiBin].push_front(std::move(vectR));
+		mMixBufferPionp[cent9][psiBin].push_front(std::move(vPip));
+		mMixBufferPionm[cent9][psiBin].push_front(std::move(vPim));
 
-		if(mMixBuffer[cent9].size() > 25) {
-			mMixBuffer[cent9].pop_back();
-			mMixLBuffer[cent9].pop_back();
-			mMixRBuffer[cent9].pop_back();
-			mMixBufferPionp[cent9].pop_back();
-			mMixBufferPionm[cent9].pop_back();
+		if(mMixBuffer[cent9][psiBin].size() > 25) {
+			mMixBuffer[cent9][psiBin].pop_back();
+			mMixLBuffer[cent9][psiBin].pop_back();
+			mMixRBuffer[cent9][psiBin].pop_back();
+			mMixBufferPionp[cent9][psiBin].pop_back();
+			mMixBufferPionm[cent9][psiBin].pop_back();
 		}
 	}
 }

@@ -27,6 +27,7 @@ public:
 	float mBufferRefMult;
 	float mBufferTofMult;
 	char mBufferCentId;
+	double mBufferPsi;
 	unsigned int mBufferNTrack;
 	int mMaxMixEvent[9];
 
@@ -120,11 +121,11 @@ public:
 
         Particle getParticle(int iparticle, float beamRapidity);
 
-	std::list<std::vector<TLorentzVector>> mMixBufferPionp[9];
-	std::list<std::vector<TLorentzVector>> mMixBufferPionm[9];
-	std::list<std::vector<Particle>> mMixBuffer[9];
-	std::list<std::vector<Particle>> mMixLBuffer[9];
-	std::list<std::vector<Particle>> mMixRBuffer[9];
+	std::list<std::vector<TLorentzVector>> mMixBufferPionp[9][12];
+	std::list<std::vector<TLorentzVector>> mMixBufferPionm[9][12];
+	std::list<std::vector<Particle>> mMixBuffer[9][12];
+	std::list<std::vector<Particle>> mMixLBuffer[9][12];
+	std::list<std::vector<Particle>> mMixRBuffer[9][12];
 	void copyToBuffer(std::vector<Particle>& vect, std::vector<Particle>& vectL, std::vector<Particle>& vectR, std::vector<TLorentzVector> vPip, std::vector<TLorentzVector> vPim);
 };
 #endif
