@@ -43,6 +43,7 @@ public:
 	TH2F* hSameKPimRapPt;
 	TH1F* hDaughterPipDCA;
 	TH1F* hDaughterPimDCA;
+	TH2F* hKstarCheck;
 
 	TH2F* hLeftSideSameKRapPt;
 	TH1F* hLeftSideSameKMass;
@@ -74,7 +75,19 @@ public:
 	TH1F* hMix0023Qinv[9];
 	TH1F* hMix0101Qinv[9];
 	TH1F* hMix0102Qinv[9];
+	TH1F* hMix0103Qinv[9];
 	TH1F* hMix0123Qinv[9];
+
+	TH1F* hMix000_Qinv[9];
+	TH1F* hMix001_Qinv[9];
+	TH1F* hMix010_Qinv[9];
+	TH1F* hMix011_Qinv[9];
+	TH1F* hMix012_Qinv[9];
+	TH1F* hMix00_0Qinv[9];
+	TH1F* hMix00_1Qinv[9];
+	TH1F* hMix01_0Qinv[9];
+	TH1F* hMix01_1Qinv[9];
+	TH1F* hMix01_2Qinv[9];
 
 	TH1F* hMixBkgMass;
 

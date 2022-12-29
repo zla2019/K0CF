@@ -30,9 +30,10 @@ bool loadBadRun(std::unordered_map<int, bool>& badRunList, std::ifstream& ifBadR
 bool passCut(double a, Config& config, std::string cutName);
 bool passCut(double a, double b, Config& config, std::string cutName);
 inline bool passAllCuts(MyTree::Particle& p, Config& config);
-void loopVect(std::vector<MyTree::Particle>& v1, std::vector<MyTree::Particle>& v2, TH1F* h);
-void loopVect(std::vector<MyTree::Candi>& v1, std::vector<MyTree::Candi>& v2, TH1F* h);
-void loopVect(std::vector<MyTree::Particle>& v1, std::vector<MyTree::Particle>& v2, TH1F* h[], TH2F* hPurity);
+void loopVect(std::vector<MyTree::Particle>& v1, std::vector<MyTree::Particle>& v2, TH1F* h, Config& config);
+void loopVect(std::vector<MyTree::Candi>& v1, std::vector<MyTree::Candi>& v2, TH1F* h, Config& config);
+void loopVect(std::vector<MyTree::Candi>& v1, std::vector<TLorentzVector>& v2, TH1F* h, Config& config);
+void loopVect(std::vector<MyTree::Particle>& v1, std::vector<MyTree::Particle>& v2, TH1F* h[], TH2F* hPurity, Config& config);
 void MakePair(std::vector<TLorentzVector>& v1, std::vector<TLorentzVector>& v2, std::vector<MyTree::Candi>& v3);
 
 int main(int argc, char **argv)
@@ -217,39 +218,124 @@ int main(int argc, char **argv)
 			std::list<std::vector<MyTree::Particle>>::iterator iter4;
 			std::vector<MyTree::Candi> v01;
 			std::vector<MyTree::Candi> v02;
+			std::vector<MyTree::Candi> v03;
 			std::vector<MyTree::Candi> v23;
+			int mixEvt = 0;
 			for(iter = myTree->mMixBufferPionm[cent9][psiBin].begin(); iter != myTree->mMixBufferPionm[cent9][psiBin].end(); ++iter) {
+				v01.clear();
 				MakePair(vPip, *iter, v01);
+				loopVect(v01, v01, hist.hMix0101Qinv[cent9], config);
+				loopVect(v00, v01, hist.hMix0001Qinv[cent9], config);
+				loopVect(v01, vPip, hist.hMix010_Qinv[cent9], config);
+				loopVect(v01, vPim, hist.hMix01_0Qinv[cent9], config);
+				loopVect(v01, *iter, hist.hMix01_1Qinv[cent9], config);
+
 				for(iter2 = iter; iter2 != myTree->mMixBufferPionm[cent9][psiBin].end(); ++iter2) {
 					if(iter2 == iter) continue;
+					v02.clear();
+					v03.clear();
+					std::list<std::vector<TLorentzVector>>::iterator iterTmp = iter2;
+					++iterTmp;
+					if(iterTmp != myTree->mMixBufferPionm[cent9][psiBin].end()) {
+						MakePair(vPip, *iterTmp, v03);
+						loopVect(v01, v03, hist.hMix0103Qinv[cent9], config);
+					}
+					
 					MakePair(vPip, *iter2, v02);
+					loopVect(v01, v02, hist.hMix0102Qinv[cent9], config);
+					loopVect(v01, *iter2, hist.hMix01_2Qinv[cent9], config);
 					for(iter3 = iter2; iter3 != myTree->mMixBufferPionm[cent9][psiBin].end(); ++iter3) {
 						if(iter3 == iter2) continue;
+						v23.clear();
+						v03.clear();
 						MakePair(*iter2, *iter3, v23);
+						loopVect(v01, v23, hist.hMix0123Qinv[cent9], config);
+						loopVect(v00, v23, hist.hMix0023Qinv[cent9], config);
 					}
 				}
+
+				//for(iter2 = iter; iter2 != myTree->mMixBufferPionp[cent9][psiBin].end(); ++iter2) {
+				//	if(iter2 == iter) continue;
+				//	loopVect(v01, *iter2, hist.hMix012_Qinv[cent9]);
+				//}
 			}
 			for(iter = myTree->mMixBufferPionp[cent9][psiBin].begin(); iter != myTree->mMixBufferPionp[cent9][psiBin].end(); ++iter) {
+				v01.clear();
 				MakePair(vPim, *iter, v01);
+				loopVect(v01, v01, hist.hMix0101Qinv[cent9], config);
+				loopVect(v00, v01, hist.hMix0001Qinv[cent9], config);
+				loopVect(v01, vPip, hist.hMix010_Qinv[cent9], config);
+				loopVect(v01, vPim, hist.hMix01_0Qinv[cent9], config);
+				loopVect(v01, *iter, hist.hMix011_Qinv[cent9], config);
+
 				for(iter2 = iter; iter2 != myTree->mMixBufferPionp[cent9][psiBin].end(); ++iter2) {
 					if(iter2 == iter) continue;
+					v02.clear();
+					v03.clear();
+					std::list<std::vector<TLorentzVector>>::iterator iterTmp = iter2;
+					++iterTmp;
 					MakePair(vPim, *iter2, v02);
+					if(iterTmp != myTree->mMixBufferPionp[cent9][psiBin].end()) {
+						MakePair(vPim, *iterTmp, v03);
+						loopVect(v01, v03, hist.hMix0103Qinv[cent9], config);
+					}
+					loopVect(v01, v02, hist.hMix0102Qinv[cent9], config);
+					loopVect(v01, *iter2, hist.hMix012_Qinv[cent9], config);
 					for(iter3 = iter2; iter3 != myTree->mMixBufferPionp[cent9][psiBin].end(); ++iter3) {
 						if(iter3 == iter2) continue;
+						v23.clear();
+						v03.clear();
+						MakePair(vPip, *iter3, v03);
 						MakePair(*iter2, *iter3, v23);
+						loopVect(v01, v23, hist.hMix0123Qinv[cent9], config);
+						loopVect(v00, v23, hist.hMix0023Qinv[cent9], config);
 					}
+				}
+
+				//for(iter2 = iter; iter2 != myTree->mMixBufferPionm[cent9][psiBin].end(); ++iter2) {
+				//	if(iter2 == iter) continue;
+				//	loopVect(v01, *iter2, hist.hMix01_2Qinv[cent9]);
+				//}
+			}
+
+			//Kstar check
+			for(int iK = 0; iK < v00.size(); ++iK) {
+				for(int ipi = 0; ipi < vPip.size(); ++ipi) {
+					if(v00[iK].daugA.Pt() == vPip[ipi].Pt() && v00[iK].daugA.Eta() == vPip[ipi].Eta() && v00[iK].daugA.Phi() == vPip[ipi].Phi()) continue;
+					TLorentzVector kstar_v4 = v00[iK].candi + vPip[ipi];
+					TLorentzVector cms = 0.5 * kstar_v4;
+					TVector3 beta = (-1) * cms.BoostVector();
+					TLorentzVector k0_v4 = v00[iK].candi;
+					k0_v4.Boost(beta);
+
+					hist.hKstarCheck->Fill(k0_v4.P(), kstar_v4.M());
+				}
+				for(int ipi = 0; ipi < vPim.size(); ++ipi) {
+					if(v00[iK].daugB.Pt() == vPim[ipi].Pt() && v00[iK].daugB.Eta() == vPim[ipi].Eta() && v00[iK].daugB.Phi() == vPim[ipi].Phi()) continue;
+					TLorentzVector kstar_v4 = v00[iK].candi + vPim[ipi];
+					TLorentzVector cms = 0.5 * kstar_v4;
+					TVector3 beta = (-1) * cms.BoostVector();
+					TLorentzVector k0_v4 = v00[iK].candi;
+					k0_v4.Boost(beta);
+
+					hist.hKstarCheck->Fill(k0_v4.P(), kstar_v4.M());
 				}
 			}
 			
-			loopVect(v01, v01, hist.hMix0101Qinv[cent9]);
-			loopVect(v01, v02, hist.hMix0102Qinv[cent9]);
-			loopVect(v01, v23, hist.hMix0123Qinv[cent9]);
-			loopVect(v00, v01, hist.hMix0001Qinv[cent9]);
-			loopVect(v00, v23, hist.hMix0023Qinv[cent9]);
-			loopVect(v00, v00, hist.hMix0000Qinv[cent9]);
+			//loop vector
+			loopVect(v00, vPip, hist.hMix000_Qinv[cent9], config);
+			loopVect(v00, vPim, hist.hMix00_0Qinv[cent9], config);
+			for(iter = myTree->mMixBufferPionp[cent9][psiBin].begin(); iter != myTree->mMixBufferPionp[cent9][psiBin].end(); ++iter) {
+				loopVect(v00, *iter, hist.hMix001_Qinv[cent9], config);
+			}
+			for(iter = myTree->mMixBufferPionm[cent9][psiBin].begin(); iter != myTree->mMixBufferPionm[cent9][psiBin].end(); ++iter) {
+				loopVect(v00, *iter, hist.hMix00_1Qinv[cent9], config);
+			}
 
+
+			loopVect(v00, v00, hist.hMix0000Qinv[cent9], config);
 			for(iter4 = myTree->mMixBuffer[cent9][psiBin].begin(); iter4 != myTree->mMixBuffer[cent9][psiBin].end(); ++iter4) {
-				loopVect(vK, *iter4, hist.hMix0011Qinv[cent9]);
+				loopVect(vK, *iter4, hist.hMix0011Qinv[cent9], config);
 			}
 			myTree->copyToBuffer(vK, vKL, vKR, vPip, vPim);
 		}
@@ -388,7 +474,7 @@ inline bool passAllCuts(MyTree::Particle& p, Config& config)
 	return true;
 }
 
-void loopVect(std::vector<MyTree::Particle>& v1, std::vector<MyTree::Particle>& v2, TH1F* h)
+void loopVect(std::vector<MyTree::Particle>& v1, std::vector<MyTree::Particle>& v2, TH1F* h, Config& config)
 {
 	for(int iK1 = 0; iK1 < v1.size(); ++iK1) {
 		int startIdx = (&v1 == &v2) ? iK1 + 1 : 0;
@@ -398,6 +484,13 @@ void loopVect(std::vector<MyTree::Particle>& v1, std::vector<MyTree::Particle>& 
 			TLorentzVector k1_v4, k2_v4;
 			k1_v4.SetXYZT(v1[iK1].px, v1[iK1].py, v1[iK1].pz, v1[iK1].energy);
 			k2_v4.SetXYZT(v2[iK2].px, v2[iK2].py, v2[iK2].pz, v2[iK2].energy);
+			if(!passCut(k1_v4.Rapidity(), config, "Rap")) continue;
+			if(!passCut(k1_v4.Pt(), config, "Pt")) continue;
+			if(!passCut(k1_v4.M(), config, "Mass")) continue;
+			if(!passCut(k2_v4.Rapidity(), config, "Rap")) continue;
+			if(!passCut(k2_v4.Pt(), config, "Pt")) continue;
+			if(!passCut(k2_v4.M(), config, "Mass")) continue;
+
 			TLorentzVector kDiff_v4 = (k1_v4 - k2_v4);
 			float qinv = fabs(kDiff_v4.Mag());
 			h->Fill(qinv);
@@ -405,7 +498,7 @@ void loopVect(std::vector<MyTree::Particle>& v1, std::vector<MyTree::Particle>& 
 	}
 }
 
-void loopVect(std::vector<MyTree::Candi>& v1, std::vector<MyTree::Candi>& v2, TH1F* h)
+void loopVect(std::vector<MyTree::Candi>& v1, std::vector<MyTree::Candi>& v2, TH1F* h, Config& config)
 {
 	for(int iK1 = 0; iK1 < v1.size(); ++iK1) {
 		int startIdx = (&v1 == &v2) ? iK1 + 1 : 0;
@@ -414,6 +507,12 @@ void loopVect(std::vector<MyTree::Candi>& v1, std::vector<MyTree::Candi>& v2, TH
 			if(v1[iK1].daugB.Pt() == v2[iK2].daugB.Pt() && v1[iK1].daugB.Eta() == v2[iK2].daugB.Eta() && v1[iK1].daugB.Phi() == v2[iK2].daugB.Phi()) continue;
 			TLorentzVector k1_v4 = v1[iK1].candi;
 			TLorentzVector k2_v4 = v2[iK2].candi;
+			if(!passCut(k1_v4.Rapidity(), config, "Rap")) continue;
+			if(!passCut(k1_v4.Pt(), config, "Pt")) continue;
+			if(!passCut(k1_v4.M(), config, "Mass")) continue;
+			if(!passCut(k2_v4.Rapidity(), config, "Rap")) continue;
+			if(!passCut(k2_v4.Pt(), config, "Pt")) continue;
+			if(!passCut(k2_v4.M(), config, "Mass")) continue;
 			TLorentzVector kDiff_v4 = (k1_v4 - k2_v4);
 			float qinv = fabs(kDiff_v4.Mag());
 			h->Fill(qinv);
@@ -421,7 +520,28 @@ void loopVect(std::vector<MyTree::Candi>& v1, std::vector<MyTree::Candi>& v2, TH
 	}
 }
 
-void loopVect(std::vector<MyTree::Particle>& v1, std::vector<MyTree::Particle>& v2, TH1F* h[], TH2F* hPurity)
+void loopVect(std::vector<MyTree::Candi>& v1, std::vector<TLorentzVector>& v2, TH1F* h, Config& config)
+{
+	for(int iK = 0; iK < v1.size(); ++iK) {
+		for(int ipi = 0; ipi < v2.size(); ++ipi) {
+			if(v1[iK].daugA.Pt() == v2[ipi].Pt() && v1[iK].daugA.Eta() == v2[ipi].Eta() && v1[iK].daugA.Phi() == v2[ipi].Phi()) continue;
+			if(v1[iK].daugB.Pt() == v2[ipi].Pt() && v1[iK].daugB.Eta() == v2[ipi].Eta() && v1[iK].daugB.Phi() == v2[ipi].Phi()) continue;
+			TLorentzVector cms = 0.5 * (v1[iK].candi + v2[ipi]);
+			TVector3 beta = (-1) * cms.BoostVector();
+			TLorentzVector k0_v4 = v1[iK].candi;
+
+			if(!passCut(k0_v4.Rapidity(), config, "Rap")) continue;
+			if(!passCut(k0_v4.Pt(), config, "Pt")) continue;
+			if(!passCut(k0_v4.M(), config, "Mass")) continue;
+			if(!passCut(v2[ipi].Rapidity(), config, "Rap")) continue;
+			if(!passCut(v2[ipi].Pt(), config, "Pt")) continue;
+			k0_v4.Boost(beta);
+			h->Fill(k0_v4.P());
+		}
+	}
+}
+
+void loopVect(std::vector<MyTree::Particle>& v1, std::vector<MyTree::Particle>& v2, TH1F* h[], TH2F* hPurity, Config& config)
 {
 	for(int iK1 = 0; iK1 < v1.size(); ++iK1) {
 		int startIdx = (&v1 == &v2) ? iK1 + 1 : 0;
@@ -431,6 +551,12 @@ void loopVect(std::vector<MyTree::Particle>& v1, std::vector<MyTree::Particle>& 
 			TLorentzVector k1_v4, k2_v4;
 			k1_v4.SetXYZT(v1[iK1].px, v1[iK1].py, v1[iK1].pz, v1[iK1].energy);
 			k2_v4.SetXYZT(v2[iK2].px, v2[iK2].py, v2[iK2].pz, v2[iK2].energy);
+			if(!passCut(k1_v4.Rapidity(), config, "Rap")) continue;
+			if(!passCut(k1_v4.Pt(), config, "Pt")) continue;
+			if(!passCut(k1_v4.M(), config, "Mass")) continue;
+			if(!passCut(k2_v4.Rapidity(), config, "Rap")) continue;
+			if(!passCut(k2_v4.Pt(), config, "Pt")) continue;
+			if(!passCut(k2_v4.M(), config, "Mass")) continue;
 			TLorentzVector kDiff_v4 = (k1_v4 - k2_v4);
 			float qinv = fabs(kDiff_v4.Mag());
 			int binX1 = hPurity->GetXaxis()->FindBin(v1[iK1].rap);

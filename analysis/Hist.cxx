@@ -29,6 +29,8 @@ void Hist::init()
 	hDaughterPipDCA = new TH1F("hDaughterPipDCA", "K_{s}^{0} daughter #pi^{+} DCA distribution", 50, 0, 10);
 	hDaughterPimDCA = new TH1F("hDaughterPimDCA", "K_{s}^{0} daughter #pi^{-} DCA distribution", 50, 0, 10);
 
+	hKstarCheck = new TH2F("hKstarCheck", ";q_{inv};M_{inv}", 600, 0, 0.6, 600, 0.6, 1.2);
+
 	hLeftSideSameKRapPt = new TH2F("hLeftSideSameKRapPt", "K_{s}^{0} Acc.", 200, -1, 1, 300, 0, 3);
 	hLeftSideSameKMass = new TH1F("hLeftSideSameKMass", "K_{s}^{0} mass distribution;M_{inv};cnts", 1200, 0.4, 0.70);
 	hLeftSideSameKPhi = new TH1F("hLeftSideSameKPhi", "K_{s}^{0} #phi distribution;#phi;cnts", 100, -TMath::Pi(), TMath::Pi());
@@ -61,7 +63,19 @@ void Hist::init()
 		hMix0023Qinv[icent] = new TH1F(Form("hMix0023Qinv_cent%d", icent), "", 500, 0, 1);
 		hMix0101Qinv[icent] = new TH1F(Form("hMix0101Qinv_cent%d", icent), "", 500, 0, 1);
 		hMix0102Qinv[icent] = new TH1F(Form("hMix0102Qinv_cent%d", icent), "", 500, 0, 1);
+		hMix0103Qinv[icent] = new TH1F(Form("hMix0103Qinv_cent%d", icent), "", 500, 0, 1);
 		hMix0123Qinv[icent] = new TH1F(Form("hMix0123Qinv_cent%d", icent), "", 500, 0, 1);
+
+		hMix000_Qinv[icent] = new TH1F(Form("hMix000_Qinv_cent%d", icent), "", 500, 0, 1);
+		hMix001_Qinv[icent] = new TH1F(Form("hMix001_Qinv_cent%d", icent), "", 500, 0, 1);
+		hMix010_Qinv[icent] = new TH1F(Form("hMix010_Qinv_cent%d", icent), "", 500, 0, 1);
+		hMix011_Qinv[icent] = new TH1F(Form("hMix011_Qinv_cent%d", icent), "", 500, 0, 1);
+		hMix012_Qinv[icent] = new TH1F(Form("hMix012_Qinv_cent%d", icent), "", 500, 0, 1);
+		hMix00_0Qinv[icent] = new TH1F(Form("hMix00_0Qinv_cent%d", icent), "", 500, 0, 1);
+		hMix00_1Qinv[icent] = new TH1F(Form("hMix00_1Qinv_cent%d", icent), "", 500, 0, 1);
+		hMix01_0Qinv[icent] = new TH1F(Form("hMix01_0Qinv_cent%d", icent), "", 500, 0, 1);
+		hMix01_1Qinv[icent] = new TH1F(Form("hMix01_1Qinv_cent%d", icent), "", 500, 0, 1);
+		hMix01_2Qinv[icent] = new TH1F(Form("hMix01_2Qinv_cent%d", icent), "", 500, 0, 1);
 
 		for(int icase = 0; icase < 4; ++icase) {
 			hMixKqinvWeight[icent][icase] = new TH1F(Form("hMixKqinvWeight_cent%d_case%d", icent, icase), "", 500, 0, 1);
@@ -154,6 +168,7 @@ void Hist::Write(TFile* of)
         hSameKRapPt->Write();
         hSameKPipRapPt->Write();
         hSameKPimRapPt->Write();
+	hKstarCheck->Write();
 
         hLeftSideSameKMass->Write();
         hLeftSideSameKPhi->Write();
@@ -205,7 +220,19 @@ void Hist::Write(TFile* of)
 		hMix0023Qinv[icent]->Write();
 		hMix0101Qinv[icent]->Write();
 		hMix0102Qinv[icent]->Write();
+		hMix0103Qinv[icent]->Write();
 		hMix0123Qinv[icent]->Write();
+
+		hMix000_Qinv[icent]->Write();
+		hMix001_Qinv[icent]->Write();
+		hMix010_Qinv[icent]->Write();
+		hMix011_Qinv[icent]->Write();
+		hMix012_Qinv[icent]->Write();
+		hMix00_0Qinv[icent]->Write();
+		hMix00_1Qinv[icent]->Write();
+		hMix01_0Qinv[icent]->Write();
+		hMix01_1Qinv[icent]->Write();
+		hMix01_2Qinv[icent]->Write();
 
 		for(int icase = 0; icase < 4; ++icase) {
 			hMixKqinvWeight[icent][icase]->Write();
