@@ -147,6 +147,7 @@ int main(int argc, char **argv)
 			for(int icurK = 0; icurK < nK; ++icurK) {
 				MyTree::Particle kaon = myTree->getParticle(icurK, beamRapidity);
 				if(!passAllCuts(kaon, config)) continue;
+				hist.hSameKPtRapMass[cent9]->Fill(kaon.mass, kaon.rap, kaon.pt);
 				if(passCut(kaon.mass, config, "Mass")) vK.push_back(kaon);
 				if(passCut(kaon.mass, config, "SideBand")) vKR.push_back(kaon);
 				if(passCut(kaon.mass, config, "SideBand2")) vKL.push_back(kaon);
@@ -175,7 +176,9 @@ int main(int argc, char **argv)
 			std::list<std::vector<MyTree::Particle>>::iterator iter;
 			for(iter = myTree->mMixBuffer[cent9].begin(); iter != myTree->mMixBuffer[cent9].end(); ++iter) {
 				loopVect(vK, *iter, hist.hMixKqinv[cent9]);
-				loopVect(vK, *iter, hist.hMixKqinvWeight[cent9], hPurity[cent9]);
+				if(config.mSwitchList["OpenPairPurity"]) {
+					loopVect(vK, *iter, hist.hMixKqinvWeight[cent9], hPurity[cent9]);
+				}
 
 				loopVect(vKL, *iter, hist.hMixLSQinv[cent9]);
 				loopVect(vKR, *iter, hist.hMixRSQinv[cent9]);
@@ -335,6 +338,8 @@ void loopVect(std::vector<MyTree::Particle>& v1, std::vector<MyTree::Particle>& 
 			TLorentzVector k1_v4, k2_v4;
 			k1_v4.SetXYZT(v1[iK1].px, v1[iK1].py, v1[iK1].pz, v1[iK1].energy);
 			k2_v4.SetXYZT(v2[iK2].px, v2[iK2].py, v2[iK2].pz, v2[iK2].energy);
+			//k1_v4.SetPtEtaPhiE(v1[iK1].pt, v1[iK1].eta, v1[iK1].phi, v1[iK1].energy);
+			//k2_v4.SetPtEtaPhiE(v2[iK2].pt, v2[iK2].eta, v2[iK2].phi, v2[iK2].energy);
 			TLorentzVector kDiff_v4 = (k1_v4 - k2_v4);
 			float qinv = fabs(kDiff_v4.Mag());
 			h->Fill(qinv);
@@ -352,6 +357,8 @@ void loopVect(std::vector<MyTree::Particle>& v1, std::vector<MyTree::Particle>& 
 			TLorentzVector k1_v4, k2_v4;
 			k1_v4.SetXYZT(v1[iK1].px, v1[iK1].py, v1[iK1].pz, v1[iK1].energy);
 			k2_v4.SetXYZT(v2[iK2].px, v2[iK2].py, v2[iK2].pz, v2[iK2].energy);
+			//k1_v4.SetPtEtaPhiE(v1[iK1].pt, v1[iK1].eta, v1[iK1].phi, v1[iK1].energy);
+			//k2_v4.SetPtEtaPhiE(v2[iK2].pt, v2[iK2].eta, v2[iK2].phi, v2[iK2].energy);
 			TLorentzVector kDiff_v4 = (k1_v4 - k2_v4);
 			float qinv = fabs(kDiff_v4.Mag());
 			int binX1 = hPurity->GetXaxis()->FindBin(v1[iK1].rap);

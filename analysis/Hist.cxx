@@ -92,7 +92,7 @@ void Hist::FillAll(MyTree::Particle& p, int cent9)
 	hDecayLength->Fill(p.decayLength);
 	hDgDCA->Fill(p.dgDCA);
 	hDCA->Fill(p.dca);
-	hSameKPtRapMass[cent9]->Fill(p.mass, p.rap, p.pt);
+	//hSameKPtRapMass[cent9]->Fill(p.mass, p.rap, p.pt);
 }
 
 void Hist::Fill(MyTree::Particle& p)

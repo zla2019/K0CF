@@ -111,7 +111,7 @@ void MyTree::copyToBuffer(std::vector<Particle>& vect, std::vector<Particle>& ve
 		mMixLBuffer[cent9].push_front(std::move(vectL));
 		mMixRBuffer[cent9].push_front(std::move(vectR));
 
-		if(mMixBuffer[cent9].size() > 25) {
+		if(mMixBuffer[cent9].size() > 100) {
 			mMixBuffer[cent9].pop_back();
 			mMixLBuffer[cent9].pop_back();
 			mMixRBuffer[cent9].pop_back();
